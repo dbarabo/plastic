@@ -27,7 +27,6 @@ public interface DBStore <E> {
 	
 	/**
 	 * устанавливает тек. курсор данных
-	 * @param row
 	 */
 	void setRow(E row);
 	
@@ -35,21 +34,13 @@ public interface DBStore <E> {
 	 * добавляет слушателя для UI
 	 */
 	void addListenerStore(ListenerStore<E> listenerStore);
-	
-	/**
-	 * добавляет пустую запись
-	 */
-	void addRow();
-	
+
 	/**
 	 * удаляет текущий курсор
 	 */
 	void removeRow();
-	
-	void save();
-	
+
 	int getTypeSelect();
-	
-	void moveRow(int rowFrom, int rowTo);
-	
+
+	void searchTo(List<E> filterData);
 }

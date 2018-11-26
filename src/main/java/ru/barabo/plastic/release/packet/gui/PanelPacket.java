@@ -1,7 +1,6 @@
 package ru.barabo.plastic.release.packet.gui;
 
 
-import org.apache.log4j.Logger;
 import ru.barabo.plastic.release.packet.data.DBStorePacketAllContent;
 import ru.barabo.plastic.release.packet.data.PacketContentRowField;
 import ru.barabo.plastic.release.packet.data.PacketRowField;
@@ -15,32 +14,30 @@ import java.awt.*;
 
 public class PanelPacket extends JPanel {
 	
-	final static transient private Logger logger =
-			Logger.getLogger(PanelPacket.class.getName());
-	
-	
-	public PanelPacket(DBStore<PacketRowField> store, DBStore<PacketContentRowField> storeContent,
+	// final static transient private Logger logger = Logger.getLogger(PanelPacket.class.getName());
+
+	public PanelPacket(FilteredStore<PacketRowField> store, DBStore<PacketContentRowField> storeContent,
 					   DBStorePacketAllContent allContent) {
 		
 		setLayout(new BorderLayout());
 		
-		TotalRowTable<PacketRowField> tableFocus = new TotalRowTable<PacketRowField>(store);
+		TotalRowTable<PacketRowField> tableFocus = new TotalRowTable<>(store);
+
+		TotalRowTable<PacketContentRowField> tableContent = new TotalRowTable<>(storeContent);
 		
-				
-		TotalRowTable<PacketContentRowField> tableContent = 
-				new TotalRowTable<PacketContentRowField>(storeContent);
-		
-		add(new TopToolBarPacket<PacketRowField>(store, tableFocus, tableContent), BorderLayout.NORTH);
+		add(new TopToolBarPacket<>(store, tableFocus, tableContent), BorderLayout.NORTH);
 		
 		JScrollPane leftPanel = new JScrollPane(tableFocus);
 		
 		JScrollPane rightPanel = new JScrollPane(tableContent);
 		
-		FilterAccessTable<PacketContentRowField, PacketRowField> filter =
-				new FilterAccessTable(
-						(FilteredStore) allContent,
-						(FilteredStore) store,
-						PacketContentRowField.PLASTIC_PACK_FIELD, tableFocus, tableContent,
+		FilterAccessTable<PacketRowField, PacketContentRowField> filter =
+				new FilterAccessTable<>(
+						allContent,
+						store,
+						PacketContentRowField.PLASTIC_PACK_FIELD,
+						tableFocus,
+						tableContent,
 						storeContent);
 
 		JPanel panelFilter = new JPanel(new BorderLayout(), true);

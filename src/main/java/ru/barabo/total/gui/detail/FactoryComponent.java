@@ -18,7 +18,7 @@ public class FactoryComponent {
 
 	static public JComponent create(DetailFieldItem field) {
 
-		JComponent comp = null;
+		JComponent comp;
 
 		if (field.getListField() == null || field.getListField().length < 2) {
 			comp = new JTextField();
@@ -32,8 +32,9 @@ public class FactoryComponent {
 			comp = new JCheckBox();
 			initValue((JCheckBox) comp, field);
 		} else {
-			comp = new JComboBox<String>(field.getListField());
-			initValue((JComboBox) comp, field);
+            JComboBox<String> combo = new JComboBox<>(field.getListField());
+            comp = combo;
+			initValue(combo, field);
 		}
 
 		field.setComponent(comp);
@@ -53,29 +54,30 @@ public class FactoryComponent {
 		comp.setSelected(!isNotEnabled);
 	}
 
-	static public void initValue(JComboBox comp, FieldItem field) {
+	private static void initValue(JComboBox<String> comp, FieldItem field) {
 		initValue(comp, field, field.getValueField());
 	}
 
-	static public void initValue(JComboBox comp, FieldItem field, String valueField) {
+	static public void initValue(JComboBox<String> comp, FieldItem field, String valueField) {
 
 		setListItems(comp, Arrays.asList(field.getListField()), valueField);
 	}
 	
-	static public void setListItems(JComboBox comp, List itemValues) {
+	static public void setListItems(JComboBox<String> comp, List<String> itemValues) {
+
 		setListItems(comp, itemValues, UNICAL_STRING);
 	}
 
-	static public void setListItems(JComboBox comp, List itemValues, Object newValue) {
-		ActionListener[] listteners = comp.getActionListeners();
+	private static <T> void setListItems(JComboBox<T> comp, List<T> itemValues, T newValue) {
+		ActionListener[] listeners = comp.getActionListeners();
 
-		for (ActionListener listener : listteners) {
+		for (ActionListener listener : listeners) {
 			comp.removeActionListener(listener);
 		}
 
 		comp.removeAllItems();
 
-		for (Object item : itemValues) {
+		for (T item : itemValues) {
 			comp.addItem(item);
 		}
 
@@ -83,7 +85,7 @@ public class FactoryComponent {
 			comp.setSelectedItem(newValue);
 		}
 
-		for (ActionListener listener : listteners) {
+		for (ActionListener listener : listeners) {
 			comp.addActionListener(listener);
 		}
 	}

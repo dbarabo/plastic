@@ -63,12 +63,6 @@ public class DBStoreSmsSelect extends AbstractFilterStore<SmsSelectField> {
 	}
 
 	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	protected List<SmsSelectField> initData() {
 		try {
 			List<Object[]> datas = AfinaQuery.INSTANCE.selectCursor(typeSelect.getSelect(), null);

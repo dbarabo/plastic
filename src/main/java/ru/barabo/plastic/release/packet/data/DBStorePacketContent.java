@@ -73,13 +73,6 @@ public class DBStorePacketContent extends
 		return 0;
 	}
 
-	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-
 	/**
 	 * тип 
 	 */

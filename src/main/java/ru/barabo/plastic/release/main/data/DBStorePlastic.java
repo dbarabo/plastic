@@ -1,5 +1,7 @@
 package ru.barabo.plastic.release.main.data;
 
+import ru.barabo.db.SessionException;
+import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.application.data.DBStoreClientFind;
 import ru.barabo.plastic.release.packet.data.*;
@@ -8,7 +10,9 @@ import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent;
 import ru.barabo.plastic.release.sms.select.data.DBStoreSmsSelect;
+import ru.barabo.plastic.unnamed.data.*;
 import ru.barabo.total.db.DBStore;
+import ru.barabo.total.db.FilteredStore;
 
 public class DBStorePlastic {
 
@@ -30,7 +34,17 @@ public class DBStorePlastic {
 	
 	private DBStorePacketAllContent allContent;
 
-	public DBStorePlastic() {
+    private FilteredStore<RowFieldInPath> unnamedInPath;
+
+    private FilteredStore<RowFieldInPath> unnamedInHome;
+
+    private FilteredStore<RowFieldInPath> unnamedError;
+
+    private FilteredStore<RowFieldOutClient> unnamedOutClient;
+
+	public DBStorePlastic() throws SessionException {
+        checkWorkplace();
+
 		reIssueCard = new DBStoreReIssueCard(this);
 		
 		packet = new DBStorePacket(this);
@@ -48,7 +62,37 @@ public class DBStorePlastic {
 		clientFind = new DBStoreClientFind(this, applicationCard);
 
 		allContent = new DBStorePacketAllContent();
-	}
+
+        unnamedInPath = new DBStoreInPath(this);
+
+        unnamedInHome = new DBStoreInHome(this);
+
+        unnamedError = new DBStoreError(this);
+
+        unnamedOutClient = new DBStoreOutClient(this);
+    }
+
+    static final private String CHECK_WORKSPACE = "{ call od.PTKB_PLASTIC_AUTO.checkWorkplace }";
+
+	private void checkWorkplace()throws SessionException {
+        AfinaQuery.INSTANCE.execute(CHECK_WORKSPACE, null);
+    }
+
+    public FilteredStore<RowFieldOutClient> getUnnamedOutClient() {
+        return unnamedOutClient;
+    }
+
+    public FilteredStore<RowFieldInPath> getUnnamedInPath() {
+	    return unnamedInPath;
+    }
+
+    public FilteredStore<RowFieldInPath> getUnnamedInHome() {
+        return unnamedInHome;
+    }
+
+    public FilteredStore<RowFieldInPath> getUnnamedError() {
+        return unnamedError;
+    }
 
 	public DBStorePacketAllContent getAllContent() {
 		return allContent;
@@ -74,11 +118,11 @@ public class DBStorePlastic {
 		return content;
 	}
 
-	public DBStore<ReIssueCardRowField> getReIssueCard() {
+	public FilteredStore<ReIssueCardRowField> getReIssueCard() {
 		return reIssueCard;
 	}
 
-	public DBStore<PacketRowField> getPacket() {
+	public FilteredStore<PacketRowField> getPacket() {
 		return packet;
 	}
 

@@ -190,12 +190,6 @@ public class DBStoreClientFind extends AbstractDBStore<ClientRowField> implement
 		return 0;
 	}
 
-	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-
-	}
-
 
 	@Override
 	protected ClientRowField createEmptyRow() {

@@ -8,6 +8,7 @@ import ru.barabo.plastic.release.packet.gui.PanelPacket;
 import ru.barabo.plastic.release.reissue.gui.PanelReIssueCard;
 import ru.barabo.plastic.release.sms.packet.gui.PanelSmsPacket;
 import ru.barabo.plastic.release.sms.select.gui.PanelSelectSms;
+import ru.barabo.plastic.unnamed.gui.PanelUnnamed;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +46,8 @@ public class ConfigPlastic extends JPanel {
 
 		book.addTab("Заявление на Выпуск",
 					new PanelApplication(store.getApplicationCard(), store.getClientFind()));
+
+		book.addTab("Неименные карты",	new PanelUnnamed(store));
 
 		add(book, BorderLayout.CENTER);
 	}

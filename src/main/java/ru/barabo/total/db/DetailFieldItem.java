@@ -12,9 +12,7 @@ public interface DetailFieldItem extends FieldItem {
 	int getPosY();
 	
 	int getHeight();
-	
-	void setHeight(int height);
-	
+
 	void setComponent(JComponent component);
 	
 	void setComponentValue(String value);

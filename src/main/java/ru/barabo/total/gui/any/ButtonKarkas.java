@@ -2,10 +2,9 @@ package ru.barabo.total.gui.any;
 
 import ru.barabo.plastic.main.resources.ResourcesManager;
 
+import javax.swing.*;
 import java.awt.event.ActionListener;
-
-import javax.swing.AbstractButton;
-import javax.swing.ImageIcon;
+import java.util.List;
 
 public class ButtonKarkas {
 
@@ -29,11 +28,11 @@ public class ButtonKarkas {
 		return button;
 	}
 
-	public void setButton(AbstractButton button) {
+	void setButton(AbstractButton button) {
 		this.button = button;
 	}
 	
-	public String getIco() {
+	String getIco() {
 		return ico;
 	}
 
@@ -45,13 +44,45 @@ public class ButtonKarkas {
 		return name;
 	}
 	
-	public Integer getGroupIndex() {
+	Integer getGroupIndex() {
 		return groupIndex;
 	}
 
 	public ActionListener getListener() {
 		return listener;
 	}
-	
-	
+
+	static public AbstractButton createButton(ButtonKarkas karkas, List<ButtonGroup> buttonGroupList) {
+		if(karkas.getName() == null) return null;
+
+		ImageIcon icon = ResourcesManager.getIcon(karkas.getIco());
+
+		AbstractButton button;
+
+		if(karkas.getGroupIndex() != null) {
+			button = new JToggleButton(icon);
+			if(buttonGroupList != null) {
+                addGroup(buttonGroupList, button, karkas.getGroupIndex());
+			}
+		} else {
+			button = new JButton(icon);
+		}
+		// show caption on
+		button.setText(karkas.getName());
+
+		button.setToolTipText(karkas.getName());
+		button.addActionListener(karkas.getListener() );
+		karkas.setButton(button);
+
+		return button;
+	}
+
+    static private void addGroup(List<ButtonGroup> buttonGroupList, AbstractButton button, int index) {
+
+        if(buttonGroupList.size() <= index) {
+            buttonGroupList.add(new ButtonGroup());
+        }
+
+        buttonGroupList.get(index).add(button);
+    }
 }

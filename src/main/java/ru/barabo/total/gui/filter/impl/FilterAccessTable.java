@@ -1,7 +1,6 @@
 package ru.barabo.total.gui.filter.impl;
 
 
-import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FilteredStore;
 import ru.barabo.total.gui.any.DefFilterEditor;
@@ -11,22 +10,28 @@ import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
 
-public class FilterAccessTable<E, F> extends JTable implements FilterTable {
+public class FilterAccessTable<P, C> extends JTable implements FilterTable {
 
-	final static transient private Logger logger = Logger.getLogger(FilterAccessTable.class
-			.getName());
+	//final static transient private Logger logger = Logger.getLogger(FilterAccessTable.class.getName());
 
-	// private JTable mainTable;
 	private JTable searchTable;
 	private TableCellEditor defaultEditor;
 
-	public FilterAccessTable(FilteredStore srcFilterStore, FilteredStore toAccessStore,
-							 int srcFilterFieldAssoc, JTable mainTable, JTable searchTable, DBStore<F> searchAddStore) {
+	public FilterAccessTable(FilteredStore<C> srcFilterStore, // allContent for all packetStore
+							 FilteredStore<P> toAccessStore, // packetStore
+							 int srcFilterFieldAssoc,
+							 JTable mainTable, //packet table
+							 JTable searchTable, // content table
+							 DBStore<C> searchAddStore) { // Content for packetStore
 		super();
 		this.searchTable = searchTable;
 
-		setModel(new FilterAccessModel(srcFilterStore, toAccessStore, srcFilterFieldAssoc,
-				mainTable, searchTable, searchAddStore));
+		setModel(new FilterAccessModel<>(srcFilterStore,
+				toAccessStore,
+				srcFilterFieldAssoc,
+				mainTable,
+				searchTable,
+				searchAddStore));
 
 		initEditorRenderer(searchTable);
 	}
@@ -69,8 +74,6 @@ public class FilterAccessTable<E, F> extends JTable implements FilterTable {
 	public void setFilterPress() {
 
 		int columnIndex = this.getSelectedColumn();
-
-		// logger.info("columnIndex=" + columnIndex);
 
 		JTextComponent field = (JTextComponent) ((DefFilterEditor) defaultEditor).getField();
 

@@ -1,7 +1,6 @@
 package ru.barabo.total.db;
 
-public interface FilteredStore {
-	
+public interface FilteredStore<E> extends DBStore<E> {
 
 	void setFilterValue(int columnIndex, String value);
 	

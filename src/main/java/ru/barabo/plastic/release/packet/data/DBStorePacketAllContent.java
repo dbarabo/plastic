@@ -52,12 +52,6 @@ public class DBStorePacketAllContent extends AbstractFilterStore<PacketContentRo
 	}
 
 	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	protected PacketContentRowField createEmptyRow() {
 		// TODO Auto-generated method stub
 		return null;

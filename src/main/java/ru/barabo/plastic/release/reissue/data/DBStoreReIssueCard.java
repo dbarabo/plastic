@@ -13,18 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DBStoreReIssueCard extends AbstractFilterStore<ReIssueCardRowField> {
-	
-	//final static private String SEL_REISSUE_CARD = "{ ? = call od.PTKB_PLASTIC_AUTO.getCardToReIssue }";
-	
-	final static protected String SEL_TIME =  "{ ? = call od.PTKB_PLASTIC_AUTO.getCardToReIssue }";
-	
-	final static protected String SEL_LOST = "{ ? = call od.PTKB_PLASTIC_AUTO.getCardActiveCardNow }"; // "{ ? = call od.PTKB_PLASTIC_AUTO.getCardToReIssueLost }";
-	
-	final static protected String SEL_APPLICATION = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardToSend }";   
-	
-	private final static String NOT_SELECTED_CARDS = "Не выбрано ни одной карты в таблице!";
 
-	private final static String NOT_PINCODE_FILTER = "Для смены Пин-кода тип отбора должен стоять <Отбор: Карты по утере/краже>";
+	final static String SEL_TIME =  "{ ? = call od.PTKB_PLASTIC_AUTO.getCardToReIssue }";
+	
+	final static String SEL_LOST = "{ ? = call od.PTKB_PLASTIC_AUTO.getCardActiveCardNow }";
+	
+	final static String SEL_APPLICATION = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardToSend }";
 
 	private TypeSelect typeSelect;
 
@@ -85,12 +79,6 @@ public class DBStoreReIssueCard extends AbstractFilterStore<ReIssueCardRowField>
 	}
 
 	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	protected List<ReIssueCardRowField> initData() {
 
 		List<ReIssueCardRowField> data = new ArrayList<>();
@@ -141,7 +129,6 @@ public class DBStoreReIssueCard extends AbstractFilterStore<ReIssueCardRowField>
 		this.setMustUpdate();
 		this.getData();
 	}
-	
 
 }
 

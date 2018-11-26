@@ -24,36 +24,11 @@ public class Field implements FieldItem {
 	private boolean isReadOnly;
 	private int[] maps;
 	
-	private/* FormatterVal */Format formatter;
+	private Format formatter;
 	
 	@Override
 	public String getColumn() {
 		return column;
-	}
-
-	public Field(String column, Type clazz, int index) {
-		this.label = column;
-		this.isGrid = false;
-		this.clazz = clazz;
-		this.list = null;
-		this.column = column;
-		this.width = 0;
-		this.index = index;
-		this.isReadOnly = true;
-	}
-
-	public Field(String column, Type clazz, int index, String label, int width) {
-		this(column, clazz, index);
-
-		this.label = label;
-		this.isGrid = label == null;
-		this.width = width;
-		this.isReadOnly = column == null;
-	}
-
-	public Field(String column, Type clazz, int index, String label, int width, boolean isReadOnly) {
-		this(column, clazz, index, label, width);
-		this.isReadOnly = isReadOnly;
 	}
 
 	public Field(String label, boolean isGrid, Type clazz,
@@ -67,7 +42,14 @@ public class Field implements FieldItem {
 		this.index = index;
 		this.isReadOnly = isReadOnly;
 	}
-	
+
+    public Field(String label, boolean isGrid, Type clazz,
+                 String[] list, String column, int width, int index, boolean isReadOnly, Format formatter) {
+	    this(label, isGrid, clazz, list, column, width, index, isReadOnly);
+
+        this.formatter = formatter;
+    }
+
 	public Field(String label, boolean isGrid, Type clazz,
 			String[] list, String column, int width, int index, boolean isReadOnly, int[] maps) {
 		this(label, isGrid, clazz, list, column, width, index, isReadOnly);
@@ -76,7 +58,7 @@ public class Field implements FieldItem {
 	
 	public Field(String label, boolean isGrid, Type clazz,
 			String[] list, String column, int width, int index, boolean isReadOnly, 
-			int[] maps, Format formatter /* FormatterVal formatter */) {
+			int[] maps, Format formatter) {
 		this(label, isGrid, clazz, list, column, width, index, isReadOnly, maps);
 		this.formatter = formatter;
 	}
@@ -190,7 +172,7 @@ public class Field implements FieldItem {
 			break;
 			
 		case STRING:
-			val = (String) value;
+			val = value;
 			break;
 			
 		case DECIMAL:
@@ -204,13 +186,6 @@ public class Field implements FieldItem {
 		default:
 			break;
 		}
-
-	}
-
-	@Override
-	public void setListField(String[] list) {
-		
-		this.list = list;
 	}
 
 	@Override
@@ -226,12 +201,10 @@ public class Field implements FieldItem {
 		}
 
 		if(formatter != null) {
-			return formatter.format(getVal()); // formatVal(getVal() );
+			return formatter.format(getVal());
 		}
 		
 		if (list != null && maps != null && clazz == Type.LONG) {
-			
-			//logger.debug("getValueField=" + val);
 
 			return mapIntToStr(((Number)val).intValue());
 		}
@@ -259,6 +232,5 @@ public class Field implements FieldItem {
 
 		return clazz;
 	}
-
 }
 

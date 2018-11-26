@@ -1,6 +1,5 @@
 package ru.barabo.total.gui.filter.impl;
 
-import org.apache.log4j.Logger;
 import ru.barabo.total.db.FilteredStore;
 import ru.barabo.total.gui.any.DefFilterEditor;
 import ru.barabo.total.gui.filter.FilterTable;
@@ -9,9 +8,9 @@ import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
 
-public class FilterTableSimple<E> extends JTable implements FilterTable {
+public class FilterTableSimple extends JTable implements FilterTable {
 	
-	final static transient private Logger logger = Logger.getLogger(FilterTableSimple.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(FilterTableSimple.class.getName());
 
 	private JTable mainTable;
 	private TableCellEditor defaultEditor;
@@ -24,7 +23,7 @@ public class FilterTableSimple<E> extends JTable implements FilterTable {
 		this.mainTable = mainTable;
 		this.store = store;
 		
-		setModel(new FilterModelSimple(store, mainTable, this));
+		setModel(new FilterModelSimple(store, mainTable));
         
         initEditorRenderer(mainTable);
 	}
@@ -68,18 +67,14 @@ public class FilterTableSimple<E> extends JTable implements FilterTable {
 	public void setFilterPress() {
 		
 		int columnIndex = this.getSelectedColumn();
-		
-		//logger.info("columnIndex=" + columnIndex);
-		
+
 		JTextComponent field = (JTextComponent)((DefFilterEditor)defaultEditor).getField();
 		
 		if (field == null) {
 
 			return;
 		}
-		
-		logger.info("field.getText()=" + field.getText());
-		
+
 		store.setFilterValue(columnIndex, field.getText());
 
 		// this.requestFocus();

@@ -24,6 +24,8 @@ open class Query (protected val dbConnection :DbConnection) {
     fun uniqueSession() :SessionSetting =
             SessionSetting(false,  TransactType.NO_ACTION, uniqueSession.incrementAndGet())
 
+    inline fun <reified T> selectValueType(query :String, params :Array<Any?>? = null): T? = selectValue(query, params) as? T
+
     fun selectValue(query :String, params :Array<Any?>? = null) :Any? {
 
        val list = select(query, params)
@@ -79,7 +81,7 @@ open class Query (protected val dbConnection :DbConnection) {
 
     @Throws(SessionException::class)
     fun selectCursor(query :String, params :Array<Any?>? = null,
-                     sessionSetting : SessionSetting):List<Array<Any?>> {
+                     sessionSetting : SessionSetting = SessionSetting(false)):List<Array<Any?>> {
 
 
         val session = dbConnection.getSession(sessionSetting)

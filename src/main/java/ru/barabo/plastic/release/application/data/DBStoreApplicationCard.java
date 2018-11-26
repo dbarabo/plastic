@@ -393,11 +393,5 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

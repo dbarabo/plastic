@@ -20,7 +20,6 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopToolBar<E>
   implements ListenerStore<E> {
@@ -273,7 +272,6 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	
 	/**
 	 * перевыпуск всех карт
-	 * @param e
 	 */
 	private void reIssueCards(ActionEvent e) {
 		
@@ -298,7 +296,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		}
 
 		if (emptyDesignCards.size() > 0) {
-			final String cards = emptyDesignCards.stream().collect(Collectors.joining("\n"));
+			final String cards = String.join("\n", emptyDesignCards);
 
 			JOptionPane.showMessageDialog(null, Cfg.msg().msgDesignCardIsEmpty(cards),
 					Cfg.msg().subjDesignCardIsEmpty(), JOptionPane.INFORMATION_MESSAGE);
@@ -309,7 +307,6 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	
 	/**
 	 * создание файла
-	 * @param e
 	 */
 	private void createFile(ActionEvent e) {
 		DBStorePacket dBStorePacket = (DBStorePacket)store;

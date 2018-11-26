@@ -1,24 +1,20 @@
 package ru.barabo.total.gui.filter.impl;
 
-import org.apache.log4j.Logger;
 import ru.barabo.total.db.FilteredStore;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
-public class FilterModelSimple<E> extends AbstractTableModel {
+public class FilterModelSimple extends AbstractTableModel {
 
 	private FilteredStore store;
 	private JTable mainTable;
-	
-	private JTable modelTable;
 
-	final static transient private Logger logger = Logger.getLogger(FilterModelSimple.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(FilterModelSimple.class.getName());
 	
-	public FilterModelSimple(FilteredStore store, JTable mainTable, JTable modelTable) {
+	FilterModelSimple(FilteredStore store, JTable mainTable) {
 		this.store = store;
 		this.mainTable = mainTable;
-		this.modelTable = modelTable;
 	}
 
 	@Override

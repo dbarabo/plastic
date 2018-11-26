@@ -186,12 +186,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		return selectTypes.ordinal();
 	}
 
-	@Override
-	public void moveRow(int rowFrom, int rowTo) {
-		// TODO Auto-generated method stub
-		
-	}
-	
+
 	protected String getSelectPacketData() {
 
 		logger.info("isWorkPlaceDopik() =" + isWorkPlaceDopik());
@@ -274,10 +269,8 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		
 		Object[] row = new Object[] { id, user, maxDate, "", user, 0, maxDate,
 				null, null, TypePacket.REISSUE.getDbValue().longValue() };
-		
-		PacketRowField field = PacketRowField.create(row);
-		
-		return field;
+
+		return PacketRowField.create(row);
 	}
 
 	private Number getDraftStateIdPack() {

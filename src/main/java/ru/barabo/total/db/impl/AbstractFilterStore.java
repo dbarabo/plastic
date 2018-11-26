@@ -9,7 +9,7 @@ import ru.barabo.total.db.Type;
 import java.util.*;
 
 public abstract class AbstractFilterStore<E extends AbstractRowFields> extends AbstractDBStore<E>
-implements FilteredStore {
+implements FilteredStore<E> {
 	
 	final static transient private Logger logger = Logger.getLogger(AbstractFilterStore.class.getName());
 	
@@ -22,9 +22,9 @@ implements FilteredStore {
 	public AbstractFilterStore() {
 		super();
 		
-		filterData = new ArrayList<E>(); 
+		filterData = new ArrayList<>();
 		
-		oldFilterData = new ArrayList<E>(); 
+		oldFilterData = new ArrayList<>();
 	}
 	
 	private E getField() {
@@ -39,9 +39,7 @@ implements FilteredStore {
 	
 	private int getFieldIndex(int columnIndex) {
 		E field = getField();
-		
-		//logger.info(field.fieldItems().size());
-		
+
 		if(field == null) return -1;
 
 		if (columnIndex == -1) {
@@ -67,24 +65,22 @@ implements FilteredStore {
 		return indexVis;
 	}
 	
-	public static String getNumberString(String valueFilter) {
+	private static String getNumberString(String valueFilter) {
 		if (valueFilter == null) return null;
 		
-		String res = "";
+		StringBuilder res = new StringBuilder();
 
 		for (int index = 0; index < valueFilter.length(); index++) {
 			if(valueFilter.charAt(index) >= '0' && valueFilter.charAt(index) <= '9') {
-				res += valueFilter.charAt(index);
+				res.append(valueFilter.charAt(index));
 			}
 		}
-		
-		//logger.info("getNumberString=" + res);
-		
-		return res;
+
+		return res.toString();
 	}
 	
 
-	public static Long getNumberFromDigits(String digits) {
+	private static Long getNumberFromDigits(String digits) {
 		if("".equals(digits)) {
 			return null;
 		}
@@ -96,7 +92,7 @@ implements FilteredStore {
 		return Long.parseLong(digits);
 	}
 	
-	public static Long getNumber(String valueFilter) {
+	private static Long getNumber(String valueFilter) {
 		if (valueFilter == null) return null;
 		
 		String res = getNumberString(valueFilter);
@@ -123,22 +119,18 @@ implements FilteredStore {
 		
 		if(value == null) return null;
 		
-		List<String> parts = new ArrayList<String>();
+		List<String> parts = new ArrayList<>();
 		
 		int startIndex = 0;
 		int Endindex = 0;
-		String part = null;
+		String part;
 				
 		while(Endindex >= 0) {
 			Endindex = value.indexOf(' ', startIndex);
 			
 			if(Endindex < 0) {
-				//logger.info("startIndex=" + startIndex + " value.length=" + value.length());
 				part = value.substring(startIndex);
-				
-				
-				//logger.info("part="  + part);
-				//logger.info("part.length=" + part.length());
+
 			} else if(Endindex > startIndex) {
 				part = value.substring(startIndex, Endindex);
 				
@@ -147,8 +139,7 @@ implements FilteredStore {
 			}
 			
 			startIndex = Endindex + 1;
-			
-			//logger.info("2part.length=" + part.length());
+
 			if(parts.size() == 0 || (!"".equals(part)) ) {
 				parts.add(part.toUpperCase());
 			}
@@ -171,10 +162,10 @@ implements FilteredStore {
 		
 		int priorFindIndex = 0;
 		
-		int indexFind = 0;
+		int indexFind;
 		
 		for(int index = 1; index < parts.size(); index++) {
-			
+
 			indexFind = src.indexOf(parts.get(index), priorFindIndex);
 			
 			if(indexFind <= priorFindIndex) {
@@ -183,12 +174,7 @@ implements FilteredStore {
 			
 			priorFindIndex = indexFind; 
 		}
-		/*
-		if( "".equals(parts.get(parts.size() - 1)) ) return true;
-		
-		if(src.indexOf(parts.get(parts.size() - 1)) != 
-				src.length() - parts.get(parts.size() - 1).length() ) return false;
-		*/
+
 		return true;
 	}
 	
@@ -209,9 +195,6 @@ implements FilteredStore {
 		
 		calendarTmp.set(year, Calendar.JANUARY, 1, 0, 0, 0);
 		
-		/*calendarTmp.set(Calendar.DAY_OF_MONTH, 1);
-		calendarTmp.set(Calendar.MONTH, 0);
-		calendarTmp.set(Calendar.YEAR, year);*/
 		calendarTmp.add(Calendar.MONTH, month - 1);
 		calendarTmp.add(Calendar.DAY_OF_YEAR, day - 1);
 		
@@ -258,22 +241,23 @@ implements FilteredStore {
 		Long day = getNumberFromDigits(digit4.substring(0, 2));
 		
 		Long month = getNumberFromDigits(digit4.substring(2, 4));
-		
+
+		assert day != null;
+		assert month != null;
 		return getDiapason(day.intValue(), month.intValue(), day.intValue() + 1, month.intValue());
 	}
-	
-	
+
 	/**
 	 * MMYYYY
-	 * @param digit6
-	 * @return
 	 */
 	private DateDiapason getMonthDay6(String digit6) {
 
 		Long month = getNumberFromDigits(digit6.substring(0, 2));
 		
 		Long year = getNumberFromDigits(digit6.substring(2, 6));
-		
+
+		assert month != null;
+		assert year != null;
 		return getDiapason(1, month.intValue(), year.intValue(),
 				1, month.intValue() + 1, year.intValue());
 	}
@@ -285,7 +269,10 @@ implements FilteredStore {
 		Long month = getNumberFromDigits(digit8.substring(2, 4));
 		
 		Long year = getNumberFromDigits(digit8.substring(4, 8));
-		
+
+		assert day != null;
+		assert month != null;
+		assert year != null;
 		return getDiapason(day.intValue(), month.intValue(), year.intValue(),
 				day.intValue() + 1, month.intValue(), year.intValue() );
 	}
@@ -329,7 +316,7 @@ implements FilteredStore {
 			return isCriteriaString(valueField, valueFilter);
 		
 		case DECIMAL:
-			return false; //isCriteriaDouble(valueField, valueFilter);
+			return false;
 		
 		case DATE:
 			return isCriteriaDate(valueField, valueFilter);
@@ -345,9 +332,7 @@ implements FilteredStore {
 		if(filters == null || filters.length == 0) return true;
 		
 		List<FieldItem> items = row.fieldItems();
-		
-		boolean isCriteria = true;
-		
+
 		for(int index = 0; index < filters.length; index++) {
 			
 			if(filters[index] == null || ("".equals(filters[index].trim()))) continue;
@@ -383,12 +368,8 @@ implements FilteredStore {
 		oldFilterData.addAll(filterData);
 		
 		sendListenersRefreshAllData();
-		//sendListenersCursor(getRow());
 	}
-	
-	/**
-	 * �������� ���� ���������� �� ��������� ���� ������
-	 */
+
 	@Override
 	public void sendListenersRefreshAllData() {
 		if (!isFiltered()) {
@@ -405,31 +386,21 @@ implements FilteredStore {
 
 	@Override
 	public String getAllFieldValue(int fieldIndex) {
-
-		logger.info("getAllFieldValue fieldIndex=" + fieldIndex);
-		logger.info("getAllFieldValue filterData=" + filterData);
-
-		if (filterData != null) {
-			logger.info("getAllFieldValue filterData.length=" + filterData.size());
-		}
-
 		if(filterData == null) {
 			return "";
 		}
 		
-		String result = SEPARATOR_VALUE;
+		StringBuilder result = new StringBuilder(SEPARATOR_VALUE);
 		
 		for(E row : filterData) {
-			logger.info("getAllFieldValue row.item="
-					+ row.fieldItems().get(fieldIndex).getValueField());
-			result += row.fieldItems().get(fieldIndex).getValueField() + SEPARATOR_VALUE;
+			result.append(row.fieldItems().get(fieldIndex).getValueField()).append(SEPARATOR_VALUE);
 		}
 
-		if (SEPARATOR_VALUE.equals(result)) {
+		if (SEPARATOR_VALUE.equals(result.toString())) {
 			return "";
 		}
 		
-		return result;
+		return result.toString();
 	}
 
 	private void setFiltered() {
@@ -444,6 +415,7 @@ implements FilteredStore {
 		checkAfterFilter();
 	}
 	
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isFiltered() {
 		
 		if(filters == null) return false;
@@ -464,11 +436,6 @@ implements FilteredStore {
 		
 		List<E> data = super.getData();
 
-		// if (logger.isDebugEnabled() /* && this instanceof
-		// DBStorePacketContent */) {
-		// logger.info("data.size=" + data.size());
-		// }
-
 		if (!isFiltered()) {
 			return data;
 		}
@@ -477,28 +444,14 @@ implements FilteredStore {
 			setFiltered();
 		}
 
-		// if (logger.isDebugEnabled() /* && this instanceof
-		// DBStorePacketContent */) {
-		// logger.info("filterData.size=" + filterData.size());
-		// }
-
 		return filterData;
 	}
 	
 	@Override
 	public E getRow() { 
 		E row = super.getRow();
-		
-		// logger.info(this.getClass().getName() + " getRow=" + row);
 
 		if((!isFiltered()) || (row == null) ) return row;
-		
-		// logger.info("row.getName() = " + row.getName());
-		// logger.info("row.getId() = " + row.getId());
-
-		// logger.info("filterData.indexOf(row) = " + filterData.indexOf(row));
-
-		// filterData.stream().map(f -> f.getId()).forEach(logger::info);
 
 		if (filterData.indexOf(row) >= 0) {
 			return row;
@@ -510,14 +463,6 @@ implements FilteredStore {
 
 		return null;
 	}
-	
-	@Override
-	public void setRow(E row) {
-		// TODO
-		super.setRow(row);
-	}
-	
-	
 
 	@Override
 	public void setFilterValue(int columnIndex, String value) {
@@ -555,11 +500,11 @@ implements FilteredStore {
 	
 	class DateDiapason {
 		
-		public Date minDate;
+		Date minDate;
 		
-		public Date maxDate;
+		Date maxDate;
 		
-		public DateDiapason(Date minDate, Date maxDate) {
+		DateDiapason(Date minDate, Date maxDate) {
 			
 			this.minDate = minDate;
 			

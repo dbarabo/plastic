@@ -6,7 +6,7 @@ package ru.barabo.total.db;
  *
  */
 public enum Type {
-	/*Long, String, Decimal, Date */
+
 	LONG(Integer.class, java.sql.Types.INTEGER),
 	STRING(String.class, java.sql.Types.VARCHAR),
 	DECIMAL(Double.class, java.sql.Types.DECIMAL),

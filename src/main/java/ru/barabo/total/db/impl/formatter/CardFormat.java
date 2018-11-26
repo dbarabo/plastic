@@ -1,5 +1,7 @@
 package ru.barabo.total.db.impl.formatter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
@@ -15,7 +17,7 @@ public class CardFormat extends Format {
 	}
 
 	@Override
-	public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+	public StringBuffer format(Object obj, @NotNull StringBuffer toAppendTo, @NotNull FieldPosition pos) {
 
 		if (obj == null) {
 			return null;
@@ -27,7 +29,7 @@ public class CardFormat extends Format {
 	}
 
 	@Override
-	public Object parseObject(String source, ParsePosition pos) {
+	public Object parseObject(String source, @NotNull ParsePosition pos) {
 
 		Object value = delegate.parseObject(source, pos);
 

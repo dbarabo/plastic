@@ -113,12 +113,6 @@ public class GroupFieldItem implements DetailFieldItem {
 	}
 
 	@Override
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
-	
-	@Override
 	public void setComponentValue(String value) {
 		// TODO Auto-generated method stub
 	}
@@ -142,10 +136,6 @@ public class GroupFieldItem implements DetailFieldItem {
 
 	@Override
 	public void setValueField(String value) {
-	}
-
-	@Override
-	public void setListField(String[] list) {
 	}
 
 	@Override

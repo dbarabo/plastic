@@ -64,12 +64,6 @@ public class DetailField extends Field implements DetailFieldItem {
 	}
 
 	@Override
-	public void setHeight(int height) {
-		
-		detailField.setHeight(height);
-	}
-
-	@Override
 	public void setComponent(JComponent component) {
 		
 		detailField.setComponent(component);		

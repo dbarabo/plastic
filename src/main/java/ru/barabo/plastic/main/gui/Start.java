@@ -1,10 +1,15 @@
 package ru.barabo.plastic.main.gui;
 
+import ru.barabo.db.SessionException;
+import ru.barabo.plastic.afina.AfinaQuery;
+import ru.barabo.plastic.afina.VersionChecker;
+import ru.barabo.plastic.main.resources.ResourcesManager;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.main.gui.ConfigPlastic;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class Start extends JFrame{
 	
@@ -16,9 +21,21 @@ public class Start extends JFrame{
 			System.exit(0);
 		}
 
-		DBStorePlastic plastic = new DBStorePlastic();
+        String check = VersionChecker.checkVersion();
+		if(!check.isEmpty()) {
+            JOptionPane.showMessageDialog(null, check,null, JOptionPane.INFORMATION_MESSAGE );
+        }
 
-		buildUI(plastic);
+        try {
+            DBStorePlastic plastic = new DBStorePlastic();
+
+            buildUI(plastic);
+        } catch (SessionException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(),null, JOptionPane.ERROR_MESSAGE );
+            System.exit(0);
+        }
+
+
 	}
 
 	private JComponent buildPlasticAuto(DBStorePlastic store) {
@@ -26,9 +43,7 @@ public class Start extends JFrame{
 		return new ConfigPlastic(store);
 	}
 
-	final private static String TITLE = "Пластик выпуск-перевыпуск";
-
-	/**
+		/**
 	 * рисуем интерфейс
 	 */
 	private void buildUI(DBStorePlastic plastic) {
@@ -38,11 +53,24 @@ public class Start extends JFrame{
 		getContentPane().setLayout( new BorderLayout() );
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		
-		this.setTitle(TITLE);
+		this.setTitle( title() );
+
+        this.setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
+
 		pack();
 	    setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    setVisible( true );
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
+
+	private String title() {
+       String db = AfinaQuery.isTestBaseConnect() ? "TEST" : "AFINA";
+
+        String user = AfinaQuery.getUser();
+
+        return String.format(TITLE, db, user);
+    }
+
+    final private static String TITLE = "Пластик выпуск-перевыпуск: [%s] [%s]";
 }

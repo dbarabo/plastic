@@ -10,16 +10,11 @@ import ru.barabo.total.db.ListenerStore;
 public abstract class AbstractDBStore<E extends AbstractRowFields> implements DBStore<E> {
 	
 	final static transient private Logger logger = Logger.getLogger(AbstractDBStore.class.getName());
-	
-	public final static String[] OFFICES = { "Владивосток", "Вторая речка", "Находка", "Спасск",
-			"Славянка", "Океанский", "Луговая" };
-	
+
 	volatile private List<E> data; 
 	private boolean isMustUpdate;
-	
-	// abstract protected Class<E> getRowClass();
 
-	public boolean isMustUpdate() {
+	boolean isMustUpdate() {
 		return isMustUpdate;
 	}
 
@@ -29,20 +24,13 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 
 	volatile private int cursor;
 	private E oldCursorData; // старые данные по курсору
-		
-	volatile protected List<ListenerStore<E>> listenersStore;
-	
-	
+
+	final List<ListenerStore<E>> listenersStore = new ArrayList<>();
+
 	abstract protected List<E> initData();
 	
 	/**
-	 * @return создает пустую строку
-	 */
-	// abstract protected E createEmptyRow();
-		
-	/**
 	 * 
-	 * @param row
 	 * @return создает копию строки E row
 	 */
 	abstract protected E cloneRow(E row);
@@ -53,22 +41,19 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 	
 	abstract protected void remove(E row);
 	
-	abstract protected E createEmptyRow();/* { return (E)
-										 * AbstractRowFields.create(
-										 * getRowClass()); } */
+	abstract protected E createEmptyRow();
 	
 	public AbstractDBStore() {
 		isMustUpdate = true;
 		cursor = -1;
-		
-		listenersStore = new ArrayList<ListenerStore<E>>();
 	}
 	
 	protected void setMustUpdate() {
 		
 		isMustUpdate = true;
 	}
-	
+
+	@Override
 	public void searchTo(List<E> filterData) {
 		if (data == null || filterData == null) {
 			return;
@@ -90,42 +75,11 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 		}
 	}
 
-	static public boolean isOffice(String name) {
-		for (String oficce : OFFICES) {
-			if(oficce.equalsIgnoreCase(name) ){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	static public int getOfficeIndex(String name) {
-		
-		for (int index = 0; index < OFFICES.length; index++) {
-			
-			if(OFFICES[index].equalsIgnoreCase(name) ){
-				return index;
-			}
-		}
-		return -1;
-	}
-	
-	/**
-	 * проверка на доп. офис 
-	 * @param row
-	 * @return
-	 */
-	protected boolean isOffice(AbstractRowFields row) {
-		return isOffice(row.getName());
-	}
-	
-
-
-	public long getID(E row) {
+	private long getID(E row) {
 
 		if(row == null) return -1;
 		
-		Number id = ((AbstractRowFields)row).getId();
+		Number id = row.getId();
 		
 		return id == null ? -1 : id.longValue();
 	}
@@ -133,7 +87,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 	public String getName(E row) {
 		if(row == null) return null;
 		
-		return ((AbstractRowFields)row).getName();
+		return (row).getName();
 	}
 
 	private boolean changeData(E oldData, E changeData) {
@@ -180,10 +134,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 	}
 	
 	private void changeCursor(E oldCursor) {
-		
-		E newCursor = null;
-
-		if(data == null || 
+		if(data == null ||
 			      data.size()  == 0) {
 			
 			cursor = -1;
@@ -193,8 +144,6 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 			if(cursor == -1) {
 				cursor = 0;
 			}
-
-			newCursor = data.get(cursor);
 		}
 	}
 	
@@ -270,17 +219,6 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 		
 		return row1.equals(row2);
 	}
-	
-	@Override
-	public void save() {
-		E oldCursor = (cursor == -1 || 
-			      data == null || 
-			      data.size()  == 0 ) ? null : data.get(cursor);
-		
-		if(changeData(oldCursorData, oldCursor)) {
-			save(oldCursorData, oldCursor);
-		}
-	}
 
 	@Override
 	public void setRow(E row) {
@@ -309,15 +247,9 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 
 	@Override
 	public void addListenerStore(ListenerStore<E> listenerStore) {
-		synchronized (listenerStore) {
+		synchronized (listenersStore) {
 			listenersStore.add(listenerStore);
 		}
-	}
-
-	@Override
-	public void addRow() {
-		E newRow = createEmptyRow();
-		setRow(newRow);
 	}
 
 	@Override

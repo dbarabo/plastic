@@ -1,0 +1,32 @@
+package ru.barabo.plastic.unnamed.data
+
+import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.plastic.release.main.data.DBStorePlastic
+import ru.barabo.total.db.FieldItem
+import ru.barabo.total.db.impl.AbstractFilterStore
+
+class DBStoreOutClient(private val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldOutClient>() {
+
+    override fun getTypeSelect(): Int = 0
+
+    override fun setViewType(type: Int) {}
+
+    override fun getFields(): MutableList<FieldItem> = row?.fieldItems() ?: RowFieldOutClient().fieldItems()
+
+    override fun createEmptyRow(): RowFieldOutClient? = null
+
+    override fun cloneRow(row: RowFieldOutClient?): RowFieldOutClient? = null
+
+    override fun initData(): MutableList<RowFieldOutClient> =
+        AfinaQuery.selectCursor(SELECT_OUT_CLIENT).map { createRowField<RowFieldOutClient>(it) }.toMutableList()
+
+    override fun remove(row: RowFieldOutClient?) {}
+
+    override fun insertRow(row: RowFieldOutClient?) {}
+
+    override fun updateRow(oldData: RowFieldOutClient?, newData: RowFieldOutClient?) {}
+
+    companion object {
+        private const val SELECT_OUT_CLIENT = "{ ? = call od.PTKB_PLASTIC_AUTO.getUnnamedCardsOut }"
+    }
+}

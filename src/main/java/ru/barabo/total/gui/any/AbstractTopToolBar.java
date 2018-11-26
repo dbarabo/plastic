@@ -12,7 +12,7 @@ public abstract class AbstractTopToolBar <E> extends JToolBar {
 
 	protected DBStore<E> store;
 	
-	protected List<ButtonGroup> groups;
+	private List<ButtonGroup> groups;
 	
 	protected JComponent focusComp;
 
@@ -29,9 +29,7 @@ public abstract class AbstractTopToolBar <E> extends JToolBar {
 		setFloatable(true);
 		
 	}
-	
-		
-	
+
 	protected void initButton() {
 		for(ButtonKarkas karkas : getButtonKarkases()) {
 			if(karkas.getName() == null) {
@@ -45,7 +43,7 @@ public abstract class AbstractTopToolBar <E> extends JToolBar {
 	private void addGroup(AbstractButton button, int index) {
 		 
 		if(groups == null) {
-			groups = new ArrayList<ButtonGroup>();
+			groups = new ArrayList<>();
 		}
 		
 		if(groups.size() <= index) {
@@ -60,7 +58,7 @@ public abstract class AbstractTopToolBar <E> extends JToolBar {
 		
 		ImageIcon icon = ResourcesManager.getIcon(karkas.getIco());
 		
-		AbstractButton button = null;
+		AbstractButton button;
 		
 		if(karkas.getGroupIndex() != null) {
 			button = new JToggleButton(icon);
