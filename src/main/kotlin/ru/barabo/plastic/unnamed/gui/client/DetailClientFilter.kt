@@ -56,13 +56,16 @@ class DetailClientFilter(private val store : ClientCriteriaDBStore<RowFieldClien
     }
 
     private val okButton = JButton("Выбрать\n", ResourcesManager.getIcon("outClient")).apply {
-        addActionListener {  }
+        addActionListener { okSelect() }
     }
 
     private val cancelButton = JButton("Отменить\n", ResourcesManager.getIcon("deleteDB")).apply {
-        addActionListener {  }
+        addActionListener { cancelSelect() }
     }
 
+    lateinit var processResultOk: (RowFieldClient?)->Unit
+
+    lateinit var tabsInBook: TabsInBook
 
     @Volatile private var isRuningFilter: Boolean = false
 
@@ -149,9 +152,21 @@ class DetailClientFilter(private val store : ClientCriteriaDBStore<RowFieldClien
 
         }, textConstraint(5, 1, 3, 5))
 
-       // add(JLabel(" "), textConstraint(5, 1, 3, 5))
-
         store.addListenerStore(this)
+    }
+
+    fun okSelect() {
+
+        tabsInBook.restoreTabs()
+
+        processResultOk(store.row)
+    }
+
+    private fun cancelSelect() {
+
+        tabsInBook.restoreTabs()
+
+        processResultOk(null)
     }
 
     private fun clickFilter(): Boolean {
@@ -234,7 +249,6 @@ fun labelConstraint(gridY: Int, gridX: Int = 0) =
     GridBagConstraints(gridX, gridY, 1, 1, 0.0, 0.0,
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)
-
 
 fun textConstraint(gridY: Int, width: Int = 1, height: Int = 1, gridX: Int = 1) =
     GridBagConstraints(gridX, gridY, width, height, 1.0, 1.0,

@@ -62,7 +62,7 @@ implements ListenerStore<E> {
 		this.isMustFullRefresh = true;
 	}
 	
-	private void selectListener(ListSelectionEvent e) {
+	protected void selectListener(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting ()) return;
 		
         ListSelectionModel selModel = (ListSelectionModel)e.getSource();

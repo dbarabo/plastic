@@ -20,5 +20,7 @@ class RowFieldClient : AbstractRowFields() {
 
     fun birthday() = getFieldByLabel("Дата рождения").valueField
 
+    fun phone() = getFieldByLabel("Телефон").valueField
+
     override fun createFields(): MutableList<FieldItem> = initFields()
 }

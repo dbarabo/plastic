@@ -12,6 +12,7 @@ import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent;
 import ru.barabo.plastic.release.sms.select.data.DBStoreSmsSelect;
 import ru.barabo.plastic.unnamed.data.*;
 import ru.barabo.plastic.unnamed.general.ClientCriteriaDBStore;
+import ru.barabo.plastic.unnamed.general.FilteredStoreInHome;
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath;
 import ru.barabo.plastic.unnamed.general.TotalCardInfo;
 import ru.barabo.total.db.DBStore;
@@ -39,7 +40,7 @@ public class DBStorePlastic {
 
     private FilteredStoreInPath<RowFieldInPath> unnamedInPath;
 
-    private FilteredStore<RowFieldInPath> unnamedInHome;
+    private FilteredStoreInHome<RowFieldInPath> unnamedInHome;
 
     private FilteredStore<RowFieldInPath> unnamedError;
 
@@ -114,7 +115,7 @@ public class DBStorePlastic {
 	    return unnamedInPath;
     }
 
-    public FilteredStore<RowFieldInPath> getUnnamedInHome() {
+    public FilteredStoreInHome<RowFieldInPath> getUnnamedInHome() {
         return unnamedInHome;
     }
 

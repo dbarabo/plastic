@@ -10,3 +10,10 @@ interface StoreInPath {
 }
 
 interface FilteredStoreInPath<E> : StoreInPath, FilteredStore<E>
+
+interface StoreInHome {
+
+    fun outCardToClient(resultOutClient: ResultOutClient)
+}
+
+interface FilteredStoreInHome<E> : StoreInHome, FilteredStore<E>

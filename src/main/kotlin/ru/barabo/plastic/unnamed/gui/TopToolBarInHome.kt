@@ -2,15 +2,16 @@ package ru.barabo.plastic.unnamed.gui
 
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
+import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
+import ru.barabo.plastic.unnamed.gui.dialog.OutCardToClient
 import ru.barabo.total.db.FieldItem
-import ru.barabo.total.db.FilteredStore
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JTable
 
-class TopToolBarInHome(private val store: FilteredStore<RowFieldInPath>, focusTable: JTable)
+class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, focusTable: JTable)
     : AbstractTopToolBar(focusTable),
     ListenerStore<RowFieldInPath> {
 
@@ -20,7 +21,7 @@ class TopToolBarInHome(private val store: FilteredStore<RowFieldInPath>, focusTa
         StatePlasticPacket.OCI_ALL.ordinal to ButtonKarkas("home", "Карты в ГО", {}, null),
         StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", {}, null),
         StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", {}, null),
-        StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", {}, null)
+        StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
     )
 
     private var stateButton: ButtonKarkas? =  null
@@ -71,5 +72,9 @@ class TopToolBarInHome(private val store: FilteredStore<RowFieldInPath>, focusTa
         add(newButton)
         invalidate()
         repaint()
+    }
+
+    private fun outCardToClient() {
+        OutCardToClient(this, store.row).showResultDialog(store::outCardToClient)
     }
 }

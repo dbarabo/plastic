@@ -1,6 +1,7 @@
 package ru.barabo.plastic.unnamed.gui
 
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
+import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
 import ru.barabo.total.db.FilteredStore
 import ru.barabo.total.gui.filter.impl.FilterTableSimple
 import ru.barabo.total.gui.table.TotalRowTable
@@ -9,7 +10,7 @@ import java.awt.Color
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 
-class TabInHome(store: FilteredStore<RowFieldInPath>) : JPanel()  {
+class TabInHome(store: FilteredStoreInHome<RowFieldInPath>) : JPanel()  {
 
     init {
         layout = BorderLayout()

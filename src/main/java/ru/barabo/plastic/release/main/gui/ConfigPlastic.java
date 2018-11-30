@@ -9,7 +9,6 @@ import ru.barabo.plastic.release.reissue.gui.PanelReIssueCard;
 import ru.barabo.plastic.release.sms.packet.gui.PanelSmsPacket;
 import ru.barabo.plastic.release.sms.select.gui.PanelSelectSms;
 import ru.barabo.plastic.unnamed.gui.PanelUnnamed;
-import ru.barabo.plastic.unnamed.gui.client.ClientSelect;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,8 +20,7 @@ import java.awt.*;
  */
 public class ConfigPlastic extends JPanel {
 	
-	final static transient private Logger logger = 
-			Logger.getLogger(ConfigPlastic.class.getName());
+	final static transient private Logger logger = Logger.getLogger(ConfigPlastic.class.getName());
 	
 
 	public ConfigPlastic(DBStorePlastic store) {
@@ -46,8 +44,6 @@ public class ConfigPlastic extends JPanel {
 					new PanelSmsPacket(store.getSmsPacket(), store.getSmsContent()));
 
         book.addTab("Неименные карты",	new PanelUnnamed(store));
-
-        book.addTab("Выбрать клиента",	new ClientSelect(store.getClientSelect()));
 
 		book.addTab("Заявление на Выпуск",
 					new PanelApplication(store.getApplicationCard(), store.getClientFind()));

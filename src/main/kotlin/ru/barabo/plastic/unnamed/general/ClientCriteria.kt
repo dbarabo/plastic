@@ -59,8 +59,7 @@ private fun String.parseDate(): Date? {
     }
 }
 
-private fun String.parsePasportLine(): String =
-    replace("\\D+".toRegex(), "").let {line ->
+private fun String.parsePasportLine(): String = toDigitsOnly().let {line ->
         when {
             line.length < 2   -> ""
             line.length == 2  -> "$line%"
@@ -74,3 +73,5 @@ private fun String.bySqlLike() = replace(" +".toRegex(), "%")
 private fun String.bySqlLikePlus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "$it%"  }
 
 private fun String.bySqlLike2Plus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "%$it%"  }
+
+fun String.toDigitsOnly() = replace("\\D+".toRegex(), "")
