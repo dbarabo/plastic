@@ -7,6 +7,7 @@ import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
 import ru.barabo.total.gui.any.ButtonKarkas;
 import ru.barabo.total.gui.any.ShowMenuListener;
@@ -15,7 +16,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTopToolBar<E>
+public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTopToolBar
 		implements ListenerStore<E> {
 	
 	final static transient private Logger logger = Logger.getLogger(TopToolBarApplication.class
@@ -39,8 +40,12 @@ public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTo
 			"Документы проверены"
 	};
 
+	private DBStore<E> store;
+
 	TopToolBarApplication(DBStore<E> store, JComponent focusComp) {
-		super(store, focusComp);
+		super(focusComp);
+
+		this.store = store;
 
 		initButton();
 
@@ -123,7 +128,7 @@ public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTo
 	}
 
 	@Override
-	public void refreshData(List<E> allData) {
+	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
 		refreshEnableToStateButton(store.getRow());
 
 	}

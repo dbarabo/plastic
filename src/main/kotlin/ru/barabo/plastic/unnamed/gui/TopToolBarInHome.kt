@@ -5,12 +5,13 @@ import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.FilteredStore
 import ru.barabo.total.db.ListenerStore
+import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JTable
 
-class TopToolBarInHome(store: FilteredStore<RowFieldInPath>, focusTable: JTable)
-    : AbstractTopToolBar<RowFieldInPath>(store, focusTable),
+class TopToolBarInHome(private val store: FilteredStore<RowFieldInPath>, focusTable: JTable)
+    : AbstractTopToolBar(focusTable),
     ListenerStore<RowFieldInPath> {
 
     private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
@@ -42,7 +43,7 @@ class TopToolBarInHome(store: FilteredStore<RowFieldInPath>, focusTable: JTable)
         refreshButtons(row?.getFieldByLabel("Статус"))
     }
 
-    override fun refreshData(allData: MutableList<RowFieldInPath>?) {
+    override fun refreshData(allData: MutableList<RowFieldInPath>?, stateRefresh: StateRefresh?) {
         setCursor(store.row)
     }
 

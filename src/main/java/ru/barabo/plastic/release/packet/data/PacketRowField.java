@@ -34,10 +34,9 @@ public class PacketRowField extends AbstractRowFields {
 				"STATE", 120, 5, true, new int[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}));
 		fields.add(new Field(FIELD_UPDATED, true, Type.DATE, null, "UPDATED", 100, 6, true, null,
 				new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")));
-		fields.add(new Field("Файл заявлений", true, Type.STRING, null, "APP_FILE", 270, 7, true,
-				null));
-		fields.add(new Field("Загруженные файлы", true, Type.STRING, null, "LOAD_FILES", 350, 8,
-				true, null));
+
+		fields.add(new Field("Файл заявлений", true, Type.STRING, null, "APP_FILE", 270, 7, true));
+		fields.add(new Field("Загруженные файлы", true, Type.STRING, null, "LOAD_FILES", 350, 8, true));
 
 		fields.add(new Field("#TYPE_PACKET", false, Type.LONG, null, "TYPE_PACKET", 1, 9, true));
 	

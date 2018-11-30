@@ -1,6 +1,5 @@
 package ru.barabo.plastic.release.packet.gui;
 
-import org.apache.log4j.Logger;
 import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
@@ -9,6 +8,7 @@ import ru.barabo.plastic.release.packet.data.*;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
 import ru.barabo.total.gui.any.ButtonKarkas;
 import ru.barabo.total.gui.any.ShowMenuListener;
@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopToolBar<E>
+public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopToolBar
   implements ListenerStore<E> {
 	
-	final static transient private Logger logger = Logger.getLogger(TopToolBarPacket.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(TopToolBarPacket.class.getName());
 	
 	private static final String MSG_WAIT = "Сейчас нужно просто ждать, когда придут ответные файлы от ПЦ";
 	
@@ -40,7 +40,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	private static final String MSG_OUT_CLIENT = "Перевести ВСЕ карты в конечное состояние 'Выдано клиенту'?";
 	private static final String TITLE_OUT_CLIENT = "Карты всем клиентам";
 
-	private static final String MSG_ERROR_NO_CONTENT = "Выбрано ни одного клиента в таблице клиентов";
+	private static final String MSG_ERROR_NO_CONTENT = "Не Выбрано ни одного клиента в таблице клиентов";
 	private static final String MSG_OUT_CLIENT_ONLY = "Перевести карту %s в конечное состояние 'Выдано клиенту'?"; 
 	private static final String TITLE_OUT_CLIENT_ONLY = "Карту клиенту";
 	
@@ -57,7 +57,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	protected int stateButtonIndex;
 	
 	private JMenuItem stateButtonContent;
-	protected int stateButtonContentIndex;
+	private int stateButtonContentIndex;
 	
 	private boolean isMySelect;
 	private FilterWork filterWork;
@@ -147,9 +147,13 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 			new ButtonKarkas("outClient", "Выдать карту клиенту", this::outClientOnly, null), //20
 			null // 21
 	};
+
+	protected DBStore<E> store;
 	
 	public TopToolBarPacket(DBStore<E> store, JComponent focusComp, JComponent contentComp) {
-		super(store, focusComp);
+		super(focusComp);
+
+		this.store = store;
 		
 		this.contentComp = contentComp;
 		
@@ -175,7 +179,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 			content.addListenerStore(listenerContent);
 		}
 				
-		refreshData(store.getData());
+		refreshData(store.getData(), StateRefresh.ALL);
 		
 	}
 
@@ -473,7 +477,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 			TopToolBarReIssueCard.messageError(error);
 		}
 
-		dBStorePacket.refreshData();
+		dBStorePacket.updateAllData();
 		focusComp.requestFocus();
 	}
 
@@ -518,7 +522,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		if(result != null) {
 			TopToolBarReIssueCard.messageError(result);
 		}
-		dBStorePacket.refreshData();
+		dBStorePacket.updateAllData();
 
 		focusComp.requestFocus();
 	}
@@ -529,7 +533,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		if(result != null) {
 			TopToolBarReIssueCard.messageError(result);
 		}
-		dBStorePacket.refreshData();
+		dBStorePacket.updateAllData();
 
 		focusComp.requestFocus();
 	}
@@ -785,21 +789,17 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	
 	private void refresh(ActionEvent e) {
 		DBStorePacket dBStorePacket = (DBStorePacket)store;
-		dBStorePacket.refreshData();
-		dBStorePacket.sendListenersRefreshAllData();
+		dBStorePacket.updateAllData();
+		dBStorePacket.sendListenersRefreshAllData(StateRefresh.ALL);
 
 		focusComp.requestFocus();
 	}
-	
-	
-
 
 	@Override
 	protected ButtonKarkas[] getButtonKarkases() {
 
 		return buttonKarkases;
 	}
-	
 
 	/////////////ListenerStore<PacketRowField>//////////////
 	@Override
@@ -808,11 +808,11 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		refreshButtons(row);
 	}
 	
-	protected boolean isRemoveStateButton(PacketRowField row) {
+	private boolean isRemoveStateButton(PacketRowField row) {
 		
 		if(stateButton != null && (row == null ||  row.getState() != stateButtonIndex) ) {
 			
-			logger.info("remove" + stateButton.getText());
+			//logger.info("remove" + stateButton.getText());
 			
 			stateButton.setEnabled(false);
 			this.remove(stateButton);
@@ -825,7 +825,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		}
 	}
 	
-	protected boolean isRemoveStateButtonContent(PacketContentRowField row) { 
+	private boolean isRemoveStateButtonContent(PacketContentRowField row) {
 		if(contentComp == null) return false;
 			
 		if( stateButtonContent != null && 
@@ -843,7 +843,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		}
 	}
 	
-	protected ButtonKarkas getStateButtonContent(int index) {
+	private ButtonKarkas getStateButtonContent(int index) {
 		return index < 0 ? null : stateButtonsContent[index];
 	}
 	
@@ -861,19 +861,17 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	/**
 	 * кнопка - зависит от состояния
 	 */
-	protected void refreshStateContentButton(PacketContentRowField row) {
+	void refreshStateContentButton(PacketContentRowField row) {
 		
-		logger.info("row=" + row);
-		
-		boolean isRemove = isRemoveStateButtonContent(row);
-		
-		if(row == null || row.getState() == -1 || 
+		//logger.info("row=" + row);
+
+		isRemoveStateButtonContent(row);
+
+		if(row == null || row.getState() == -1 ||
 				row.getState() > getStateButtonsCount() || row.getState() == stateButtonContentIndex) return;
 		
 		stateButtonContentIndex = row.getState();
-		
-		JMenuItem oldButton = stateButtonContent;
-		
+
 		ButtonKarkas button = getStateButtonContent(stateButtonContentIndex);
 		
 		if(button != null) {
@@ -886,13 +884,6 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 			JPopupMenu popup = contentComp.getComponentPopupMenu();
 			popup.add(stateButtonContent);
 			popup.repaint();
-			//this.repaint();
-		} else if(oldButton != null){
-			//logger.info("disable " + oldButton);
-			//oldButton.setEnabled(false);
-			//this.repaint();
-		} else if(isRemove) {
-			//this.repaint();
 		}
 	}
 	
@@ -909,7 +900,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	 */
     private void refreshStateButton(PacketRowField row) {
 		
-		logger.info("row=" + row);
+		//logger.info("row=" + row);
 		
 		boolean isRemove = isRemoveStateButton(row);
 		
@@ -927,11 +918,11 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		}
 				
 		if(stateButton != null) {
-			logger.info("add " + stateButton.getText());
+			//logger.info("add " + stateButton.getText());
 			this.add(stateButton);
 			this.repaint();
 		} else if(oldButton != null){
-			logger.info("disable " + oldButton);
+			//logger.info("disable " + oldButton);
 			oldButton.setEnabled(false);
 			this.repaint();
 		} else if(isRemove) {
@@ -958,12 +949,11 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 	}
 
 	@Override
-	public void refreshData(List<E> allData) {
+	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
 		
 		E row = allData.size() == 0 ? null : allData.get(0);
 		
 		refreshButtons(row );
-		
 	}
 }
 

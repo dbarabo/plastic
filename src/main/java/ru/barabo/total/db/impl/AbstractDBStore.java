@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 
 public abstract class AbstractDBStore<E extends AbstractRowFields> implements DBStore<E> {
 	
@@ -52,6 +53,13 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 		
 		isMustUpdate = true;
 	}
+
+    @Override
+    public void updateAllData() {
+        setMustUpdate();
+
+        getData();
+    }
 
 	@Override
 	public void searchTo(List<E> filterData) {
@@ -164,7 +172,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 
 			changeCursor(oldCursor);
 			
-			sendListenersRefreshAllData();
+			sendListenersRefreshAllData(StateRefresh.ALL);
 			
 			sendListenersCursor(getRow());
 		}
@@ -191,9 +199,9 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 	/**
 	 * сообщает всем листенерам об изменении всех данных
 	 */
-	public void sendListenersRefreshAllData() {
+    void sendListenersRefreshAllData(StateRefresh stateRefresh) {
 		for (ListenerStore<E> listenerStore : listenersStore) {
-			listenerStore.refreshData(data);
+			listenerStore.refreshData(data, stateRefresh);
 		}
 	}
 	
@@ -274,7 +282,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 		
 		oldCursorData = cloneRow(oldCursor);
 		
-		sendListenersRefreshAllData();
+		sendListenersRefreshAllData(StateRefresh.REMOVE_ITEM);
 	}
 	
 }

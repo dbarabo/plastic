@@ -99,8 +99,7 @@ class ModalConnect extends JDialog {
 		panelButton.setLayout( new GridLayout(1, 2, 10, 0) );
 		panelButton.add(buttonOk);
 		panelButton.add(buttonCancel);
-		
-		
+
 		getContentPane().add(new JLabel());
 		getContentPane().add(panelButton);
 

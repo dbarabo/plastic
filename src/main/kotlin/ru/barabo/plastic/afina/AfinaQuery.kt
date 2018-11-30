@@ -57,6 +57,6 @@ object AfinaQuery : Query(AfinaConnect) {
 
         return if(data.isNullOrEmpty() ) null else data[0] as? Clob
     }
-
-    private fun Clob.clobToString() = this.getSubString(1, this.length().toInt())
 }
+
+fun Clob.clobToString() = this.getSubString(1, this.length().toInt())

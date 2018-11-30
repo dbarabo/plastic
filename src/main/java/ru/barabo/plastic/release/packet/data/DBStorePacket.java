@@ -8,6 +8,7 @@ import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.total.db.FieldItem;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.db.impl.AbstractFilterStore;
 import ru.barabo.total.utils.Util;
 
@@ -431,10 +432,10 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
         }
 
 		field.setState(1);
-		refreshData();
+		updateAllData();
 
 		DBStorePacketContent content = getDBStorePacketContentPacket();
-		content.refreshData(getData());
+		content.refreshData(getData(), StateRefresh.ALL);
 
 		return null;
 	}
@@ -460,8 +461,8 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
         }
 
         field.setName(newName);
-		
-		this.refreshData();
+
+		updateAllData();
 		
 		return null;
 	}
@@ -484,7 +485,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
             return e.getMessage();
         }
 
-		this.refreshData();
+		updateAllData();
 
 		DBStorePacketContent content = getDBStorePacketContentPacket();
 		content.setCursor(field);
@@ -510,7 +511,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
             return e.getMessage();
         }
 
-		refreshData();
+		updateAllData();
 
 		return null;
 	}
@@ -589,7 +590,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
             return e.getMessage();
         }
 
-		refreshData();
+		updateAllData();
 
 		DBStorePacketContent content = getDBStorePacketContentPacket();
 		content.setCursor(field);
@@ -616,8 +617,8 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
         }
 
 		field.setState(STATE_GO_HOME);
-		
-		this.refreshData();
+
+		updateAllData();
 
 		DBStorePacketContent content = getDBStorePacketContentPacket();
 		content.setCursor(field);
@@ -651,9 +652,9 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		getData().remove(field);
 		
 		DBStorePacketContent content = getDBStorePacketContentPacket();
-		content.refreshData(getData());
-				
-		refreshData();
+		content.refreshData(getData(), StateRefresh.REMOVE_ITEM);
+
+		updateAllData();
 		
 		return null;
 	}
@@ -739,11 +740,11 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
             AfinaQuery.INSTANCE.execute(UPD_CHANGE_PRODUCT,
                     new Object[] { field.getId(), fromProduct, toProduct });
         } catch (SessionException e) {
-            refreshData();
+			updateAllData();
             return e.getMessage();
         }
 
-		refreshData();
+		updateAllData();
 
 		return null;
 	}
@@ -770,7 +771,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		field.setState(stateToOk);
 		
 		DBStorePacketContent content = getDBStorePacketContentPacket();
-		content.refreshData(getData());
+		content.refreshData(getData(), StateRefresh.ALL);
 		
 		return null;
 	}
@@ -791,7 +792,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		field.setState(9);
 		
 		DBStorePacketContent content = getDBStorePacketContentPacket();
-		content.refreshData(getData());
+		content.refreshData(getData(), StateRefresh.ALL);
 		
 		return null;
 	}
@@ -842,7 +843,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		field.setState(2);
 		field.setFileApp(fileName);
 
-		refreshData();
+		updateAllData();
 
 		return null;
 	}
@@ -899,7 +900,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		field.setState(2);
 		field.setFileApp(fileName);
 
-		refreshData();
+		updateAllData();
 
 		return null;
 	}
@@ -911,12 +912,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
         return Util.writeTextFile(path, data, "cp1251");
 	}
 
-	
-	public void refreshData() {
-		setMustUpdate();
-		getData();
-	}
-	
+
 	@Override
 	protected void updateRow(PacketRowField oldData,
 			PacketRowField newData) {

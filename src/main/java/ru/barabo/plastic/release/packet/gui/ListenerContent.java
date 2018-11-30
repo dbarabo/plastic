@@ -2,6 +2,7 @@ package ru.barabo.plastic.release.packet.gui;
 
 import ru.barabo.plastic.release.packet.data.PacketContentRowField;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class ListenerContent implements ListenerStore<PacketContentRowField> {
 	}
 
 	@Override
-	public void refreshData(List<PacketContentRowField> allData) {
+	public void refreshData(List<PacketContentRowField> allData, StateRefresh stateRefresh) {
 		
 		PacketContentRowField row = allData == null || allData.size() == 0 ? null : allData.get(0);
 		

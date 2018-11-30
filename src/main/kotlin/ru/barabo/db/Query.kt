@@ -2,6 +2,7 @@ package ru.barabo.db
 
 import oracle.jdbc.OracleCallableStatement
 import oracle.jdbc.OracleTypes
+import org.apache.log4j.Logger
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -12,6 +13,8 @@ import java.util.concurrent.atomic.AtomicLong
 open class Query (protected val dbConnection :DbConnection) {
 
     companion object {
+        private val logger = Logger.getLogger(Query::class.simpleName)!!
+
        // private val logger = LoggerFactory.getLogger(Query::class.java)
 
         private const val ERROR_STATEMENT_NULL = "statement is null"
@@ -33,10 +36,10 @@ open class Query (protected val dbConnection :DbConnection) {
        return if(list.isEmpty() || list[0].isEmpty()) null else list[0][0]
     }
 
-    fun select(query :String, params :Array<Any?>?) :List<Array<Any?>> = select(query, params, SessionSetting(false))
+    fun select(query :String, params :Array<Any?>? ) :List<Array<Any?>> = select(query, params, SessionSetting(false))
 
     @Throws(SessionException::class)
-    fun select(query :String, params :Array<Any?>? = null, sessionSetting : SessionSetting ) :List<Array<Any?>> {
+    fun select(query :String, params :Array<Any?>? = null, sessionSetting : SessionSetting = SessionSetting(false) ) :List<Array<Any?>> {
 
        // logger.info("select=" + query)
 
@@ -235,16 +238,18 @@ open class Query (protected val dbConnection :DbConnection) {
     @Throws(SessionException::class)
     private fun prepareSelectCursor(session :Session, query :String, params :Array<Any?>?, sessionSetting : SessionSetting) :QueryRequest {
 
+        params?.forEach { logger.debug(it?.toString()) }
+
         val statement = try {
             session.session.prepareCall(query)
                     ?.setParams(intArrayOf(OracleTypes.CURSOR), params) as OracleCallableStatement
 
         } catch (e: SQLException) {
 
-          //  logger.error("query=$query")
-          //  params?.forEach { logger.error(it?.toString()) }
+            logger.error("query=$query")
+            params?.forEach { logger.error(it?.toString()) }
 
-         //   logger.error("prepareSelectCursor", e)
+            logger.error("prepareSelectCursor", e)
 
             closeQueryData(session, TransactType.ROLLBACK)
             throw SessionException(e.message?:"")
@@ -422,7 +427,6 @@ private class QueryRequest(val query :String,
                         val params :Array<Any?>?,
                         var statement :PreparedStatement?,
                         var resultSetCursor :ResultSet? = null)
-
 
 
 

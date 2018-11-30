@@ -8,7 +8,7 @@ class AnyTest {
 
     val logger = Logger.getLogger(AnyTest::class.simpleName)!!
 
-    @Test
+    //@Test
     fun inetTest() {
 
         val address = InetAddress.getLocalHost()
@@ -26,4 +26,21 @@ class AnyTest {
 
         logger.error("path=${File(VersionChecker::class.java.protectionDomain.codeSource.location.path).absoluteFile}")
     }
+
+    @Test
+    fun regexpTest() {
+        val rep = "*  *   *".replace(" +".toRegex(), "%")
+            .replace("\\*+".toRegex(), "%").replace("%%+".toRegex(), "%")
+
+        logger.error("[$rep]")
+
+
+       // logger.error(/*"01 2".replace(" +".toRegex(), "")*/(null as String?).toLongOrNull())
+
+         //logger.error("12 34   55  5656 6767  .".replace(" +".toRegex(), "%")) //  replace("\\b(?:(%%)(?!\\1))+\\b".toRegex(), ""))
+
+       // "\\b(?:(%)(?!\\1))+\\b"
+    }
+
+
 }

@@ -27,7 +27,7 @@ public abstract class AbstractRowFields {
 	static public <T extends AbstractRowFields> T create(Object[] row, Class<T> rowClazz) {
 		T rowField = create(rowClazz);
 
-        logger.error("rowField=" + rowField.fieldItems());
+        //logger.error("rowField=" + rowField.fieldItems());
 
 		for (int index = 0; index < Math.min(rowField.fieldItems().size(), row.length); index++) {
 			rowField.fieldItems().get(index).setValueFieldObject(row[index]);

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.db.impl.AbstractFilterStore;
 import ru.barabo.total.db.impl.AbstractRowFields;
 
@@ -173,9 +174,9 @@ implements ListenerStore<E> {
 
 
 	@Override
-	public void refreshData(List<E> allData) {
+	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
 
-		if(isMustFullRefresh) {
+		if(isMustFullRefresh || stateRefresh == StateRefresh.ALL) {
 			isMustFullRefresh = false;
 			((AbstractTableModel) this.getModel()).fireTableStructureChanged();
 			setColumnmSizes();
@@ -184,7 +185,6 @@ implements ListenerStore<E> {
 		
 		if(store instanceof AbstractFilterStore) {
 			this.repaint();
-			// ((AbstractTableModel) this.getModel()).fireTableDataChanged();
 		} else {
 			((AbstractTableModel)this.getModel()).fireTableDataChanged();
 		}

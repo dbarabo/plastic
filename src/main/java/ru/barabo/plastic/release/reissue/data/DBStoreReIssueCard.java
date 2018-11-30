@@ -124,11 +124,5 @@ public class DBStoreReIssueCard extends AbstractFilterStore<ReIssueCardRowField>
 		// TODO Auto-generated method stub
 		
 	}
-	
-	public void refreshData() {
-		this.setMustUpdate();
-		this.getData();
-	}
-
 }
 

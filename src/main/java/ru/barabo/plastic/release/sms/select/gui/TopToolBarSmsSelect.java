@@ -1,6 +1,5 @@
 package ru.barabo.plastic.release.sms.select.gui;
 
-import ru.barabo.plastic.release.packet.data.PacketContentRowField;
 import ru.barabo.plastic.release.packet.data.PacketRowField;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
@@ -18,7 +17,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
-public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractTopToolBar<E> {
+public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractTopToolBar {
 	
 	//final static transient private Logger logger = Logger.getLogger(TopToolBarSmsSelect.class.getName());
 	
@@ -40,9 +39,14 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 			
 			new ShowMenuListener(buttonSmsTypes).createButtonKarkas(0)
 	};
+
+	private DBStore<E> store;
 	
 	TopToolBarSmsSelect(DBStore<E> store, JComponent focusComp) {
-		super(store, focusComp);
+		super(focusComp);
+
+        this.store = store;
+
 		initButton();
 	}
 	
@@ -119,8 +123,8 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 			}
 		}
 		
-		dBStoreSmsPacket.refreshData();
-		dBStoreSmsSelect.refreshData();
+		dBStoreSmsPacket.updateAllData();
+		dBStoreSmsSelect.updateAllData();
 	}
 
 	@Override

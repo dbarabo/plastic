@@ -11,6 +11,9 @@ import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent;
 import ru.barabo.plastic.release.sms.select.data.DBStoreSmsSelect;
 import ru.barabo.plastic.unnamed.data.*;
+import ru.barabo.plastic.unnamed.general.ClientCriteriaDBStore;
+import ru.barabo.plastic.unnamed.general.FilteredStoreInPath;
+import ru.barabo.plastic.unnamed.general.TotalCardInfo;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FilteredStore;
 
@@ -34,7 +37,7 @@ public class DBStorePlastic {
 	
 	private DBStorePacketAllContent allContent;
 
-    private FilteredStore<RowFieldInPath> unnamedInPath;
+    private FilteredStoreInPath<RowFieldInPath> unnamedInPath;
 
     private FilteredStore<RowFieldInPath> unnamedInHome;
 
@@ -42,7 +45,16 @@ public class DBStorePlastic {
 
     private FilteredStore<RowFieldOutClient> unnamedOutClient;
 
+    private TotalCardInfo totalCardInfo;
+
+    private ClientCriteriaDBStore<RowFieldClient> сlientSelect;
+
+    static private DBStorePlastic instance = null;
+
 	public DBStorePlastic() throws SessionException {
+
+        instance = this;
+
         checkWorkplace();
 
 		reIssueCard = new DBStoreReIssueCard(this);
@@ -70,6 +82,22 @@ public class DBStorePlastic {
         unnamedError = new DBStoreError(this);
 
         unnamedOutClient = new DBStoreOutClient(this);
+
+        totalCardInfo = new TotalCardInfoImpl();
+
+        сlientSelect = new DBStoreClientSelect(this);
+    }
+
+    public ClientCriteriaDBStore<RowFieldClient> getClientSelect() {
+        return сlientSelect;
+    }
+
+    public TotalCardInfo getTotalCardInfo() {
+	    return totalCardInfo;
+    }
+
+    static public DBStorePlastic getInstance() {
+	    return instance;
     }
 
     static final private String CHECK_WORKSPACE = "{ call od.PTKB_PLASTIC_AUTO.checkWorkplace }";
@@ -82,7 +110,7 @@ public class DBStorePlastic {
         return unnamedOutClient;
     }
 
-    public FilteredStore<RowFieldInPath> getUnnamedInPath() {
+    public FilteredStoreInPath<RowFieldInPath> getUnnamedInPath() {
 	    return unnamedInPath;
     }
 

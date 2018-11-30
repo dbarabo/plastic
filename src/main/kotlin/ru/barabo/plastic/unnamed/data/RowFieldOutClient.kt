@@ -9,8 +9,6 @@ import java.text.SimpleDateFormat
 
 class RowFieldOutClient: AbstractRowFields() {
 
-    private val fields = fields()
-
     private fun fields() =
         mutableListOf<FieldItem>(
             Field("#id", true, Type.LONG, null, "ID", 1, 0, true),
@@ -24,5 +22,5 @@ class RowFieldOutClient: AbstractRowFields() {
             Field("Автор", true, Type.STRING, null, "CREATOR", 70, 8, true)
         )
 
-    override fun createFields(): MutableList<FieldItem> = fields?:fields()
+    override fun createFields(): MutableList<FieldItem> = fields()
 }

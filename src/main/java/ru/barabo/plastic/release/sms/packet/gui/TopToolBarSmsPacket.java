@@ -1,18 +1,16 @@
 package ru.barabo.plastic.release.sms.packet.gui;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JComponent;
-
 import org.apache.log4j.Logger;
-
-
 import ru.barabo.plastic.release.packet.data.PacketRowField;
 import ru.barabo.plastic.release.packet.gui.TopToolBarPacket;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
 import ru.barabo.total.db.DBStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.gui.any.ButtonKarkas;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class TopToolBarSmsPacket extends TopToolBarPacket<PacketRowField> {
 	
@@ -53,7 +51,7 @@ public class TopToolBarSmsPacket extends TopToolBarPacket<PacketRowField> {
 		
 		//logger.info("CREATED=" + stateButton);
 		
-		refreshData(store.getData());
+		refreshData(store.getData(), StateRefresh.ALL);
 		
 	}
 	
@@ -63,7 +61,7 @@ public class TopToolBarSmsPacket extends TopToolBarPacket<PacketRowField> {
 		if(result != null) {
 			TopToolBarReIssueCard.messageError(result);
 		}
-		dBStoreSmsPacket.refreshData();
+		dBStoreSmsPacket.updateAllData();
 	
 	}
 	
@@ -73,7 +71,7 @@ public class TopToolBarSmsPacket extends TopToolBarPacket<PacketRowField> {
 		if(result != null) {
 			TopToolBarReIssueCard.messageError(result);
 		}
-		dBStoreSmsPacket.refreshData();
+		dBStoreSmsPacket.updateAllData();
 
 		focusComp.requestFocus();
 	}

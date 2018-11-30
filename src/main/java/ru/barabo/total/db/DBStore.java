@@ -43,4 +43,6 @@ public interface DBStore <E> {
 	int getTypeSelect();
 
 	void searchTo(List<E> filterData);
+
+    void updateAllData();
 }

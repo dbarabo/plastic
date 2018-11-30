@@ -23,7 +23,7 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 
-public class TopToolBarReIssueCard<E extends AbstractRowFields> extends AbstractTopToolBar<E> {
+public class TopToolBarReIssueCard<E extends AbstractRowFields> extends AbstractTopToolBar {
 	
 	final static transient private Logger logger = Logger.getLogger(TopToolBarReIssueCard.class.getName());
 	
@@ -56,9 +56,14 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			new ButtonKarkas("password", "сменить ПИН-код!", this::changePin, null),
 
 	};
+
+	private DBStore<E> store;
 	
 	TopToolBarReIssueCard(DBStore<E> store, JComponent focusComp) {
-		super(store, focusComp);
+		super(focusComp);
+
+		this.store = store;
+
 		initButton();
 
 		this.getButtonKarkases()[1].getButton().setVisible(
@@ -154,8 +159,8 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 		PacketContentRowField fieldContent = content.createBtrt25Record(field.getId(),
 				data.get(index).getId());
-		dBStorePacket.refreshData();
-		dBStoreReIssueCard.refreshData();
+		dBStorePacket.updateAllData();
+		dBStoreReIssueCard.updateAllData();
 	}
 		
 	/**
@@ -201,8 +206,8 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			}
 		}
 		
-		dBStorePacket.refreshData();
-		dBStoreReIssueCard.refreshData();
+		dBStorePacket.updateAllData();
+		dBStoreReIssueCard.updateAllData();
 	}
 
 

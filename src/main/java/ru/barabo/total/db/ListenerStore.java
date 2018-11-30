@@ -18,5 +18,5 @@ public interface ListenerStore<E> {
 	/**
 	 * сообщает об изменениие всех данных
 	 */
-	void refreshData(List<E> allData);
+	void refreshData(List<E> allData, StateRefresh stateRefresh);
 }

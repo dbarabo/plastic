@@ -31,6 +31,22 @@ public class Field implements FieldItem {
 		return column;
 	}
 
+	public Field(String label, Type clazz, int width, int index) {
+
+	    this.label = label;
+        this.isGrid = true;
+        this.clazz = clazz;
+        this.width = width;
+        this.index = index;
+        this.isReadOnly = true;
+    }
+
+    public Field(String label, Type clazz, int width, int index, Format formatter) {
+
+        this(label, clazz, width,index );
+        this.formatter = formatter;
+    }
+
 	public Field(String label, boolean isGrid, Type clazz,
 			String[] list, String column, int width, int index, boolean isReadOnly) {
 		this.label = label;

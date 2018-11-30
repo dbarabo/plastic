@@ -8,7 +8,8 @@ enum class Type(val clazz: Class<*>, val sqlType: Int, val converter :(x :Any)->
     LONG(Long::class.javaObjectType, java.sql.Types.BIGINT, { x -> (x as Number).toLong()} ),
     STRING(String::class.javaObjectType, java.sql.Types.VARCHAR, { x -> x.toString()} ),
     DECIMAL(Double::class.javaObjectType, java.sql.Types.DECIMAL, { x -> (x as Number).toDouble()} ),
-    DATE(java.time.LocalDateTime::class.javaObjectType, java.sql.Types.TIMESTAMP, { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()} );
+    DATE(java.time.LocalDateTime::class.javaObjectType, java.sql.Types.TIMESTAMP, { x -> (x as java.util.Date).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime()} ),
+    DATE_SQL(java.sql.Date::class.javaObjectType, java.sql.Types.DATE, {x -> x});
 
     companion object {
 

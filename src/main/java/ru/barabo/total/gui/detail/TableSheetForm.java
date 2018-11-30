@@ -1,10 +1,7 @@
 package ru.barabo.total.gui.detail;
 
 import org.apache.log4j.Logger;
-import ru.barabo.total.db.DBStore;
-import ru.barabo.total.db.DetailFieldItem;
-import ru.barabo.total.db.FieldItem;
-import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.*;
 import ru.barabo.total.db.impl.AbstractRowFields;
 import ru.barabo.total.db.impl.DetailField;
 
@@ -360,7 +357,8 @@ public class TableSheetForm<E extends AbstractRowFields> extends JPanel implemen
 
 
 	@Override
-	public void refreshData(List<E> allData) {
+	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
+
 		updataValues(store.getRow());
 	}
 }

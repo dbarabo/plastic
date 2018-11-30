@@ -7,6 +7,7 @@ import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.packet.data.*;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.utils.Util;
 
 import java.util.List;
@@ -90,7 +91,7 @@ public class DBStoreSmsPacket extends DBStorePacket {
 		field.setState(StatePlasticPacket.NEW.ordinal());
 		
 		DBStoreSmsPacketContent content = getDBStoreSmsPacketContent();
-		content.refreshData(getData());
+		content.refreshData(getData(), StateRefresh.ALL);
 		
 		return null;
 	}
@@ -137,11 +138,11 @@ public class DBStoreSmsPacket extends DBStorePacket {
 				
 		field.setState(StatePlasticPacket.SMS_SENT.ordinal() );
 		field.setFileApp(fileName);
-		
-		refreshData();
+
+		updateAllData();
 
 		DBStoreSmsPacketContent content = getDBStoreSmsPacketContent();
-		content.refreshData(getData());
+		content.refreshData(getData(), StateRefresh.ALL);
 		
 		return null;
 	}

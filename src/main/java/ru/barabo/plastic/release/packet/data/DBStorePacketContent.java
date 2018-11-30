@@ -8,13 +8,13 @@ import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.db.impl.AbstractDBStore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBStorePacketContent extends
-		AbstractDBStore<PacketContentRowField>
+public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
   implements ListenerStore<PacketRowField> {
 	
 	final static transient private Logger logger = Logger.getLogger(DBStorePacketContent.class.getName());
@@ -258,7 +258,7 @@ public class DBStorePacketContent extends
 	}
 
 	@Override
-	public void refreshData(List<PacketRowField> allData) {
+	public void refreshData(List<PacketRowField> allData, StateRefresh stateRefresh) {
 		if(allData == null || allData.size() == 0) return;
 		
 		setCursor(allData.get(0));

@@ -1,17 +1,14 @@
 package ru.barabo.total.gui.any;
 
 import ru.barabo.plastic.main.resources.ResourcesManager;
-import ru.barabo.total.db.DBStore;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractTopToolBar <E> extends JToolBar {
+public abstract class AbstractTopToolBar extends JToolBar {
 
-	protected DBStore<E> store;
-	
 	private List<ButtonGroup> groups;
 	
 	protected JComponent focusComp;
@@ -19,9 +16,8 @@ public abstract class AbstractTopToolBar <E> extends JToolBar {
 	
 	abstract protected ButtonKarkas[] getButtonKarkases();
 	
-	public AbstractTopToolBar(DBStore<E> store, JComponent focusComp) {
-		this.store = store;
-		
+	public AbstractTopToolBar(JComponent focusComp) {
+
 		this.focusComp = focusComp;
 		
 		setLayout(new FlowLayout(FlowLayout.LEFT) );

@@ -109,13 +109,7 @@ public class DBStoreSmsSelect extends AbstractFilterStore<SmsSelectField> {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	public void refreshData() {
-		this.setMustUpdate();
-		this.getData();
-	}
-	
-	
+
 	enum TypeSelect {
 		SMS_ADD(DBStoreSmsSelect.SEL_SMS_ADD),
 		SMS_REMOVE(DBStoreSmsSelect.SEL_SMS_REMOVE);

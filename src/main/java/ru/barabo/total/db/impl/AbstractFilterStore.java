@@ -1,10 +1,7 @@
 package ru.barabo.total.db.impl;
 
 import org.apache.log4j.Logger;
-import ru.barabo.total.db.FieldItem;
-import ru.barabo.total.db.FilteredStore;
-import ru.barabo.total.db.ListenerStore;
-import ru.barabo.total.db.Type;
+import ru.barabo.total.db.*;
 
 import java.util.*;
 
@@ -360,25 +357,25 @@ implements FilteredStore<E> {
 		return true;
 	}
 	
-	private void checkAfterFilter() {
+	private void checkAfterFilter(StateRefresh stateRefresh) {
 		if(isEqualFilter(filterData, oldFilterData)) return;
 		
 		
 		oldFilterData.clear();
 		oldFilterData.addAll(filterData);
 		
-		sendListenersRefreshAllData();
+		sendListenersRefreshAllData(stateRefresh);
 	}
 
 	@Override
-	public void sendListenersRefreshAllData() {
+	public void sendListenersRefreshAllData(StateRefresh stateRefresh) {
 		if (!isFiltered()) {
-			super.sendListenersRefreshAllData();
+			super.sendListenersRefreshAllData(stateRefresh);
 			return;
 		}
 
 		for (ListenerStore<E> listenerStore : listenersStore) {
-			listenerStore.refreshData(filterData);
+			listenerStore.refreshData(filterData, stateRefresh);
 		}
 	}
 
@@ -403,7 +400,7 @@ implements FilteredStore<E> {
 		return result.toString();
 	}
 
-	private void setFiltered() {
+	private void setFiltered(StateRefresh stateRefresh) {
 		filterData.clear();
 		
 		for (E row : super.getData()) {
@@ -412,7 +409,7 @@ implements FilteredStore<E> {
 			}
 		}
 		
-		checkAfterFilter();
+		checkAfterFilter(stateRefresh);
 	}
 	
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -441,7 +438,7 @@ implements FilteredStore<E> {
 		}
 		
 		if(isUpdateNeed) {
-			setFiltered();
+			setFiltered(StateRefresh.ALL);
 		}
 
 		return filterData;
@@ -478,7 +475,7 @@ implements FilteredStore<E> {
 		
 		filters[fieldIndex] = value;
 		
-		setFiltered();
+		setFiltered(StateRefresh.FILTER);
 	}
 
 	@Override

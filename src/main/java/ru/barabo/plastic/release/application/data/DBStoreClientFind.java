@@ -6,6 +6,7 @@ import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.ListenerStore;
+import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.db.impl.AbstractDBStore;
 
 import java.util.ArrayList;
@@ -232,7 +233,7 @@ public class DBStoreClientFind extends AbstractDBStore<ClientRowField> implement
 	}
 
 	@Override
-	public void refreshData(List<AppCardRowField> allData) {
+	public void refreshData(List<AppCardRowField> allData, StateRefresh stateRefresh) {
 		refreshFromParent();
 
 	}

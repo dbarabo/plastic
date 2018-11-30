@@ -125,8 +125,7 @@ public class DelegateDetailField {
 			((JTextField)component).setText(value);
 		} else if(component instanceof JComboBox) {
 
-			//noinspection unchecked
-			FactoryComponent.initValue((JComboBox) component, field, value);
+            FactoryComponent.initValue((JComboBox<String>) component, field, value);
 
 		} else if (component instanceof JCheckBox) {
 			boolean isSelected = !(value == null || "".equals(value.trim()) || "0".equals(value

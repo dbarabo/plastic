@@ -114,7 +114,7 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 		setViewType(((Number) field.fieldItems().get(0).getVal()).intValue());
 
 		DBStorePacket dbPacket = (DBStorePacket)dbStorePlastic.getPacket();
-		dbPacket.refreshData();
+		dbPacket.updateAllData();
 
 		return null;
 	}
@@ -171,7 +171,7 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 		setViewType(((Number) field.fieldItems().get(0).getVal()).intValue());
 
 		DBStorePacket dbPacket = (DBStorePacket) dbStorePlastic.getPacket();
-		dbPacket.refreshData();
+		dbPacket.updateAllData();
 
 		return null;
 	}
@@ -251,7 +251,7 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 		setViewType(val);
 
 		DBStorePacket dbPacket = (DBStorePacket)dbStorePlastic.getPacket();
-		dbPacket.refreshData();
+		dbPacket.updateAllData();
 
 		return null;
 	}
