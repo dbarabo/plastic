@@ -9,6 +9,8 @@ import ru.barabo.plastic.release.main.gui.ConfigPlastic;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Objects;
 
 public class Start extends JFrame{
@@ -21,10 +23,7 @@ public class Start extends JFrame{
 			System.exit(0);
 		}
 
-        String check = VersionChecker.checkVersion();
-		if(!check.isEmpty()) {
-            JOptionPane.showMessageDialog(null, check,null, JOptionPane.INFORMATION_MESSAGE );
-        }
+		VersionChecker.runCheckVersion();
 
         try {
             DBStorePlastic plastic = new DBStorePlastic();
@@ -34,7 +33,6 @@ public class Start extends JFrame{
             JOptionPane.showMessageDialog(null, e.getMessage(),null, JOptionPane.ERROR_MESSAGE );
             System.exit(0);
         }
-
 
 	}
 
@@ -53,9 +51,17 @@ public class Start extends JFrame{
 		getContentPane().setLayout( new BorderLayout() );
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		
-		this.setTitle( title() );
+		setTitle( title() );
 
-        this.setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
+        setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
+
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+                VersionChecker.exitCheckVersion();
+            }
+        });
 
 		pack();
 	    setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );

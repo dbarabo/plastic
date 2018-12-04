@@ -6,23 +6,21 @@ import java.net.InetAddress
 
 class AnyTest {
 
-    val logger = Logger.getLogger(AnyTest::class.simpleName)!!
+    private val logger = Logger.getLogger(AnyTest::class.simpleName)!!
 
-    //@Test
+    @Test
     fun inetTest() {
 
         val address = InetAddress.getLocalHost()
 
-        val ips = InetAddress.getAllByName(address.canonicalHostName)
-
-        ips.forEach {
-            logger.error(it)
-        }
+//        ips.forEach {
+//            logger.error(it)
+//        }
 
         logger.error("address.hostAddress=${address.hostAddress}")
-        logger.error("address.address=${address.address}")
+       // logger.error("address.address=${address.address}")
         logger.error("address.hostName=${address.hostName}")
-        logger.error("address.canonicalHostName=${address.canonicalHostName}")
+    //    logger.error("address.canonicalHostName=${address.canonicalHostName}")
 
         logger.error("path=${File(VersionChecker::class.java.protectionDomain.codeSource.location.path).absoluteFile}")
     }

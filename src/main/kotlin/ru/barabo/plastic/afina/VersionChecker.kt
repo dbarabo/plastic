@@ -2,62 +2,85 @@ package ru.barabo.plastic.afina
 
 import java.io.File
 import java.net.InetAddress
+import javax.swing.JOptionPane
+import kotlin.concurrent.thread
+import kotlin.concurrent.timer
 
 object VersionChecker {
+
+    //private val logger = Logger.getLogger(VersionChecker::class.simpleName);
 
     private const val PROGRAM_NAME = "PLASTIC.JAR"
 
     private const val VERSION_JAR = 1
 
+    private const val STATE_RUN = 0
+
+    private const val STATE_EXIT = 2
+
+    private val timer = timer(name = this.javaClass.simpleName, initialDelay = 5_000, daemon = false, period = 20_000) { checkVersionRun() }
+
     @JvmStatic
-    fun checkVersion(): String {
-        val versionNow = AfinaQuery.selectValueType<Number>(SELECT_MIN_VERSION) ?: return ""
+    fun runCheckVersion() {
 
-        if(versionNow.toInt() <= VERSION_JAR) return ""
-
-        addInfoForUpdateJar()
-
-        return NEED_TO_UPDATE
+        updateActualVersion(STATE_RUN)
     }
 
-    private const val NEED_TO_UPDATE =
-        "Ваша версия программы устарела\n После того как Вы закончите работать с ней - она обновится"
+    @JvmStatic
+    fun exitCheckVersion() {
 
-    private fun addInfoForUpdateJar() {
-        val ip = InetAddress.getLocalHost().hostAddress
+        updateActualVersion(STATE_EXIT)
 
-        val fullPath = File(VersionChecker::class.java.protectionDomain.codeSource.location.path).absolutePath
+        timer.cancel()
+        timer.purge()
+    }
 
-        if(isNotExistsToUpdate(ip, fullPath)) {
-            addToUpdateInfo(ip, fullPath);
+    private fun updateActualVersion(state: Int) {
+
+        val params = arrayOf(PROGRAM_NAME,
+            VERSION_JAR,
+            InetAddress.getLocalHost().hostAddress,
+            File(VersionChecker::class.java.protectionDomain.codeSource.location.path).toURI().path,
+            InetAddress.getLocalHost().hostName,
+            state)
+
+        AfinaQuery.execute(UPDATE_VERSION_INFO, params)
+    }
+
+    private fun checkVersionRun() {
+        val minVersion = AfinaQuery.selectValueType<Number>(SELECT_VERSION) ?: return
+
+        if(minVersion.toInt() <= VERSION_JAR) return
+
+        terminateApplication()
+    }
+
+    private fun terminateApplication() {
+        showMessageTerminate()
+
+        Thread.sleep(20_000)
+
+        updateActualVersion(STATE_EXIT)
+
+        System.exit(0)
+    }
+
+    private fun showMessageTerminate() {
+        thread {
+            JOptionPane.showMessageDialog(null, NEED_TO_UPDATE, null, JOptionPane.INFORMATION_MESSAGE)
         }
     }
 
-    private fun addToUpdateInfo(ip: String, fullPath: String) =
-        AfinaQuery.execute(INSERT_UPDATE_PROGRAM, arrayOf(ip, fullPath))
+    private const val UPDATE_VERSION_INFO = "{ call od.PTKB_PLASTIC_AUTO.upsertVersionInfo(?, ?, ?, ?, ?, ?) }"
 
-    private fun isNotExistsToUpdate(ip: String, fullPath: String): Boolean {
+    private const val NEED_TO_UPDATE =
+        "Ваша версия программы безнадежно устарела\n Пожалуйста, закройте ее и в течении 3-х минут она автоматически обновится"
 
-        val isExists = AfinaQuery.selectValueType<Number>(SELECT_EXISTS_TOUPDATE, arrayOf(ip, fullPath)) ?: return true
+    private const val SELECT_VERSION = """
+select coalesce(min(j.VERSION_MIN), 0)
+    from od.PTKB_VERSION_JAR j
+   where j.PROGRAM = '$PROGRAM_NAME'
+     and j.STATE = 0
+  """
 
-        return isExists.toInt() == 0
-    }
-
-    private const val SELECT_MIN_VERSION = """
-select coalesce(min(VERSION_NOW), 0)
-from od.ptkb_version_jar j
-where j.state = 0
-  and j.program = '$PROGRAM_NAME'
-  and j.due < sysdate"""
-
-    private const val SELECT_EXISTS_TOUPDATE = """
-select count(*) from dual
-where exists(select 1 from od.ptkb_version_jar_toupdate u
-where u.state = 0
-  and u.ip_address = ?
-  and u.local_path = ?
-)"""
-
-    private const val INSERT_UPDATE_PROGRAM =
-        "insert into od.ptkb_version_jar_toupdate (ID, IP_ADDRESS, LOCAL_PATH) values (classified.nextval, ?, ?)"
 }
