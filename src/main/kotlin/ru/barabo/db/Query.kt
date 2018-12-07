@@ -128,14 +128,14 @@ open class Query (protected val dbConnection :DbConnection) {
         closeQueryData(session, sessionSetting.transactType, statement, resultSet)
     }
 
-    fun commitFree(sessionSetting : SessionSetting = SessionSetting(false)) {
+    fun commitFree(sessionSetting : SessionSetting) {
 
         val session = dbConnection.getSession(sessionSetting)
 
         closeQueryData(session, TransactType.COMMIT)
     }
 
-    fun rollbackFree(sessionSetting : SessionSetting = SessionSetting(false)) {
+    fun rollbackFree(sessionSetting : SessionSetting) {
 
         val session = dbConnection.getSession(sessionSetting)
 
@@ -218,7 +218,7 @@ open class Query (protected val dbConnection :DbConnection) {
     @Throws(SessionException::class)
     fun execute(query :String, params :Array<Any?>? = null,
                        sessionSetting : SessionSetting,
-                       outParamTypes :IntArray?): List<Any?>? {
+                       outParamTypes :IntArray? = null): List<Any?>? {
 
       //  logger.info("!!!!!!!!!!!!!!!!!$query")
 

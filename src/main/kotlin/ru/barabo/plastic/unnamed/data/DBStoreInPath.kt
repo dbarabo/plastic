@@ -15,7 +15,7 @@ import java.sql.Clob
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-open class DBStoreInPath(private val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldInPath>(),
+open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldInPath>(),
     FilteredStoreInPath<RowFieldInPath> {
 
     override fun selectApplicationStore() {
@@ -26,7 +26,7 @@ open class DBStoreInPath(private val dbStorePlastic: DBStorePlastic) : AbstractF
     }
 
     override fun createUnnamedCards(countCards: Int, productCardTypeId: Long) {
-        val values = AfinaQuery.execute(CREATE_UNNAMED_CARDS, arrayOf(countCards, productCardTypeId), intArrayOf(OracleTypes.NUMBER))
+        val values = AfinaQuery.execute(CREATE_UNNAMED_CARDS, arrayOf<Any?>(countCards, productCardTypeId), intArrayOf(OracleTypes.NUMBER))
 
         saveFilePacket(values!![0]!!)
 
@@ -100,7 +100,7 @@ fun String.ifTest(testPath: String) = if(AfinaQuery.isTestBaseConnect())testPath
 
 fun todayFolder(): String = DateTimeFormatter.ofPattern("yyyy/MM/dd").format(LocalDate.now())
 
-private fun hCardOutToday() = "$H_CARD_OUT/${todayFolder()}".byFolderExists()
+fun hCardOutToday() = "$H_CARD_OUT/${todayFolder()}".byFolderExists()
 
 private const val SELECT_FILENAME = "select od.PTKB_PLASTIC_AUTO.getFileNameIIA from dual"
 

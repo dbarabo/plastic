@@ -46,6 +46,8 @@ object ClientSelect : JPanel() {
         detailClientFilter.processResultOk = processResultOk
 
         detailClientFilter.tabsInBook = component.selectClient()
+
+        detailClientFilter.fioTextFocused()
     }
 }
 

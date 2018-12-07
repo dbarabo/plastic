@@ -99,7 +99,6 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 			return;
 		}
 		PacketRowField field = dBStoreSmsPacket.createDefaultRecord(DEF_NEW_PACKET_NAME);
-		
 
 		DBStoreSmsPacketContent content = dBStoreSmsSelect.getDBStoreSmsPacketContent();
 		

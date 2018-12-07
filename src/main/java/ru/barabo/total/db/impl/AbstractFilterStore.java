@@ -322,8 +322,7 @@ implements FilteredStore<E> {
 			return false;
 		}
 	}
-	
-	
+
 	private boolean isCriteriaFilter(E row) {
 		
 		if(filters == null || filters.length == 0) return true;
@@ -443,6 +442,15 @@ implements FilteredStore<E> {
 
 		return filterData;
 	}
+
+    @Override
+    public Integer getCountUnfilteredData() {
+
+        List<E> data = super.getData();
+
+        return data == null ? 0 : data.size();
+    }
+
 	
 	@Override
 	public E getRow() { 

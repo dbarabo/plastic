@@ -3,12 +3,14 @@ package ru.barabo.plastic.unnamed.gui
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
+import ru.barabo.plastic.unnamed.general.ResultOutClient
 import ru.barabo.plastic.unnamed.gui.dialog.OutCardToClient
 import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
+import java.lang.Exception
 import javax.swing.JTable
 
 class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, focusTable: JTable)
@@ -75,6 +77,16 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
     }
 
     private fun outCardToClient() {
-        OutCardToClient(this, store.row).showResultDialog(store::outCardToClient)
+        OutCardToClient(this, store.row).showResultDialog(::processOutCardToClient)
+    }
+
+    private fun processOutCardToClient(resultOutClient: ResultOutClient) {
+        try {
+            store.outCardToClient(resultOutClient)
+        } catch (e: Exception) {
+            errorMessage(e.message)
+
+            store.updateAllData()
+        }
     }
 }

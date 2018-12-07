@@ -25,9 +25,9 @@ public class PacketContentRowField extends AbstractRowFields {
 		fields.add(new Field("#PLASTIC_PACK", false, Type.LONG, null, "PLASTIC_PACK", 1,
 				PLASTIC_PACK_FIELD, true));
 		fields.add(new Field("Тип", true, Type.LONG,
-				new String[] { "Перевыпуск", "Выпуск", "SMS+", "SMS-", "BTRT25" }, "TYPE_PACK", 80,
+				new String[] { "Перевыпуск", "Выпуск", "SMS+", "SMS-", "BTRT25", "Неименованная" }, "TYPE_PACK", 80,
 				2, true,
-				new int[] { 0, 1, 2, 3, 4 }));
+				new int[] { 0, 1, 2, 3, 4, 5 }));
 		fields.add(new Field("#PRODUCT_TO", false, Type.LONG, null, "PRODUCT_TO", 1, 3, true));
 		fields.add(new Field("#CARD", false, Type.LONG, null, "CARD", 1, 4, true));
 		fields.add(new Field("id Заявления", true, Type.LONG, null, "APP_CARD", 80, 5, true));

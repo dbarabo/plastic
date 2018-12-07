@@ -7,4 +7,6 @@ public interface FilteredStore<E> extends DBStore<E> {
 	String getFilterValue(int columnIndex);
 
 	String getAllFieldValue(int fieldIndex);
+
+    Integer getCountUnfilteredData();
 }

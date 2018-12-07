@@ -4,6 +4,8 @@ import oracle.jdbc.OracleTypes.NUMBER
 import oracle.jdbc.OracleTypes.CLOB
 import ru.barabo.db.Query
 import ru.barabo.db.SessionException
+import ru.barabo.plastic.release.ivr.xml.IvrInfo
+import ru.barabo.plastic.release.ivr.xml.IvrXml
 import ru.barabo.total.resources.owner.CfgTotal
 import java.io.File
 import java.lang.Exception
@@ -56,6 +58,14 @@ object AfinaQuery : Query(AfinaConnect) {
         }
 
         return if(data.isNullOrEmpty() ) null else data[0] as? Clob
+    }
+
+    fun sendIvrRequest(newCardId: Number) {
+        if(isTestBaseConnect()) throw SessionException("Невозможно отправить IVR-запрос на тестовой базе")
+
+        val ivrInfo = IvrInfo.create(newCardId)
+
+        ivrInfo?.let { IvrXml.startIvrProccessByDb(it) } ?: throw SessionException("Ошибка при создании IVR-запроса для карты: $newCardId")
     }
 }
 

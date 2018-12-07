@@ -36,7 +36,6 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 	final static private String SEL_IS_IVR_CARD_ID = "select c.new_card from od.Ptkb_Plast_Pack_Content c "
 			+ "where c.id = ? and nvl(od.ObjAttr.GetOneProp(c.app_card, od.PropClass(-120)), 0) != 0";
 
-
 	protected DBStorePlastic dbStorePlastic;
 	
 	private Number parentId;

@@ -3,8 +3,6 @@ package ru.barabo.plastic.unnamed.gui
 import ru.barabo.gui.swing.HideTabbedPane
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Panel
 import javax.swing.JPanel
 
 class PanelUnnamed(dbStorePlastic: DBStorePlastic) : JPanel() {
@@ -22,7 +20,7 @@ class PanelUnnamed(dbStorePlastic: DBStorePlastic) : JPanel() {
 
         book.addTab( TabError(dbStorePlastic.unnamedError) )
 
-        val leftButton = LeftTabToolBar(book)
+        val leftButton = LeftTabToolBar(book, dbStorePlastic)
 
         add(leftButton, BorderLayout.WEST)
 

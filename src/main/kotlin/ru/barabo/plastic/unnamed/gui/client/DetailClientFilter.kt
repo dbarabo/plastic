@@ -155,6 +155,13 @@ class DetailClientFilter(private val store : ClientCriteriaDBStore<RowFieldClien
         store.addListenerStore(this)
     }
 
+    fun fioTextFocused() {
+
+        this.isFocusable = true
+
+        fioText.isFocusable = true
+    }
+
     fun okSelect() {
 
         tabsInBook.restoreTabs()
