@@ -11,10 +11,7 @@ import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent;
 import ru.barabo.plastic.release.sms.select.data.DBStoreSmsSelect;
 import ru.barabo.plastic.unnamed.data.*;
-import ru.barabo.plastic.unnamed.general.ClientCriteriaDBStore;
-import ru.barabo.plastic.unnamed.general.FilteredStoreInHome;
-import ru.barabo.plastic.unnamed.general.FilteredStoreInPath;
-import ru.barabo.plastic.unnamed.general.TotalCardInfo;
+import ru.barabo.plastic.unnamed.general.*;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FilteredStore;
 
@@ -44,7 +41,7 @@ public class DBStorePlastic {
 
     private FilteredStore<RowFieldInPath> unnamedError;
 
-    private FilteredStore<RowFieldOutClient> unnamedOutClient;
+    private FilteredStoreOutClient<RowFieldOutClient> unnamedOutClient;
 
     private TotalCardInfo totalCardInfo;
 
@@ -107,7 +104,7 @@ public class DBStorePlastic {
         AfinaQuery.INSTANCE.execute(CHECK_WORKSPACE, null);
     }
 
-    public FilteredStore<RowFieldOutClient> getUnnamedOutClient() {
+    public FilteredStoreOutClient<RowFieldOutClient> getUnnamedOutClient() {
         return unnamedOutClient;
     }
 

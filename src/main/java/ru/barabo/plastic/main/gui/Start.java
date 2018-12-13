@@ -41,7 +41,7 @@ public class Start extends JFrame{
 		return new ConfigPlastic(store);
 	}
 
-		/**
+   /**
 	 * рисуем интерфейс
 	 */
 	private void buildUI(DBStorePlastic plastic) {

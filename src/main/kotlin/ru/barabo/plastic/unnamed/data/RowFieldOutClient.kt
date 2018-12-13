@@ -19,8 +19,11 @@ class RowFieldOutClient: AbstractRowFields() {
             Field("№ карты", true, Type.STRING, null, null, 150, 5, true, null,  CardFormat()),
             Field("Выдана", true, Type.DATE, null, null, 80, 6, true, SimpleDateFormat("dd.MM.yyyy")),
             Field("Истекает", true, Type.DATE, null, "CREATED", 80, 7, true, SimpleDateFormat("dd.MM.yyyy")),
-            Field("Автор", true, Type.STRING, null, "CREATOR", 70, 8, true)
+            Field("Автор", true, Type.STRING, null, "CREATOR", 70, 8, true),
+            Field("#APP_CARD", false, Type.LONG, null, "APP_CARD", 1, 9, true)
         )
 
     override fun createFields(): MutableList<FieldItem> = fields()
+
+    fun getApplicationId(): Number? = getFieldByLabel("#APP_CARD").`val` as? Number
 }

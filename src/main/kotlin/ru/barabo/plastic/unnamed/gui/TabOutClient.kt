@@ -1,7 +1,7 @@
 package ru.barabo.plastic.unnamed.gui
 
 import ru.barabo.plastic.unnamed.data.RowFieldOutClient
-import ru.barabo.total.db.FilteredStore
+import ru.barabo.plastic.unnamed.general.FilteredStoreOutClient
 import ru.barabo.total.gui.filter.impl.FilterTableSimple
 import ru.barabo.total.gui.table.TotalRowTable
 import java.awt.BorderLayout
@@ -9,7 +9,7 @@ import java.awt.Color
 import javax.swing.JPanel
 import javax.swing.JScrollPane
 
-class TabOutClient(store: FilteredStore<RowFieldOutClient>) : JPanel()  {
+class TabOutClient(store: FilteredStoreOutClient<RowFieldOutClient>) : JPanel()  {
 
     init {
         layout = BorderLayout()
@@ -25,6 +25,8 @@ class TabOutClient(store: FilteredStore<RowFieldOutClient>) : JPanel()  {
         panelWithFilter.add(filter, BorderLayout.PAGE_START)
 
         panelWithFilter.add(JScrollPane(tableFocus), BorderLayout.CENTER)
+
+        add(TopToolBarOutClient(store, tableFocus), BorderLayout.NORTH)
 
         add(panelWithFilter, BorderLayout.CENTER)
     }

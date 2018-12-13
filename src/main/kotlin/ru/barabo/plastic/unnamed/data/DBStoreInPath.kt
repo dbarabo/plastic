@@ -74,10 +74,11 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
         private const val CREATE_UNNAMED_CARDS = "{ call od.PTKB_PLASTIC_AUTO.createUnnamedCards(?, ?, ?) }"
 
         private const val CREATE_FILE = "{ call od.PTKB_PLASTIC_AUTO.createAppFileData(?, ?, ?) }"
-
-        private const val MSG_ERROR_NO_CONTENT = "Не указано ни одной текущей позиции в таблице"
     }
 }
+
+
+const val MSG_ERROR_NO_CONTENT = "Не указано ни одной текущей позиции в таблице"
 
 inline fun <reified T: AbstractRowFields> createRowField(row: Array<Any?>): T = AbstractRowFields.create(row, T::class.java)
 

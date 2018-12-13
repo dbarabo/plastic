@@ -1,11 +1,27 @@
 package ru.barabo.plastic.unnamed.data
 
+import ru.barabo.db.SessionException
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.release.main.data.DBStorePlastic
+import ru.barabo.plastic.unnamed.general.FilteredStoreOutClient
 import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.impl.AbstractFilterStore
 
-class DBStoreOutClient(private val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldOutClient>() {
+class DBStoreOutClient(private val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldOutClient>(),
+    FilteredStoreOutClient<RowFieldOutClient> {
+
+    override fun selectApplicationStore() {
+
+        val applicationId =  row.getApplicationId()?.toInt() ?: throw SessionException(MSG_ERROR_NO_CONTENT)
+
+        dbStorePlastic.applicationCard.setViewType(applicationId)
+    }
+
+    override fun changePinCode() {
+        sendIvr(row.id)
+
+        updateAllData()
+    }
 
     override fun getTypeSelect(): Int = 0
 

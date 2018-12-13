@@ -3,6 +3,7 @@ package ru.barabo.plastic.unnamed.gui
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath
+import ru.barabo.plastic.unnamed.general.StoreInTotal
 import ru.barabo.plastic.unnamed.gui.dialog.OrderDialog
 import ru.barabo.plastic.unnamed.gui.dialog.ResultOrder
 import ru.barabo.plastic.unnamed.gui.dialog.runPleaseWait
@@ -35,7 +36,7 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
 
     private val buttons = arrayOf(
         ButtonKarkas("order", "Заказать карты", { orderCards() },	null),
-        ButtonKarkas("toApplication", "Заявление", { gotoApplication() }, null),
+        ButtonKarkas("toApplication", "Заявление", { gotoApplication(store) }, null),
         ButtonKarkas(null, null, null, null))
 
     init {
@@ -115,20 +116,6 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
         }
     }
 
-    private fun gotoApplication(): Boolean {
-
-        try {
-            store.selectApplicationStore()
-        } catch (e: Exception) {
-            return errorMessage(e.message)
-        }
-
-        val mainBook = mainBook() ?: return false
-        mainBook.selectedIndex = (mainBook.tabCount  - 1)
-
-        return true
-    }
-
     companion object {
         private const val MAX_CARD_COUNT = 100
 
@@ -161,4 +148,18 @@ fun Component.mainBook(): JTabbedPane? {
     }
 
     return topApplicationBook
+}
+
+fun Component.gotoApplication(store: StoreInTotal): Boolean {
+
+    try {
+        store.selectApplicationStore()
+    } catch (e: Exception) {
+        return errorMessage(e.message)
+    }
+
+    val mainBook = mainBook() ?: return false
+    mainBook.selectedIndex = (mainBook.tabCount  - 1)
+
+    return true
 }

@@ -29,7 +29,8 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
     private var stateButton: ButtonKarkas? =  null
 
     private val buttons = arrayOf(
-                ButtonKarkas(null, null, null, null))
+            ButtonKarkas("toApplication", "Заявление", { gotoApplication(store) }, null),
+            ButtonKarkas(null, null, null, null))
 
     init {
 

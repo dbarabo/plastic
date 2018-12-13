@@ -33,14 +33,6 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         updateAllData()
     }
 
-    private fun sendIvr(idContent: Number) {
-
-        val newCard = AfinaQuery.selectValueType<Number>(SELECT_NEW_CARD_CONTENT, arrayOf(idContent))
-            ?: throw SessionException("Не найдена карта для контента id=[$idContent]")
-
-        AfinaQuery.sendIvrRequest(newCard)
-    }
-
     private fun outCard(resultOutClient: ResultOutClient) {
 
         val uniqueSession = AfinaQuery.uniqueSession()
@@ -66,7 +58,7 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
 
     private fun sendBTRT30(resultOutClient: ResultOutClient, session: SessionSetting) {
 
-        createIIAFile(CREATE_BTRT30_FILE, resultOutClient.contentId, session)
+        createIIAFile(CREATE_BTRT30_FILE, resultOutClient.contentId, session) // 1182344115
     }
 
     private fun smsOn(resultOutClient: ResultOutClient, session: SessionSetting) {
@@ -83,9 +75,6 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         private const val EXEC_BIND_CLIENT = "{ call od.PTKB_PLASTIC_AUTO.bindClientToUnnamedCard(?, ?, ?, ?) }"
 
         private const val EXEC_OUT_CLIENT_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.cardToOneClient(?) }"
-
-        private const val SELECT_NEW_CARD_CONTENT =
-            "select pc.new_card from od.ptkb_plast_pack_content pc where pc.id = ?"
 
         private const val CREATE_SMS_ADD_FILE = "{ call od.PTKB_PLASTIC_AUTO.createSmsToUnnamedClient(?, ?, ?) }"
 
@@ -104,4 +93,15 @@ fun createIIAFile(query: String, firstParamId: Number, session: SessionSetting =
         session, intArrayOf(OracleTypes.CLOB))!![0] as Clob
 
     file.writeText(clob.clobToString(), charset = Charset.forName("cp1251"))
+}
+
+
+private const val SELECT_NEW_CARD_CONTENT = "select pc.new_card from od.ptkb_plast_pack_content pc where pc.id = ?"
+
+fun sendIvr(idContent: Number) {
+
+    val newCard = AfinaQuery.selectValueType<Number>(SELECT_NEW_CARD_CONTENT, arrayOf(idContent))
+        ?: throw SessionException("Не найдена карта для контента id=[$idContent]")
+
+    AfinaQuery.sendIvrRequest(newCard)
 }
