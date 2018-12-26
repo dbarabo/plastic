@@ -9,6 +9,8 @@ interface StoreInTotal {
 interface StoreInPath : StoreInTotal {
 
     fun createUnnamedCards(countCards: Int, productCardTypeId: Long)
+
+    fun goHomeCard()
 }
 
 interface FilteredStoreInPath<E> : StoreInPath, FilteredStore<E>
@@ -16,6 +18,10 @@ interface FilteredStoreInPath<E> : StoreInPath, FilteredStore<E>
 interface StoreInHome : StoreInTotal {
 
     fun outCardToClient(resultOutClient: ResultOutClient)
+
+    fun cardSendToDopOffice()
+
+    fun cardGetFromOffice()
 }
 
 interface FilteredStoreInHome<E> : StoreInHome, FilteredStore<E>

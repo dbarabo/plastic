@@ -7,6 +7,7 @@ import ru.barabo.total.gui.filter.FilterTable;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.JTextComponent;
+import java.awt.*;
 
 public class FilterTableSimple extends JTable implements FilterTable {
 	
@@ -26,6 +27,11 @@ public class FilterTableSimple extends JTable implements FilterTable {
 		setModel(new FilterModelSimple(store, mainTable));
         
         initEditorRenderer(mainTable);
+
+        this.setBackground(new Color(200, 200, 255));
+        this.setForeground(Color.BLACK);
+        this.setSelectionBackground(new Color(200, 200, 255));
+        this.setSelectionForeground(Color.BLACK);
 	}
 	
 	private void initEditorRenderer(JTable mainTable) {

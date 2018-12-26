@@ -18,6 +18,7 @@ import javax.swing.JOptionPane
 import javax.swing.JOptionPane.ERROR_MESSAGE
 import javax.swing.JTabbedPane
 import javax.swing.JTable
+import javax.swing.UIManager
 
 class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, focusTable: JTable)
     : AbstractTopToolBar(focusTable),
@@ -26,8 +27,8 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
     private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
 
     private val stateButtons = mapOf(
-        StatePlasticPacket.OCI_ALL.ordinal to ButtonKarkas("home", "Карты в ГО", {}, null),
-        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", {}, null),
+        StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.ordinal to ButtonKarkas("home", "Карты в ГО", { goHomeCard() }, null),
+        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", { }, null),
         StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", {}, null),
         StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", {}, null)
     )
@@ -99,6 +100,14 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
         }
     }
 
+    private fun goHomeCard() {
+        if(!isYesMessageYesNo(TITLE_TO_DOPIKI, MSG_TO_DOPIKI)) return
+
+        tryCatchDefaultStore(store) {
+            store.goHomeCard()
+        }
+    }
+
     private fun createUnnamedCards(resultOrder: ResultOrder) {
 
         val pleaseWait = runPleaseWait()
@@ -124,6 +133,9 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
         private const val ERROR_MAX_TITLE = "Превышено максимальное кол-во карт"
 
         private const val ERROR_ORDER_TITLE = "Ошибка при заказе(отправке) карт"
+
+        private const val MSG_TO_DOPIKI = "Отправить карты по доп. офисам?"
+        private const val TITLE_TO_DOPIKI = "Карты в Доп. офисы"
     }
 }
 
@@ -162,4 +174,13 @@ fun Component.gotoApplication(store: StoreInTotal): Boolean {
     mainBook.selectedIndex = (mainBook.tabCount  - 1)
 
     return true
+}
+
+fun Component.isYesMessageYesNo(title: String = "", message: String): Boolean {
+    UIManager.put("OptionPane.yesButtonText", "Да")
+    UIManager.put("OptionPane.noButtonText", "Нет")
+
+    val reply = JOptionPane.showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION)
+
+    return JOptionPane.YES_OPTION == reply
 }

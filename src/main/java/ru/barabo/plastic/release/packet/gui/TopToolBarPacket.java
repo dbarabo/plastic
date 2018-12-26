@@ -772,9 +772,8 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 		
 		UIManager.put("OptionPane.yesButtonText", "Да");
 		UIManager.put("OptionPane.noButtonText", "Нет");
-		int reply = JOptionPane.showConfirmDialog(null, 
-				String.format(MSG_GO_HOME), 
-				TITLE_GO_HOME, JOptionPane.YES_NO_OPTION);
+		int reply = JOptionPane.showConfirmDialog(null,
+				MSG_GO_HOME, TITLE_GO_HOME, JOptionPane.YES_NO_OPTION);
 		
 		if (reply != JOptionPane.YES_OPTION) return;
 		

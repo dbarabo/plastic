@@ -19,6 +19,26 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
 
     private val logger = Logger.getLogger(DBStoreInHome::class.java.name)
 
+    override fun cardSendToDopOffice() {
+        row?.getPacketId()?.let {
+            AfinaQuery.execute(EXECUTE_TO_MAIN_OFFICE_PACKET, arrayOf(it))
+
+            1
+        } ?: throw SessionException(MSG_ERROR_NO_CONTENT)
+
+        updateAllData()
+    }
+
+    override fun cardGetFromOffice() {
+        row?.getPacketId()?.let {
+            AfinaQuery.execute(EXECUTE_TO_OFFICE_FROM_OFFICE_PACKET, arrayOf(it))
+
+            1
+        } ?: throw SessionException(MSG_ERROR_NO_CONTENT)
+
+        updateAllData()
+    }
+
     override fun outCardToClient(resultOutClient: ResultOutClient) {
 
         logger.info("resultOutClient.clientId=${resultOutClient.clientId}")
@@ -79,6 +99,10 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         private const val CREATE_SMS_ADD_FILE = "{ call od.PTKB_PLASTIC_AUTO.createSmsToUnnamedClient(?, ?, ?) }"
 
         private const val CREATE_BTRT30_FILE = "{ call od.PTKB_PLASTIC_AUTO.createBtrt30ToUnnamedClient(?, ?, ?)} "
+
+        private const val EXECUTE_TO_MAIN_OFFICE_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.toMainOfficeDopik(?) }"
+
+        private const val EXECUTE_TO_OFFICE_FROM_OFFICE_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.getHomesPacket(?) }"
     }
 }
 

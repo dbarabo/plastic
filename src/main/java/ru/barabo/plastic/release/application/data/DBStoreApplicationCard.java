@@ -26,8 +26,9 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 	final static private String CHANGE_APPLICATION =
 			"{ call od.PTKB_PLASTIC_AUTO.changeApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
-	final static private String TO_SENT_APPLICATION =
-			"{ call od.PTKB_PLASTIC_AUTO.toSentStateApplication(?) }";
+	final static private String TO_SENT_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.toSentStateApplication(?) }";
+
+    final static private String SEND_TO_PC_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.sendToPcApplication(?) }";
 
 	final static private String APPLICATION_IS_EMPTY = "Нечего сохранять в заявлении";
 
@@ -96,6 +97,36 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 				.getVal()));
 	}
 
+    public String sendToPcApplication() {
+        AppCardRowField field = getRow();
+
+        if (field == null ||
+                field.getFieldByLabel(AppCardRowField.FIELD_STATE_NAME).getVal() == null) {
+            return NO_STATE_INFO;
+        }
+
+        String error = sendToPcApplication(field);
+
+        if (error != null) {
+            return error;
+        }
+
+        setViewType(((Number) field.fieldItems().get(0).getVal()).intValue());
+
+        DBStorePacket dbPacket = (DBStorePacket)dbStorePlastic.getPacket();
+        dbPacket.updateAllData();
+
+        return null;
+    }
+
+    private String sendToPcApplication(AppCardRowField field) {
+        try {
+            AfinaQuery.INSTANCE.execute(SEND_TO_PC_APPLICATION, new Object[] { field.fieldItems().get(0).getVal() });
+        } catch (SessionException e) {
+            return e.getMessage();
+        }
+        return null;
+    }
 
 	public String toSentApplication() {
 		AppCardRowField field = getRow();

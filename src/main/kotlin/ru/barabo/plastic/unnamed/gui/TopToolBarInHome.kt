@@ -5,6 +5,7 @@ import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
 import ru.barabo.plastic.unnamed.general.ResultOutClient
 import ru.barabo.plastic.unnamed.gui.dialog.OutCardToClient
+import ru.barabo.total.db.DBStore
 import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
@@ -21,8 +22,8 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
 
     private val stateButtons = mapOf(
         StatePlasticPacket.OCI_ALL.ordinal to ButtonKarkas("home", "Карты в ГО", {}, null),
-        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", {}, null),
-        StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", {}, null),
+        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", { cardSendToDopOffice() }, null),
+        StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", { cardGetToDopMainOffice() }, null),
         StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
     )
 
@@ -77,17 +78,36 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
         repaint()
     }
 
+    private fun cardGetToDopMainOffice() {
+        tryCatchDefaultStore(store) {
+            store.cardGetFromOffice()
+        }
+    }
+
+    private fun cardSendToDopOffice() {
+        tryCatchDefaultStore(store) {
+            store.cardSendToDopOffice()
+        }
+    }
+
     private fun outCardToClient() {
         OutCardToClient(this, store.row).showResultDialog(::processOutCardToClient)
     }
 
     private fun processOutCardToClient(resultOutClient: ResultOutClient) {
-        try {
-            store.outCardToClient(resultOutClient)
-        } catch (e: Exception) {
-            errorMessage(e.message)
 
-            store.updateAllData()
+        tryCatchDefaultStore(store) {
+            store.outCardToClient(resultOutClient)
         }
+    }
+}
+
+fun tryCatchDefaultStore(store: DBStore<*>, process: ()->Unit) {
+    try {
+        process()
+    } catch (e: Exception) {
+        errorMessage(e.message)
+
+        store.updateAllData()
     }
 }

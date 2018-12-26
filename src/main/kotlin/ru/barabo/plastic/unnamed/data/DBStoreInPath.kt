@@ -33,6 +33,16 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
         updateAllData()
     }
 
+    override fun goHomeCard() {
+        row?.getPacketId()?.let {
+            AfinaQuery.execute(EXECUTE_GO_HOME_PACKET, arrayOf(it))
+
+            1
+        } ?: throw SessionException(MSG_ERROR_NO_CONTENT)
+
+        updateAllData()
+    }
+
     override fun getTypeSelect(): Int = 0
 
     override fun setViewType(type: Int) {}
@@ -74,6 +84,8 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
         private const val CREATE_UNNAMED_CARDS = "{ call od.PTKB_PLASTIC_AUTO.createUnnamedCards(?, ?, ?) }"
 
         private const val CREATE_FILE = "{ call od.PTKB_PLASTIC_AUTO.createAppFileData(?, ?, ?) }"
+
+        private const val EXECUTE_GO_HOME_PACKET = "{ call od.PTKB_PLASTIC_AUTO.goHomePacket(?) }"
     }
 }
 

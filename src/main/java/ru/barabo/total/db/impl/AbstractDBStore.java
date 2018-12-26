@@ -154,8 +154,6 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 			}
 		}
 	}
-	
-	
 
 	@Override
 	public List<E> getData() {

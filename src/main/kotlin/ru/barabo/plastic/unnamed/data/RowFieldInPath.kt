@@ -31,6 +31,8 @@ class RowFieldInPath : AbstractRowFields() {
     fun getCardNumber(): String? = getFieldByLabel("№ карты").valueField
 
     fun getTypeCard(): String? = getFieldByLabel("Тип карты").valueField
+
+    fun getPacketId(): Number? = getFieldByLabel("#PLASTIC_PACK").`val` as? Number
 }
 
 fun statePlasticPacketLabels() = StatePlasticPacket.values().map { it.label }.toTypedArray()
