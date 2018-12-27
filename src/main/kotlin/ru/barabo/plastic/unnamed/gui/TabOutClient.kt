@@ -18,9 +18,7 @@ class TabOutClient(store: FilteredStoreOutClient<RowFieldOutClient>) : JPanel() 
 
         val panelWithFilter = JPanel(BorderLayout(), true)
 
-        val filter = FilterTableSimple(store, tableFocus).apply {
-            this.background = Color.BLUE
-        }
+        val filter = FilterTableSimple(store, tableFocus)
 
         panelWithFilter.add(filter, BorderLayout.PAGE_START)
 

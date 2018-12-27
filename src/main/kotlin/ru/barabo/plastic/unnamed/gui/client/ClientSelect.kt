@@ -49,6 +49,13 @@ object ClientSelect : JPanel() {
 
         detailClientFilter.fioTextFocused()
     }
+
+    @JvmStatic
+    fun selectClient(component: Component) {
+        val mainBook = component.mainBook() ?: return errorMessage(ERROR_MAIN_BOOK_NOT_FOUND).run { TabsInBook() }
+
+        mainBook.addTab(TITLE, ClientSelect)
+    }
 }
 
 fun Component.selectClient(): TabsInBook {

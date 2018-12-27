@@ -6,6 +6,7 @@ import ru.barabo.plastic.release.ivr.xml.IvrInfo;
 import ru.barabo.plastic.release.ivr.xml.IvrXml;
 import ru.barabo.plastic.release.packet.data.*;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
+import ru.barabo.plastic.unnamed.gui.client.ClientSelect;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
 import ru.barabo.total.db.StateRefresh;
@@ -101,7 +102,7 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 			new ButtonKarkas("mc", "Перевыпустить", this::reIssueCards, null),         //0
 			new ButtonKarkas("newFile", "Отправить файл", this::createFile, null), // 1
 			new ButtonKarkas("wait", "Ждём", this::wait, null),                        //2
-			new ButtonKarkas("wait", "Ждём", this::wait, null),                        //3
+			new ButtonKarkas("wait", "Ждём", this::toSelectClient, null),                        //3
 			new ButtonKarkas("returnNew", "Вернуть на отправку", this::toCreateFileState, null),                        //4
 			new ButtonKarkas("wait", "Ждём", this::wait, null),                        //5
 			new ButtonKarkas("wait", "Ждём", this::wait, null),                        //6
@@ -756,6 +757,10 @@ public class TopToolBarPacket <E extends PacketRowField> extends AbstractTopTool
 
 		focusComp.requestFocus();
 	}
+
+	private void toSelectClient(ActionEvent e) {
+        ClientSelect.selectClient( (Component)e.getSource() );
+    }
 	
 	protected void wait(ActionEvent e) {
 	
