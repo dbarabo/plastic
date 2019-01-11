@@ -62,9 +62,9 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
 
             AfinaQuery.execute( EXEC_OUT_CLIENT_CONTENT, resultOutClient.paramContentId(), uniqueSession)
 
-            smsOn(resultOutClient, uniqueSession)
+            val file = smsOn(resultOutClient, uniqueSession)
 
-            sendBTRT30(resultOutClient, uniqueSession)
+            sendBTRT30(resultOutClient, uniqueSession, file.name)
 
             AfinaQuery.commitFree(uniqueSession)
         } catch (e: Exception) {
@@ -76,15 +76,12 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         }
     }
 
-    private fun sendBTRT30(resultOutClient: ResultOutClient, session: SessionSetting) {
+    private fun sendBTRT30(resultOutClient: ResultOutClient, session: SessionSetting, notFileName: String): File =
+        createIIAFile(CREATE_BTRT30_FILE, resultOutClient.contentId, session, notFileName)
 
-        createIIAFile(CREATE_BTRT30_FILE, resultOutClient.contentId, session) // 1182344115
-    }
 
-    private fun smsOn(resultOutClient: ResultOutClient, session: SessionSetting) {
-
+    private fun smsOn(resultOutClient: ResultOutClient, session: SessionSetting): File =
         createIIAFile(CREATE_SMS_ADD_FILE, resultOutClient.contentId, session)
-    }
 
     override fun initData(): MutableList<RowFieldInPath> =
         AfinaQuery.selectCursor(SELECT_IN_HOME).map { createRowField<RowFieldInPath>(it) }.toMutableList()
@@ -110,15 +107,30 @@ private fun ResultOutClient.toParamsBind(): Array<Any?> = arrayOf(contentId, cli
 
 private fun ResultOutClient.paramContentId(): Array<Any?> = arrayOf(contentId)
 
-fun createIIAFile(query: String, firstParamId: Number, session: SessionSetting = SessionSetting(false)) {
-    val file = File("${hCardOutToday()}/${getApplicationFileName()}")
+fun createIIAFile(query: String, firstParamId: Number,
+                  session: SessionSetting = SessionSetting(false),
+                  notFileName: String = ""): File {
+    val file = unicFileName(notFileName)
 
     val clob = AfinaQuery.execute(query, arrayOf(firstParamId, file.name),
         session, intArrayOf(OracleTypes.CLOB))!![0] as Clob
 
     file.writeText(clob.clobToString(), charset = Charset.forName("cp1251"))
+
+    return file
 }
 
+private fun unicFileName(notFileName: String): File {
+
+    val file = File("${hCardOutToday()}/${getApplicationFileName()}")
+
+    if(notFileName.isNotEmpty() && file.name == notFileName) {
+        Thread.sleep(1000)
+
+        return unicFileName(notFileName)
+    }
+    return file
+}
 
 private const val SELECT_NEW_CARD_CONTENT = "select pc.new_card from od.ptkb_plast_pack_content pc where pc.id = ?"
 
