@@ -19,4 +19,6 @@ interface ConverterValue {
     }
 
     fun convertFromBase(value :Any, javaType :Class<*>) :Any?
+
+    fun convertFromStringToJava(value :String, javaType :Class<*>) :Any?
 }

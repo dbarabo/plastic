@@ -1,16 +1,15 @@
 package ru.barabo.total.db.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
 import ru.barabo.total.db.StateRefresh;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class AbstractDBStore<E extends AbstractRowFields> implements DBStore<E> {
 	
-	final static transient private Logger logger = Logger.getLogger(AbstractDBStore.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(AbstractDBStore.class.getName());
 
 	volatile private List<E> data; 
 	private boolean isMustUpdate;
@@ -166,7 +165,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 			
 			data = initData();
 			
-			logger.info(" DBStoreSmsPacketContent data.size() = " + data.size());
+			//logger.info(" DBStoreSmsPacketContent data.size() = " + data.size());
 
 			changeCursor(oldCursor);
 			
@@ -244,7 +243,7 @@ public abstract class AbstractDBStore<E extends AbstractRowFields> implements DB
 			cursor = data.indexOf(row);
 		}
 		
-		logger.info("setRow cursor=" + cursor);
+		//logger.info("setRow cursor=" + cursor);
 		
 		oldCursorData = cloneRow(row);
 		

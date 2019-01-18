@@ -1,8 +1,11 @@
 package ru.barabo.db
 
+import org.apache.log4j.Logger
 import ru.barabo.db.annotation.*
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.HashMap
+import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.full.declaredMembers
@@ -11,53 +14,53 @@ import kotlin.reflect.jvm.javaType
 
 open class TemplateQuery (private val query :Query) {
 
-
     companion object {
 
-        private fun errorNotFoundAnnotationSelectQuery(className :String?) = "Annotation @SelectQuery not found for class $className"
+        private val logger = Logger.getLogger(TemplateQuery::class.simpleName)!!
 
-        private fun errorNotFoundAnnotationTableName(className :String?) = "Annotation @TableName not found for class $className"
+        private fun errorNotFoundAnnotationSelectQuery(className :String?) = "Annotation @SelectQuery not found for class $className"
 
         private fun errorNotFoundAnnotationColumnName(className :String?) = "Annotation @ColumnName not found for class $className"
 
         private fun errorNotFoundAnnotationSequenceName(className :String?) = "Annotation @SequenceName not found for class $className"
 
-        private fun errorValueType(typeSql :Int, value :Any) = "value $value is not type $typeSql"
-
-        private val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
-
-        private fun deleteTemplate(table :String) = "delete from $table where id = ?"
+        private const val ERROR_NULL_VALUE_TYPE = "Value and Type value is null"
 
         private fun errorSequenceReturnNull(sequence :String) = "Sequence expression return NULL $sequence"
+    }
 
-        private val ID_COLUMN = "ID"
+    fun startLongTransaction(): SessionSetting = query.uniqueSession()
+
+    fun commitLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+        query.commitFree(sessionSetting)
+    }
+
+    fun rollbackLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+        query.rollbackFree(sessionSetting)
     }
 
     @Throws(SessionException::class)
-    fun <T> select(row :Class<T>, callBack :(priorRow :T?, row :T)->Unit) {
-        val selectQuery =  getSelect(row)
+    fun select(select: String, params: Array<in Any?>? = null): List<Array<Any?>> = query.select(select, params)
 
+    @Throws(SessionException::class)
+    fun selectValue(select: String, params: Array<in Any?>? = null,
+                    sessionSetting : SessionSetting = SessionSetting(false)): Any? =
+            query.selectValue(select, params, sessionSetting)
+
+    @Throws(SessionException::class)
+    fun <T> select(select: String, params: Array<Any?>?, row: Class<T>, callBack: (row :T)->Unit) {
         var item :T? = null
-
-        var priorItem :T?  = null
 
         val propertyByColumn = getPropertyByColumn(row)
 
-        val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
-            (row.newInstance() as ParamsSelect).selectParams() } else null
-
-        query.select(selectQuery, params, SessionSetting(true)) lambda@ {
+        query.select(select, params, SessionSetting(false)) lambda@ {
             isNewRow :Boolean, value :Any?, column :String? ->
 
             if(isNewRow) {
                 val newItem = row.newInstance()
 
-                if(item != null) {
-                    val itemCopy = item
-                    callBack(priorItem, itemCopy!!)
-                }
+                item?.let { callBack(it) }
 
-                priorItem = item
                 item = newItem
 
                 return@lambda
@@ -67,82 +70,84 @@ open class TemplateQuery (private val query :Query) {
 
             val member = propertyByColumn[column] ?: return@lambda
 
-            //logger.info("javaType=${member.returnType.javaType}")
-
-            //logger.info("value=$value")
-
-            val javaValue =  valueToJava(item as Any, value, member.returnType.javaType as Class<*>)
+            val javaValue =  valueToJava(item as Any, value, member, column!!)
 
             javaValue ?: return@lambda
 
-            //logger.info("javaValue=$javaValue")
-
             member.setter.call(item, javaValue)
-          }
-
-        if(item != null) {
-            callBack(priorItem, item!!)
-        }
-    }
-
-    private fun getPropertyByColumn(row :Class<*>) :Map<String, KMutableProperty<*>> {
-        val propertyByColumn = HashMap<String, KMutableProperty<*>>()
-
-        for (member in row.kotlin.declaredMemberProperties.filterIsInstance<KMutableProperty<*>>()) {
-            val columnName =member.findAnnotation<ColumnName>()?.name?.toUpperCase()?:continue
-
-            propertyByColumn.put(columnName, member)
         }
 
-        return propertyByColumn
+        item?.let { callBack(it) }
     }
 
     @Throws(SessionException::class)
-    fun save(item :Any) {
+    fun <T> select(row :Class<T>, callBack :(row :T)->Unit) {
+        val selectQuery =  getSelect(row)
+
+        val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
+            (row.newInstance() as ParamsSelect).selectParams() } else null
+
+        select(selectQuery, params, row, callBack)
+    }
+
+    @Throws(SessionException::class)
+    fun save(item :Any, sessionSetting: SessionSetting = SessionSetting(false)): EditType {
 
         val idField = getFieldData(item, ID_COLUMN)
 
-        if(idField.second is Class<*>) {
+        return if(idField.second is Class<*>) {
 
-            setSequenceValue(item)
+            val id = setSequenceValue(item, sessionSetting)
 
-            insert(item)
+            insert(item, sessionSetting)
+
+            reCalcValue(id, item, sessionSetting)
+
+            EditType.INSERT
 
         } else {
-            updateById(item)
+            updateById(item, sessionSetting)
+
+            EditType.EDIT
         }
     }
 
     @Throws(SessionException::class)
-    fun deleteById(item :Any) {
+    fun deleteById(item: Any, sessionSetting: SessionSetting = SessionSetting(false)) {
+        val idField = getFieldData(item, ID_COLUMN)
 
         val tableName = getTableName(item)
 
-        val idField = getFieldData(item, ID_COLUMN)
-
-        query.execute(deleteTemplate(tableName), Array(1, {idField.second}))
+        executeQuery(templateDelete(tableName, idField.first), arrayOf(idField.second), sessionSetting )
     }
 
+    private fun templateDelete(table: String, idColumn: String) = "delete from $table where $idColumn = ?"
+
+    @Throws(SessionException::class)
+    fun executeQuery(executeQuery: String, params: Array<Any?>?, sessionSetting: SessionSetting = SessionSetting(false)) {
+
+        query.execute(executeQuery, params, sessionSetting)
+    }
 
     @Throws(SessionException::class)
     private fun getSelect(row :Class<*>) :String = row.kotlin.findAnnotation<SelectQuery>()?.name
             ?: throw SessionException(errorNotFoundAnnotationSelectQuery(row.simpleName))
 
     @Throws(SessionException::class)
-    private fun insert (item :Any) {
+    private fun insert (item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
 
         val tableName = getTableName(item)
 
-        val fieldsData = getFieldsData(item)
+        val fieldsData = getFieldsDataUpdate(item)
 
-        insert(tableName, fieldsData)
+        insert(tableName, fieldsData, sessionSetting)
     }
 
     @Throws(SessionException::class)
-    private fun updateById(item :Any) {
+    private fun updateById(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
         val tableName = getTableName(item)
 
-        val fieldsData = getFieldsData(item)
+        val fieldsData = getFieldsDataUpdate(item)
 
         val idField = fieldsData.firstOrNull { it.first.equals(ID_COLUMN, true) }
                 ?: throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
@@ -151,74 +156,84 @@ open class TemplateQuery (private val query :Query) {
 
         val updateColumns = updateFields.joinToString(" = ?, ",  "", " = ?"){it.first}
 
-        val params = updateFields.map { it.second }.toMutableList()
+        val params = updateFields.asSequence().map { it.second }.toMutableList()
         params.add(idField.second)
 
         val updateQuery = updateTemplate(tableName, updateColumns, idField.first)
 
-        query.execute(updateQuery, params.toTypedArray())
+        query.execute(query = updateQuery, params = params.toTypedArray(), sessionSetting = sessionSetting)
+
+        reCalcValue(idField.second, item, sessionSetting)
     }
 
-    private fun setSequenceValue(item :Any) {
+    private fun setSequenceValue(item :Any, sessionSetting : SessionSetting = SessionSetting(false)): Any {
         for (member in item::class.declaredMembers) {
 
-            val annotationName = member.findAnnotation<SequenceName>()
+            val annotationName = member.findAnnotation<SequenceName>()?.name?:continue
 
-            if(annotationName?.name != null){
+            val valueSequence = getNextSequenceValue(annotationName, sessionSetting)
 
-                val valueSequence = getNextSequenceValue(annotationName.name)
-
-                (member as KMutableProperty<*>).setter.call(item,
+            (member as KMutableProperty<*>).setter.call(item,
                         Type.convertValueToJavaTypeByClass(valueSequence, member.returnType.javaType as Class<*>))
-                return
-            }
+            return valueSequence
         }
         throw SessionException(errorNotFoundAnnotationSequenceName(item::class.simpleName))
     }
 
+    fun reCalcValue(idParam: Any, item :Any, sessionSetting: SessionSetting) {
+        for (member in item::class.declaredMembers) {
+            val annotationCalc = member.findAnnotation<CalcColumnQuery>()?.query ?: continue
+
+            val valueCalc = calcValueById(annotationCalc, idParam, sessionSetting)
+
+            (member as KMutableProperty<*>).setter.call(item,
+                    valueCalc?.let { Type.convertValueToJavaTypeByClass(it, member.returnType.javaType as Class<*>)})
+        }
+    }
+
+    private fun calcValueById(selectCalc: String, idParam: Any, sessionSetting : SessionSetting): Any? =
+        query.selectValue(selectCalc, arrayOf(idParam), sessionSetting)
+
     @Throws(SessionException::class)
-    private fun getNextSequenceValue(sequenceExpression: String) :Any {
-        return query.selectValue(sequenceExpression)
+    private fun getNextSequenceValue(sequenceExpression: String, sessionSetting : SessionSetting = SessionSetting(false)) :Any {
+        return query.selectValue(sequenceExpression, null, sessionSetting)
                 ?: throw SessionException(errorSequenceReturnNull(sequenceExpression))
     }
 
     private fun updateTemplate(table :String, valueColumns :String, idColumn :String) = "update $table set $valueColumns where $idColumn = ?"
 
-
     private fun getInsertQuery(table :String, fields :List<FieldData>) :String {
 
         val columnNames = fields.joinToString(", ") {it.first}
 
-        val questions = fields.joinToString(", ") { _ -> "?" }
+        val questions = fields.joinToString(", ") { "?" }
 
         return "insert into $table ( $columnNames ) values ( $questions )"
     }
 
     @Throws(SessionException::class)
-    private fun getTableName(item :Any) :String = item::class.findAnnotation<TableName>()?.name
-            ?: throw SessionException(errorNotFoundAnnotationTableName(item::class.simpleName))
-
-
-    @Throws(SessionException::class)
-    private fun insert(table :String, fields :List<FieldData>) {
+    private fun insert(table :String, fields :List<FieldData>, sessionSetting : SessionSetting = SessionSetting(false)) {
 
         val queryInsert= getInsertQuery(table, fields)
 
         val params :Array<Any?>? = fields.map { it.second }.toTypedArray()
 
-        query.execute(queryInsert, params)
+        query.execute(queryInsert, params, sessionSetting)
     }
 
     @Throws(SessionException::class)
     private fun getFieldData(item :Any, findColumn :String) :FieldData {
         for (member in item::class.declaredMemberProperties) {
-            val annotationName =member.findAnnotation<ColumnName>()
-
-            val annotationType =member.findAnnotation<ColumnType>()
+            val annotationName = member.findAnnotation<ColumnName>()
 
             if(annotationName?.name != null && (findColumn.equals(annotationName.name, true))) {
 
-                return FieldData(annotationName.name, valueToSql(item, member.call(item), annotationType?.type) )
+                val annotationType = member.findAnnotation<ColumnType>()
+
+                val converter = member.findAnnotation<Converter>()?.converterClazz
+
+                return FieldData(annotationName.name,
+                        valueToSql(member.call(item), annotationType?.type, converter) )
             }
         }
         throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
@@ -228,18 +243,23 @@ open class TemplateQuery (private val query :Query) {
      * из аннотаций вытаскиваем данные для sql
      */
     @Throws(SessionException::class)
-    private fun getFieldsData(item :Any) :ArrayList<FieldData> {
+    private fun getFieldsDataUpdate(item :Any) :ArrayList<FieldData> {
 
         val fieldsData = ArrayList<FieldData>()
 
         for (member in item::class.declaredMemberProperties) {
-            val annotationName =member.findAnnotation<ColumnName>()
+            if(member.findAnnotation<ReadOnly>() != null) continue
 
-            val annotationType =member.findAnnotation<ColumnType>()
+            val annotationName = member.findAnnotation<ColumnName>()
 
             if(annotationName?.name != null) {
 
-                fieldsData.add(FieldData(annotationName.name, valueToSql(item, member.call(item), annotationType?.type) ))
+                val annotationType =member.findAnnotation<ColumnType>()
+
+                val converterClass = member.findAnnotation<Converter>()?.converterClazz
+
+                fieldsData.add(FieldData(annotationName.name,
+                        valueToSql(member.call(item), annotationType?.type, converterClass) ))
             }
         }
 
@@ -248,56 +268,63 @@ open class TemplateQuery (private val query :Query) {
         return fieldsData
     }
 
-    @Throws(SessionException::class)
-    private fun valueToJava(item :Any, value :Any, javaType :Class<*>) :Any? {
-
-        if(Type.isConverterExists(javaType)) {
-            return Type.convertValueToJavaTypeByClass(value, javaType)
-        }
-
-        if(item is ConverterValue) {
-            return item.convertFromBase(value, javaType)
-        }
-
-        return value
-    }
-
     /**
      * преобразует значение value к типу type
      * Если value == null => return Class.Type
      */
     @Throws(SessionException::class)
-    private fun valueToSql(item :Any, value :Any?, type :Int?) :Any {
+    private fun valueToSql(value :Any?, type :Int?, converterClazz : KClass<*>?) :Any {
+
+        logger.error("value=$value")
+        logger.error("type=$type")
+        logger.error("converterClazz=$converterClazz")
 
         if(value != null && type == null) {
             return value
         }
 
         if(value == null && type != null) {
-            return Type.getClassBySqlType(type)
+
+            return Type.getClassBySqlType(type).apply { logger.error("return=$this") }
         }
 
         if(value == null || type == null) {
             throw SessionException(ERROR_NULL_VALUE_TYPE)
         }
 
+        if(converterClazz != null) {
+            val instance = converterClazz.objectInstance ?: converterClazz.java.newInstance()
+
+            return (instance as ConverterValue).convertToBase(value).apply {
+                logger.error("Converter return=$this")
+            }
+        }
+
         if((value is Number) && Type.isNumberType(type)) {
             return value
         }
 
-        if((value is Date) && Type.isDateType(type)) {
-            return value
+        if(Type.isDateType(type)) {
+            if(value is Date) {
+                return java.sql.Date(value.time)
+            }
+
+            if(value is LocalDate) {
+                return Type.localDateToSqlDate(value)
+            }
+
+            if(value is LocalDateTime) {
+                return Type.localDateToSqlDate(value)
+            }
         }
 
         if(value is String && Type.isStringType(type) ) {
             return value
         }
 
-        if(item is ConverterValue) {
-            return item.convertToBase(value)
-        }
+        val (_,  newValue) = getFieldData(value, ID_COLUMN)
 
-        throw SessionException(errorValueType(type, value) )
+        return newValue
     }
 
 }

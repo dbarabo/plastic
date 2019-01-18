@@ -1,6 +1,5 @@
 package ru.barabo.total.gui.table;
 
-import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.ListenerStore;
@@ -20,7 +19,7 @@ import java.util.List;
 public class TotalRowTable<E extends AbstractRowFields> extends JTable
 implements ListenerStore<E> {
 	
-	final static transient private Logger logger = Logger.getLogger(TotalRowTable.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(TotalRowTable.class.getName());
 
 	private DBStore<E> store;
 
@@ -55,14 +54,14 @@ implements ListenerStore<E> {
 	}
 
 	protected AbstractTableModel getDefaultTableModel(DBStore<E> store) {
-		return new TableModelPlanExecData<E>(store);
+		return new TableModelPlanExecData<>(store);
 	}
 
 	public void setMustFullRefresh() {
 		this.isMustFullRefresh = true;
 	}
 	
-	protected void selectListener(ListSelectionEvent e) {
+	private void selectListener(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting ()) return;
 		
         ListSelectionModel selModel = (ListSelectionModel)e.getSource();
@@ -71,7 +70,7 @@ implements ListenerStore<E> {
         	
         int index = selModel.getMinSelectionIndex ();
         	
-        logger.info(" e.getFirstIndex()=" +  index);
+        //logger.info(" e.getFirstIndex()=" +  index);
         	
         List<E> data = store.getData();
         	
@@ -79,8 +78,8 @@ implements ListenerStore<E> {
 		  return;
 		}
 
-		logger.debug(" data=" +  data);
-		logger.debug(" data.size()=" +  data.size());
+		//logger.debug(" data=" +  data);
+		//logger.debug(" data.size()=" +  data.size());
 			
 		store.setRow(data.get(index));
 	}
@@ -113,13 +112,13 @@ implements ListenerStore<E> {
 		
 		if(data == null) return;
 		
-		String tableData = "";
+		StringBuilder tableData = new StringBuilder();
 		
 		for (E row : data) {
-			tableData += row.getRowString() + "\n";
+			tableData.append(row.getRowString()).append("\n");
 		}
 			
-		StringSelection selection = new StringSelection(tableData);
+		StringSelection selection = new StringSelection(tableData.toString());
 
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
 	}
@@ -137,7 +136,7 @@ implements ListenerStore<E> {
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
 	}
 
-	protected void setColumnmSizes() {
+	private void setColumnmSizes() {
 		
 		//getTableHeader().setResizingAllowed(false);
 		//setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS/*AUTO_RESIZE_SUBSEQUENT_COLUMNS*/); 

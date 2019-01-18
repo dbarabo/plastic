@@ -1,6 +1,5 @@
 package ru.barabo.plastic.release.packet.data;
 
-import org.apache.log4j.Logger;
 import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
@@ -17,7 +16,7 @@ import java.util.List;
 public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
   implements ListenerStore<PacketRowField> {
 	
-	final static transient private Logger logger = Logger.getLogger(DBStorePacketContent.class.getName());
+	//final static transient private Logger logger = Logger.getLogger(DBStorePacketContent.class.getName());
 	
 	final static private String SEL_CONTENT = "{ ? = call od.PTKB_PLASTIC_AUTO.getPlasticContent( ? ) }";
 	
@@ -189,8 +188,8 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
         return null;
 	}
 
-	public PacketContentRowField createReissueCardRecord(Number parentId, Number docId, 
-			int typeSelect) {
+	public void createReissueCardRecord(Number parentId, Number docId,
+										int typeSelect) {
 		final java.sql.Date now = new java.sql.Date(System.currentTimeMillis());
 		
 		Number cardId = (typeSelect == 0 || typeSelect == 1) ? docId : null;
@@ -203,11 +202,9 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 		
 		PacketContentRowField field = PacketContentRowField.create(row);
 		
-		logger.info("field=" + field);
+		//logger.info("field=" + field);
 		
 		insertRow(field);
-		
-		return field;
 	}
 
 	public PacketContentRowField createBtrt25Record(Number parentId, Number cardId) {
@@ -249,7 +246,7 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 		
 		parentId =  row.getId();
 		
-		logger.info(this.getClass().getName() + " setCursor parentId=" + parentId);
+		//logger.info(this.getClass().getName() + " setCursor parentId=" + parentId);
 
 		setMustUpdate();
 		getData();
