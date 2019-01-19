@@ -19,8 +19,9 @@ data class AccountValue(
 ) : ParamsSelect {
 
     override fun selectParams(): Array<Any?>? = arrayOf(
-        Account.selectedAccount,
-        Currency.selectedCurrency,
-        Terminal.selectedTerminal,
-        Office.selectedOffice)
+        Account.selectedAccount?.id?:Int.javaClass,
+        Currency.selectedCurrency?.code?:Int.javaClass,
+        Terminal.selectedTerminal?.terminalId?:String.javaClass,
+        Office.selectedOffice?.id?:Int.javaClass,
+        ClientType.selectedClientType?.id?:Int.javaClass)
 }
