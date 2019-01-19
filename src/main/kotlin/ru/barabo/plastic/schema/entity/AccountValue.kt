@@ -20,5 +20,7 @@ data class AccountValue(
 
     override fun selectParams(): Array<Any?>? = arrayOf(
         Account.selectedAccount,
-        Currency.selectedCurrency)
+        Currency.selectedCurrency,
+        Terminal.selectedTerminal,
+        Office.selectedOffice)
 }
