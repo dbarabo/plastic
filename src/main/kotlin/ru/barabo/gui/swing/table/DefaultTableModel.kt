@@ -13,7 +13,7 @@ class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
 
-        val entity = store.getEntity(rowIndex)
+        val entity = store.getEntity(rowIndex) ?: return null
 
         val prop = columns[columnIndex].prop
 
@@ -29,7 +29,7 @@ class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>
 
     override fun getColumnClass(columnIndex: Int): Class<*> =
         if(store.dataListCount() == 0) super.getColumnClass(columnIndex)
-        else columns[columnIndex].prop.get(store.getEntity(0) )?.let { it::class.java }
+        else columns[columnIndex].prop.get(store.getEntity(0)!! )?.let { it::class.java }
             ?: super.getColumnClass(columnIndex)
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

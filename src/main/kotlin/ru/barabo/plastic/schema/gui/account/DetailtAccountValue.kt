@@ -1,6 +1,5 @@
 package ru.barabo.plastic.schema.gui.account
 
-import ru.barabo.plastic.unnamed.gui.client.textConstraint
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
