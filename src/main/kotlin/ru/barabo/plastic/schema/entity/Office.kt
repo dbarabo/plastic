@@ -6,8 +6,11 @@ import ru.barabo.db.annotation.SelectQuery
 import ru.barabo.plastic.schema.service.AccountValueService
 
 @SelectQuery("""
-  select d.classified, d.label from od.department d
-    where d.level = 1
+select d.classified, d.label
+from od.department d
+where d.lev = 1
+  and d.CLOSED > sysdate
+order by d.opened, d.code desc
 """)
 data class Office(
     @ColumnName("CLASSIFIED")
@@ -16,19 +19,4 @@ data class Office(
 
     @ColumnName("LABEL")
     @ColumnType(java.sql.Types.VARCHAR)
-    var name: String? = null) {
-
-    companion object {
-        var selectedOffice: Office? = null
-            set(value) {
-
-                val oldValue = field
-
-                field = value
-
-                if(oldValue !== value) {
-                    AccountValueService.initData()
-                }
-            }
-    }
-}
+    var name: String? = null)

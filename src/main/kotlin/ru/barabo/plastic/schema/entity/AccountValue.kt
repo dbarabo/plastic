@@ -1,28 +1,32 @@
 package ru.barabo.plastic.schema.entity
 
 import ru.barabo.db.annotation.*
+import ru.barabo.plastic.schema.service.*
 
 @TableName("OD.PTKB_TRANSACT_ACCOUNT_VALUE")
-@SelectQuery("""select v.id, v.TRANSACT_ACCOUNT, v.CURRENCY, v.TERMINAL_ID, v.OFFICE, v.CLIENTTYPE,
-    v.value, ac.description desc_account_val, cl.label int_client_label, v.calc_formula,
+@SelectQuery("""
+    select v.id, v.TRANSACT_ACCOUNT, v.CURRENCY, v.TERMINAL_ID, v.OFFICE, v.CLIENTTYPE,
+    v.ACCOUNT_VALUE, ac.description desc_account_val, cl.label int_client_label, v.CALC_FUNC,
     v.depend_account, depend.name depend_account_name,
-    v.ext_code, v.ext_bank, bank.label ext_bank_name, v.ext_client, extcl.label ext_client_label
-    from OD.PTKB_TRANSACT_ACCOUNT_VALUE v, od.account ac, od.client cl,
-        OD.PTKB_TRANSACT_ACCOUNT depend
-        od.client bank
+    v.ACCOUNT_EXT_CODE, v.EXT_BANK_ID, bank.label ext_bank_name, v.ext_client, extcl.label ext_client_label
+    from OD.PTKB_TRANSACT_ACCOUNT_VALUE v,
+         od.account ac, od.client cl,
+        OD.PTKB_TRANSACT_ACCOUNT depend,
+        od.client bank, od.client extcl
+
      where v.TRANSACT_ACCOUNT = ?
        and COALESCE(v.CURRENCY, -1) = COALESCE(?, -1)
-       and COALESCE(v.TERMINAL_ID, -1) = COALESCE(?, -1)
+       and COALESCE(v.TERMINAL_ID, '0') = COALESCE(?, '0')
        and COALESCE(v.OFFICE, -1) = COALESCE(?, -1)
        and COALESCE(v.CLIENTTYPE, -1) = COALESCE(?, -1)
 
-       and v.value(+) = ac.classified
-       and ac.client(+) = cl.classified
+       and v.ACCOUNT_VALUE = ac.classified(+)
+       and ac.client = cl.classified(+)
 
-       and v.depend_account(+) = depend.id
+       and v.depend_account = depend.id(+)
 
-       and v.ext_bank(+) = bank.classified
-       and v.ext_client(+) = extcl.classified
+       and v.EXT_BANK_ID = bank.classified(+)
+       and v.ext_client = extcl.classified(+)
 """)
 data class AccountValue(
     @ColumnName("ID")
@@ -35,8 +39,8 @@ data class AccountValue(
     var transactAccount: Long? = null,
 
     @ColumnName("CURRENCY")
-    @ColumnType(java.sql.Types.BIGINT)
-    var currency: Long? = null,
+    @ColumnType(java.sql.Types.NUMERIC)
+    var currency: Int? = null,
 
     @ColumnName("TERMINAL_ID")
     @ColumnType(java.sql.Types.VARCHAR)
@@ -50,7 +54,7 @@ data class AccountValue(
     @ColumnType(java.sql.Types.BIGINT)
     var clientType: Long? = null,
 
-    @ColumnName("value")
+    @ColumnName("ACCOUNT_VALUE")
     @ColumnType(java.sql.Types.BIGINT)
     var valueAccount: Long? = null,
 
@@ -64,7 +68,7 @@ data class AccountValue(
     @ReadOnly
     var clientAccount: String? = null,
 
-    @ColumnName("calc_formula")
+    @ColumnName("CALC_FUNC")
     @ColumnType(java.sql.Types.VARCHAR)
     var calcFormula: String? = null,
 
@@ -77,11 +81,11 @@ data class AccountValue(
     @ReadOnly
     var dependAccountName: String? = null,
 
-    @ColumnName("ext_code")
+    @ColumnName("ACCOUNT_EXT_CODE")
     @ColumnType(java.sql.Types.VARCHAR)
     var extCodeAccount: String? = null,
 
-    @ColumnName("ext_bank")
+    @ColumnName("EXT_BANK_ID")
     @ColumnType(java.sql.Types.BIGINT)
     var extBankId: Long? = null,
 
@@ -101,10 +105,20 @@ data class AccountValue(
 
 ) : ParamsSelect {
 
-    override fun selectParams(): Array<Any?>? = arrayOf(
-        Account.selectedAccount?.id?:Int::class.java,
-        Currency.selectedCurrency?.code?:Int::class.java,
-        Terminal.selectedTerminal?.terminalId?:String::class.java,
-        Office.selectedOffice?.id?:Int::class.java,
-        ClientType.selectedClientType?.id?:Int::class.java)
+    override fun selectParams(): Array<Any?>? {
+
+        val account = AccountService.selectedEntity()
+
+        return arrayOf(
+            account?.id?:Long::class.javaObjectType,
+            if(account?.isCheckCurrency == true)CurrencyService.selectedEntity()?.code?:Int::class.javaObjectType else Int::class.javaObjectType,
+
+            if(account?.isCheckTerminal == true || account?.isCheckBankomat == true)
+                TerminalService.selectedEntity()?.terminalId?:String::class.javaObjectType else String::class.javaObjectType,
+
+            if(account?.isCheckOffice == true)OfficeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType,
+
+            if(account?.isCheckClienttype == true)ClientTypeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType
+        )
+    }
 }

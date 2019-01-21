@@ -7,6 +7,17 @@ open class StoreFilterService<T: Any>(orm: TemplateQuery, clazz: Class<T>) : Sto
 
     @Volatile private var isFiltered = false
 
+    @Volatile var selectedRowIndex: Int = 0
+    set(value) {
+        if(value < 0 || value >= dataListCount()) return
+
+        field = value
+
+        sentRefreshAllListener(EditType.CHANGE_CURSOR)
+    }
+
+    fun selectedEntity(): T? = if(selectedRowIndex < 0 || selectedRowIndex >= dataListCount()) null else getEntity(selectedRowIndex)
+
     private val filterdList = ArrayList<T>()
 
     override fun elemRoot(): List<T> = if(isFiltered) filterdList else dataList

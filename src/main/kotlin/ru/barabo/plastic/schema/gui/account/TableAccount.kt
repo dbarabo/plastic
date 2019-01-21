@@ -17,4 +17,4 @@ private val columns = listOf(
     ColumnTableModel("Ремарка", 90, Account::remark, true)
 )
 
-class TableAccount() : EntityTable<Account, List<Account>>(columns, AccountService)
+object TableAccount : EntityTable<Account>(columns, AccountService)

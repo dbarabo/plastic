@@ -43,7 +43,9 @@ open class Query (protected val dbConnection :DbConnection) {
     @Throws(SessionException::class)
     fun select(query :String, params :Array<Any?>? = null, sessionSetting : SessionSetting = SessionSetting(false) ) :List<Array<Any?>> {
 
-        logger.info("select=" + query)
+        logger.info("select=$query")
+
+        params?.forEach { logger.info(it?.toString()) }
 
         val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
 
@@ -115,7 +117,9 @@ open class Query (protected val dbConnection :DbConnection) {
                sessionSetting : SessionSetting = SessionSetting(false),
                callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
 
-       logger.info("select=" + query)
+       logger.info("select=$query")
+
+        params?.forEach { logger.info(it?.toString()) }
 
         val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
 

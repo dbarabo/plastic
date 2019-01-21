@@ -1,25 +1,22 @@
 package ru.barabo.plastic.schema.entity
 
+import ru.barabo.db.annotation.ColumnName
+import ru.barabo.db.annotation.ColumnType
 import ru.barabo.db.annotation.SelectQuery
 import ru.barabo.plastic.schema.service.AccountValueService
 
 @SelectQuery("""
-    select 810, 'RUR' from dual union
-    select 840, 'USD' from dual union
-    select 970, 'EUR' from dual union
+select to_number(c.CODEISONUMB) CODE, c.CODEISOALPH
+from od.currency c
+where c.CODEISONUMB in ('810', '840', '978')
+order by 1
 """)
-data class Currency(val code: Int, val name: String) {
-    companion object {
-        var selectedCurrency: Currency? = null
-            set(value) {
+data class Currency(
+    @ColumnName("CODE")
+    @ColumnType(java.sql.Types.INTEGER)
+    var code: Int? = null,
 
-                val oldValue = field
-
-                field = value
-
-                if(oldValue !== value) {
-                    AccountValueService.initData()
-                }
-            }
-    }
-}
+    @ColumnName("CODEISOALPH")
+    @ColumnType(java.sql.Types.VARCHAR)
+    var name: String? = null
+)

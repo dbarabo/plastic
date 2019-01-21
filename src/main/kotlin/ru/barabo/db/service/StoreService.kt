@@ -5,8 +5,9 @@ import ru.barabo.db.EditType.*
 import ru.barabo.db.SessionException
 import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
+import java.awt.EventQueue
 
-abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>) {
+abstract class StoreService<T: Any, out G>(private val orm: TemplateQuery, val clazz: Class<T>) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
@@ -47,10 +48,13 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     }
 
     protected fun sentRefreshAllListener(refreshType: EditType) {
-        listenerList.forEach { it.refreshAll(elemRoot(), refreshType) }
+
+        EventQueue.invokeLater{
+            listenerList.forEach { it.refreshAll(elemRoot(), refreshType) }
+        }
     }
 
-    open fun initData() {
+    fun initData() {
         dataList.removeAll(dataList)
 
         beforeRead()

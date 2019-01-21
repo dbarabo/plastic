@@ -23,7 +23,7 @@ public class Start extends JFrame{
 			System.exit(0);
 		}
 
-		VersionChecker.runCheckVersion();
+		//VersionChecker.runCheckVersion();
 
         try {
             DBStorePlastic plastic = new DBStorePlastic();

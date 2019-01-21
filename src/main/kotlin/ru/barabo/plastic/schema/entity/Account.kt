@@ -56,18 +56,4 @@ data class Account(
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(BooleanConverter::class)
     var isExternSupport: Boolean = false
-) {
-    companion object {
-        var selectedAccount: Account? = null
-            set(value) {
-
-                val oldValue = field
-
-                field = value
-
-                if(oldValue !== value) {
-                    AccountValueService.initData()
-                }
-            }
-    }
-}
+)
