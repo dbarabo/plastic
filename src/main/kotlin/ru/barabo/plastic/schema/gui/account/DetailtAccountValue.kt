@@ -6,6 +6,7 @@ import ru.barabo.db.service.StoreListener
 import ru.barabo.gui.swing.table.saveEntityShowError
 import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.schema.entity.AccountValue
+import ru.barabo.plastic.schema.gui.selector.SelectAccountTab
 import ru.barabo.plastic.schema.service.*
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import java.awt.Container
@@ -54,9 +55,12 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         groupPanel("Значение счета", 0, 5).apply {
             groupPanel("Счет", 0, 3).apply {
 
-                button("Счет:", SELECT_ACCOUNT, 0) {}.apply { accountSelectButton = this }
+                button("Счет:", SELECT_ACCOUNT, 0) { selectAccount() }.apply { accountSelectButton = this }
 
-                textArea("Описание счета", 2, 2).apply { descAccount = this }
+                textArea("Описание счета", 2, 2).apply {
+                    this.lineWrap = true
+                    descAccount = this
+                }
             }
 
             groupPanel("Вычисляемый счет", 5, 4).apply {
@@ -77,7 +81,7 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
             groupPanel("Счет в другом банке", 9, 6).apply {
 
-                textField("Код счета:",  0).apply { extCodeAccount = this }
+                textFieldVertical("Код счета:",  0).apply { extCodeAccount = this }
 
                 button("Банк счета", SELECT_BANK, 2) {}.apply { extBank = this }
 
@@ -93,6 +97,18 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         }
 
         AccountValueService.addListener(this)
+    }
+
+    private fun selectAccount() {
+        SelectAccountTab.selectTab(accountSelectButton) {
+            checkAccountValueShowError()
+
+            accountValue?.valueAccount = it?.id
+            accountValue?.clientAccount = it?.code
+            accountValue?.descriptionAccount = it?.description
+
+            updateAccount(true)
+        }
     }
 
     private fun checkAccountValueShowError() {
@@ -229,13 +245,13 @@ fun Container.comboBox(label: String, gridY: Int, list: List<String>? = null): J
     return combo
 }
 
-fun Container.textField(label: String, gridY: Int): JTextField {
+fun Container.textFieldVertical(label: String, gridY: Int): JTextField {
 
     add( JLabel(label), labelConstraint(gridY) )
 
     return JTextField().apply {
 
-        this@textField.add(this, textConstraint(gridY + 1) )
+        this@textFieldVertical.add(this, textConstraint(gridY + 1) )
     }
 }
 
@@ -273,20 +289,28 @@ fun Container.button(label: String, title: String, gridY: Int, clickListener: ()
     }
 }
 
-fun Container.groupPanel(title: String, gridY: Int, height: Int = 1): JPanel = JPanel().apply {
+fun Container.liteGroup(title: String, gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1): JPanel = JPanel().apply {
     border = TitledBorder(title)
 
     layout = GridBagLayout()
 
-    this@groupPanel.add(this, textConstraint(gridY, height))
+    this@liteGroup.add(this, labelConstraint(gridY, gridX, height))
 }
 
-private fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0) =
-    GridBagConstraints(gridX, gridY, 1, height, 1.0, 1.0,
+fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1): JPanel = JPanel().apply {
+    border = TitledBorder(title)
+
+    layout = GridBagLayout()
+
+    this@groupPanel.add(this, textConstraint(gridY, height, gridX))
+}
+
+internal fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1) =
+    GridBagConstraints(gridX, gridY, width, height, 1.0, 1.0,
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)
 
-private fun labelConstraint(gridY: Int) =
-    GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0,
+internal fun labelConstraint(gridY: Int, gridX: Int = 0, height: Int = 1) =
+    GridBagConstraints(gridX, gridY, 1, 1, 0.0, 0.0,
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)

@@ -5,6 +5,8 @@ import ru.barabo.gui.swing.table.EntityTable
 import ru.barabo.plastic.schema.entity.Account
 import ru.barabo.plastic.schema.service.AccountService
 
+object TableAccount : EntityTable<Account>(columns, AccountService)
+
 private val columns = listOf(
     ColumnTableModel("Счет", 50, Account::name, true),
     ColumnTableModel("От валюты", 20, Account::isCheckCurrency, true),
@@ -16,5 +18,3 @@ private val columns = listOf(
     ColumnTableModel("Внешние счета", 20, Account::isExternSupport, true),
     ColumnTableModel("Ремарка", 90, Account::remark, true)
 )
-
-object TableAccount : EntityTable<Account>(columns, AccountService)

@@ -44,7 +44,7 @@ abstract class StoreService<T: Any, out G>(private val orm: TemplateQuery, val c
     fun addListener(listener : StoreListener<G>) {
         listenerList.add(listener)
 
-        listener.refreshAll(elemRoot(), INIT)
+        //listener.refreshAll(elemRoot(), INIT)
     }
 
     protected fun sentRefreshAllListener(refreshType: EditType) {

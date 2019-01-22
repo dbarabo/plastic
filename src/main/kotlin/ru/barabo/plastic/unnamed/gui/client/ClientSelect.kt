@@ -8,6 +8,7 @@ import ru.barabo.plastic.unnamed.gui.mainBook
 import ru.barabo.total.gui.table.TotalRowTable
 import java.awt.BorderLayout
 import java.awt.Component
+import java.awt.Container
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JPanel
@@ -45,7 +46,7 @@ object ClientSelect : JPanel() {
 
         detailClientFilter.processResultOk = processResultOk
 
-        detailClientFilter.tabsInBook = component.selectClient()
+        detailClientFilter.tabsInBook = component.selectClient(TITLE, ClientSelect)
 
         detailClientFilter.fioTextFocused()
     }
@@ -58,12 +59,12 @@ object ClientSelect : JPanel() {
     }
 }
 
-fun Component.selectClient(): TabsInBook {
+fun Component.selectClient(title: String, tabPanel: Container): TabsInBook {
     val mainBook = mainBook() ?: return errorMessage(ERROR_MAIN_BOOK_NOT_FOUND).run { TabsInBook() }
 
     val result = mainBook.saveTabs()
 
-    mainBook.addTab(TITLE, ClientSelect)
+    mainBook.addTab(title, tabPanel)
 
     return result
 }
@@ -90,13 +91,14 @@ fun JTabbedPane.saveTabs(): TabsInBook {
     return TabsInBook(map, selectIndex, this)
 }
 
-fun TabsInBook.restoreTabs() {
+data class TabsInBook(val panels: Map<String, Component> = emptyMap(), val selectedPanel: Int = 0, val book: JTabbedPane = JTabbedPane()) {
 
-    for(index in book.tabCount-1 downTo 0) book.removeTabAt(index)
+    fun restoreTabs() {
 
-    for (pairs in panels.entries) book.addTab(pairs.key, pairs.value)
+        for(index in book.tabCount-1 downTo 0) book.removeTabAt(index)
 
-    book.selectedIndex = selectedPanel
+        for (pairs in panels.entries) book.addTab(pairs.key, pairs.value)
+
+        book.selectedIndex = selectedPanel
+    }
 }
-
-data class TabsInBook(val panels: Map<String, Component> = emptyMap(), val selectedPanel: Int = 0, val book: JTabbedPane = JTabbedPane())

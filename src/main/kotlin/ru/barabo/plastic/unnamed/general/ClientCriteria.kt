@@ -67,11 +67,11 @@ private fun String.parsePasportLine(): String = toDigitsOnly().let {line ->
         }
     }
 
-private fun String.bySqlLike() = replace(" +".toRegex(), "%")
+fun String.bySqlLike() = replace(" +".toRegex(), "%")
     .replace("\\*+".toRegex(), "%").replace("%%+".toRegex(), "%")
 
-private fun String.bySqlLikePlus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "$it%"  }
+fun String.bySqlLikePlus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "$it%"  }
 
-private fun String.bySqlLike2Plus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "%$it%"  }
+fun String.bySqlLike2Plus() = bySqlLike().let { if(it.isEmpty() || it == "%")"" else "%$it%"  }
 
 fun String.toDigitsOnly() = replace("\\D+".toRegex(), "")

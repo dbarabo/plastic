@@ -309,7 +309,7 @@ private fun getMemberByColumnName(javaType: Class<*>, columnName: String) = java
             columnName.equals(it.findAnnotation<ColumnName>()?.name, true)
         }
 
-private fun KMutableProperty<*>.valueToJava(sqlValue: Any): Any? {
+fun KMutableProperty<*>.valueToJava(sqlValue: Any): Any? {
 
     val javaType :Class<*> = returnType.javaType as Class<*>
 
