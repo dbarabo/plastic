@@ -5,10 +5,10 @@ import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.schema.entity.AccountValue
-import ru.barabo.plastic.schema.entity.selector.SelectAccount
+import ru.barabo.plastic.schema.entity.selector.SelectClient
 import ru.barabo.plastic.schema.service.AccountValueService
 
-object SelectAccountService : StoreFilterService<SelectAccount>(AfinaOrm, SelectAccount::class.java),
+object SelectClientService : StoreFilterService<SelectClient>(AfinaOrm, SelectClient::class.java),
     StoreListener<List<AccountValue>> {
 
     init {

@@ -1,129 +1,104 @@
 package ru.barabo.plastic.schema.gui.selector
 
-import org.apache.log4j.Logger
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
+import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import ru.barabo.plastic.schema.gui.account.*
 import ru.barabo.plastic.unnamed.general.bySqlLike2Plus
 import ru.barabo.plastic.unnamed.general.bySqlLikePlus
+import ru.barabo.plastic.unnamed.general.parseLong
 import java.awt.Container
 import java.awt.GridBagLayout
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
-import javax.swing.JButton
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JTextField
+import javax.swing.*
 import kotlin.reflect.KProperty0
 
-class FilterSelectAccount(private val process: KProperty0<TabsBookProcessOk<SelectAccount>>,
-                                  private val store: StoreFilterService<SelectAccount>) : JPanel() {
+class FilterSelectAccount(process: KProperty0<TabsBookProcessOk<SelectAccount>>,
+                          store: StoreFilterService<SelectAccount>) : JPanel() {
 
-    private val logger = Logger.getLogger(FilterSelectAccount::class.java.name)
-
-    private val codeAccount: JTextField
-
-    private val labelAccount: JTextField
-
-    private val descAccount: JTextField
-
-    private val idClient: JTextField
-
-    private val clientLabel: JTextField
-
-    private val clientInn: JTextField
-
-    private val select: JButton
-
-    private val cancel: JButton
-
+    //private val logger = Logger.getLogger(FilterSelectAccount::class.java.name)
     init {
         layout = GridBagLayout()
 
-        liteGroup("", 0, 1, 0, 1).apply {
-
-            onlyButton("Выбрать", 0, 0, "outClient"){
-
-                logger.error("entity=${store.selectedEntity()}")
-
-                process.get().select(store.selectedEntity())
-            }.apply { select = this }
-
-            onlyButton("Отменить", 1, 0, "deleteDB"){
-                process.get().cancel()
-            }.apply { cancel = this }
-        }
+        selectCancelButton(process, store)
 
         groupPanel("Счет", 0, 3, 1, 5).apply {
+            textFieldHorizontal("id Счета", 0).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.id = it?.parseLong() }
+             }
 
-            textFieldHorizontal("Код счета", 0).apply {
-                codeAccount = this
-
-                addKeyListener(FilterKeyLister {
-                    SelectAccount.filter.filterEntity.code = it?.bySqlLikePlus()
-                })
+            textFieldHorizontal("Код счета", 1).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.code = it?.bySqlLikePlus() }
             }
 
-            textFieldHorizontal("Наименование", 1).apply {
-                labelAccount = this
-
-                addKeyListener(FilterKeyLister {
-                    SelectAccount.filter.filterEntity.name = it?.bySqlLike2Plus()
-                })
-            }
-
-            textFieldHorizontal("Описание", 2).apply {
-                descAccount = this
-                addKeyListener(FilterKeyLister {
-                    SelectAccount.filter.filterEntity.description = it?.bySqlLike2Plus()
-                })
+            textFieldHorizontal("Наименование", 2).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.name = it?.bySqlLike2Plus() }
             }
         }
 
         groupPanel("Клиент", 0, 3, 2, 5).apply {
 
-            textFieldHorizontal("id Клиента", 0).apply { idClient = this }
+            textFieldHorizontal("Наименование", 0).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.clientName = it?.bySqlLike2Plus() }
+              }
 
-            textFieldHorizontal("Наименование", 1).apply {
-                clientLabel = this
-
-                addKeyListener(FilterKeyLister {
-                    SelectAccount.filter.filterEntity.clientName = it?.bySqlLike2Plus()
-                })
+            textFieldHorizontal("ИНН", 1).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.clientInn = it?.bySqlLikePlus() }
             }
 
-            textFieldHorizontal("ИНН", 2).apply {
-                clientInn = this
+            textFieldHorizontal("Описание Клиента", 2).apply {
+                setFilterByKeyListener { SelectAccount.filter.filterEntity.clientDescription = it?.bySqlLike2Plus() }
             }
         }
 
         SelectAccount.filter.initStoreChecker(store, ::isCheckedFilter)
     }
 
-    private inner class FilterKeyLister(private val setter: (String?)->Unit) : KeyListener {
-        override fun keyTyped(e: KeyEvent?) {}
+    private fun isCheckedFilter(selectAccount: SelectAccount): Boolean =
+        with(selectAccount) {
+            id != null ||
+            code?.trim()?.length?:0 >= 6 ||
+            name?.trim()?.length?:0 >= 12 ||
+            clientName?.length?:0 >= 8 ||
+            clientDescription?.length?:0 >= 10 ||
+            clientInn?.length?:0 >= 6
+        }
+}
 
-        override fun keyPressed(e: KeyEvent?) {}
+fun <T: Any> Container.selectCancelButton(process: KProperty0<TabsBookProcessOk<T>>, store: StoreFilterService<T>): JPanel =
+    liteGroup("", 0, 1, 0, 1).apply {
 
-        override fun keyReleased(e: KeyEvent?) {
+        onlyButton("Выбрать", 0, 0, "outClient"){
 
-            val textField = (e?.source as? JTextField) ?: return
+            process.get().select(store.selectedEntity())
+        }
 
-            setter(textField.text)
-
-            SelectAccount.filter.applyFilter()
+        onlyButton("Отменить", 1, 0, "deleteDB"){
+            process.get().cancel()
         }
     }
 
-    private fun isCheckedFilter(selectAccount: SelectAccount): Boolean =
-        with(selectAccount) {
-            code?.trim()?.length?:0 >= 6 ||
-            name?.trim()?.length?:0 >= 12 ||
-            description?.trim()?.length?:0 >= 12 ||
-            clientId != null ||
-            clientName?.length?:0 >= 8 ||
-            clientDescription?.length?:0 >= 10
-        }
+fun JComponent.setFilterByKeyListener(filter: SqlFilterEntity<*> = SelectAccount.filter,
+                                      setter: (String?)->Unit) {
+    addKeyListener( FilterKeyLister(filter, setter) )
+}
+
+class FilterKeyLister(private val filter: SqlFilterEntity<*>, private val setter: (String?)->Unit) : KeyListener {
+    override fun keyTyped(e: KeyEvent?) {}
+
+    override fun keyPressed(e: KeyEvent?) {}
+
+    override fun keyReleased(e: KeyEvent?) {
+
+        val textField = (e?.source as? JTextField) ?: return
+
+        setter(textField.text)
+
+        filter.applyFilter()
+
+        SelectAccount.filter.applyFilter()
+    }
 }
 
 fun Container.textFieldHorizontal(label: String, gridY: Int): JTextField {

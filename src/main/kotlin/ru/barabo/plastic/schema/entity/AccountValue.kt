@@ -6,7 +6,7 @@ import ru.barabo.plastic.schema.service.*
 @TableName("OD.PTKB_TRANSACT_ACCOUNT_VALUE")
 @SelectQuery("""
     select v.id, v.TRANSACT_ACCOUNT, v.CURRENCY, v.TERMINAL_ID, v.OFFICE, v.CLIENTTYPE,
-    v.ACCOUNT_VALUE, ac.description desc_account_val, cl.label int_client_label, v.CALC_FUNC,
+    v.ACCOUNT_VALUE, ac.code, ac.label account_label, cl.label int_client_label, v.CALC_FUNC,
     v.depend_account, depend.name depend_account_name,
     v.ACCOUNT_EXT_CODE, v.EXT_BANK_ID, bank.label ext_bank_name, v.ext_client, extcl.label ext_client_label
     from OD.PTKB_TRANSACT_ACCOUNT_VALUE v,
@@ -58,10 +58,15 @@ data class AccountValue(
     @ColumnType(java.sql.Types.BIGINT)
     var valueAccount: Long? = null,
 
-    @ColumnName("desc_account_val")
+    @ColumnName("code")
     @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
-    var descriptionAccount: String? = null,
+    var code: String? = null,
+
+    @ColumnName("account_label")
+    @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
+    var labelAccount: String? = null,
 
     @ColumnName("int_client_label")
     @ColumnType(java.sql.Types.VARCHAR)

@@ -6,6 +6,7 @@ import java.awt.BorderLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JScrollPane
+import javax.swing.JTable
 import javax.swing.SwingUtilities
 
 object SelectAccountTab : SelectorTab<SelectAccount>("Выбор счета") {
@@ -13,15 +14,9 @@ object SelectAccountTab : SelectorTab<SelectAccount>("Выбор счета") {
     init {
         layout = BorderLayout()
 
-        SelectAccountTable.addMouseListener(
-            object : MouseAdapter() {
-                override fun mouseClicked(e: MouseEvent?) {
-
-                    if(e?.clickCount == 2 && SwingUtilities.isLeftMouseButton(e) ) {
-                        tabsSaver.select(SelectAccountService.selectedEntity())
-                    }
-                }
-            })
+        SelectAccountTable.doubleClickEvent{
+            tabsSaver.select(SelectAccountService.selectedEntity())
+        }
 
         add(JScrollPane(SelectAccountTable), BorderLayout.CENTER)
 
@@ -29,4 +24,16 @@ object SelectAccountTab : SelectorTab<SelectAccount>("Выбор счета") {
 
         add(filterSelectAccount, BorderLayout.NORTH)
     }
+}
+
+fun JTable.doubleClickEvent(process: ()->Unit) {
+    addMouseListener(
+        object : MouseAdapter() {
+            override fun mouseClicked(e: MouseEvent?) {
+
+                if(e?.clickCount == 2 && SwingUtilities.isLeftMouseButton(e) ) {
+                    process()
+                }
+            }
+        })
 }

@@ -12,7 +12,7 @@ class TabAccount : JPanel()  {
 
         val toolBarAccount = ToolBarAccount(TableAccount)
 
-        val detailAccountValue = DetailtAccountValue()
+        val detailAccountValue = DetailAccountValue()
 
         val selectorTypeAccount = SelectorTypeAccount()
 

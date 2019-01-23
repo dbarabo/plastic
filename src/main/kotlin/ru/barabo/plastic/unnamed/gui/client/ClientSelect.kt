@@ -77,27 +77,27 @@ private const val ERROR_MAIN_BOOK_NOT_FOUND = "Не найдена главна�
 
 fun JTabbedPane.saveTabs(): TabsInBook {
 
-    val map = HashMap<String, Component>()
+    val panels = ArrayList<Pair<String, Component>>()
 
     for (index in 0 until tabCount) {
 
-        map[ getTitleAt(index) ] = getComponentAt(index)
+        panels += Pair(getTitleAt(index), getComponentAt(index))
     }
 
     val selectIndex = if(selectedIndex < 0)0 else selectedIndex
 
-    for(index in tabCount-1 downTo 0) removeTabAt(index)
+    removeAll()
 
-    return TabsInBook(map, selectIndex, this)
+    return TabsInBook(panels, selectIndex, this)
 }
 
-data class TabsInBook(val panels: Map<String, Component> = emptyMap(), val selectedPanel: Int = 0, val book: JTabbedPane = JTabbedPane()) {
+data class TabsInBook(val panels: List<Pair<String, Component>> = emptyList(), val selectedPanel: Int = 0, val book: JTabbedPane = JTabbedPane()) {
 
     fun restoreTabs() {
 
-        for(index in book.tabCount-1 downTo 0) book.removeTabAt(index)
+        book.removeAll()
 
-        for (pairs in panels.entries) book.addTab(pairs.key, pairs.value)
+        for (pairs in panels) book.addTab(pairs.first, pairs.second)
 
         book.selectedIndex = selectedPanel
     }

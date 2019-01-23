@@ -6,7 +6,12 @@ import ru.barabo.db.service.StoreListener
 import ru.barabo.gui.swing.table.saveEntityShowError
 import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.schema.entity.AccountValue
+import ru.barabo.plastic.schema.entity.selector.DOCTYPE_BANK
+import ru.barabo.plastic.schema.entity.selector.DOCTYPE_JURIC
+import ru.barabo.plastic.schema.entity.selector.DOCTYPE_PBOUL
+import ru.barabo.plastic.schema.entity.selector.SelectClient
 import ru.barabo.plastic.schema.gui.selector.SelectAccountTab
+import ru.barabo.plastic.schema.gui.selector.SelectClientTab
 import ru.barabo.plastic.schema.service.*
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import java.awt.Container
@@ -17,13 +22,13 @@ import java.util.*
 import javax.swing.*
 import javax.swing.border.TitledBorder
 
-class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
+class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
-    private val logger = Logger.getLogger(DetailtAccountValue::class.java.name)
+    private val logger = Logger.getLogger(DetailAccountValue::class.java.name)
 
     private val accountSelectButton: JButton
 
-    private val descAccount: JTextArea
+    private val labelAccount: JTextArea
 
     private val calcFormulaAccount: JComboBox<String>
 
@@ -59,7 +64,7 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
                 textArea("Описание счета", 2, 2).apply {
                     this.lineWrap = true
-                    descAccount = this
+                    labelAccount = this
                 }
             }
 
@@ -83,9 +88,9 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
                 textFieldVertical("Код счета:",  0).apply { extCodeAccount = this }
 
-                button("Банк счета", SELECT_BANK, 2) {}.apply { extBank = this }
+                button("Банк счета", SELECT_BANK, 2) { selectBank()  }.apply { extBank = this }
 
-                button("Клиент счета", SELECT_CLIENT, 4) {}.apply { extClient = this }
+                button("Клиент счета", SELECT_CLIENT, 4) { selectClient() }.apply { extClient = this }
             }
 
             groupPanel("", 15, 2).apply {
@@ -99,15 +104,63 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         AccountValueService.addListener(this)
     }
 
+    private fun selectBank() {
+
+        SelectClient.filter.filterEntity.doctype = DOCTYPE_BANK
+        SelectClient.filter.filterEntity.doctype2 = DOCTYPE_BANK
+
+        SelectClientTab.selectTab(extBank) {
+            checkAccountValueShowError()
+
+            accountValue?.extBankId = it?.id
+            accountValue?.extBankName = it?.label
+
+            clearInternalAccount()
+        }
+    }
+
+    private fun selectClient() {
+
+        SelectClient.filter.filterEntity.doctype = DOCTYPE_JURIC
+        SelectClient.filter.filterEntity.doctype2 = DOCTYPE_PBOUL
+
+        SelectClientTab.selectTab(extClient) {
+            checkAccountValueShowError()
+
+            accountValue?.extClient = it?.id
+            accountValue?.extClientLabel = it?.label
+
+            clearInternalAccount()
+        }
+    }
+
+    private fun clearInternalAccount() {
+        accountValue?.valueAccount = null
+        accountValue?.code = null
+        accountValue?.labelAccount = null
+
+        updateAccount(true)
+
+        updateOtherBank(true)
+    }
+
     private fun selectAccount() {
         SelectAccountTab.selectTab(accountSelectButton) {
             checkAccountValueShowError()
 
             accountValue?.valueAccount = it?.id
-            accountValue?.clientAccount = it?.code
-            accountValue?.descriptionAccount = it?.description
+            accountValue?.code = it?.code
+            accountValue?.labelAccount = it?.name
+
+            accountValue?.extBankId = null
+            accountValue?.extBankName = null
+            accountValue?.extClient = null
+            accountValue?.extClientLabel = null
+            accountValue?.extCodeAccount = null
 
             updateAccount(true)
+
+            updateOtherBank(AccountService.selectedEntity()?.isExternSupport == true)
         }
     }
 
@@ -173,13 +226,13 @@ class DetailtAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     private fun updateAccount(isEnabledAccount: Boolean ) {
 
         with(accountSelectButton) {
-            text = accountValue?.clientAccount ?: SELECT_ACCOUNT
+            text = accountValue?.code ?: SELECT_ACCOUNT
 
             isEnabled = isEnabledAccount
         }
 
-        with(descAccount) {
-            text = accountValue?.descriptionAccount
+        with(labelAccount) {
+            text = accountValue?.labelAccount
 
             isEnabled = isEnabledAccount
         }

@@ -36,7 +36,7 @@ data class ClientCriteria(val id: Long? = null,
 
 inline fun <reified T> toSql(value: Any?): Any = value?.let { it } ?: T::class.java
 
-private fun String.parseLong(): Long? = this.replace(" +".toRegex(), "").toLongOrNull()
+fun String.parseLong(): Long? = this.replace(" +".toRegex(), "").toLongOrNull()
 
 private fun String.parseDate(): Date? {
 
