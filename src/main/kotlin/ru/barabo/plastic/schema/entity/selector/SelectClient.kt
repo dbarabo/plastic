@@ -24,7 +24,7 @@ where c.classified = dt.classified
          and inn_bik.codesystem = 1000043388
 
          and exists(select 1
-            from account a
+            from od.account a
             where a.client = c.classified
               and a.closed > sysdate)
         )
@@ -33,9 +33,9 @@ where c.classified = dt.classified
       )
 
   and c.classified = coalesce(?, c.classified)
-  and upper(a.label) like upper(coalesce(?, c.label))
+  and upper(c.label) like upper(coalesce(?, c.label))
 
-  and upper(a.description) like upper(coalesce(?, c.description))
+  and upper(c.description) like upper(coalesce(?, c.description))
 
   and inn_bik.code like coalesce(?, inn_bik.code)
 

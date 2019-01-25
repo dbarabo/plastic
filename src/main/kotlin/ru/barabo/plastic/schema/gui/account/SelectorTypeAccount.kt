@@ -2,8 +2,8 @@ package ru.barabo.plastic.schema.gui.account
 
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
-import ru.barabo.plastic.schema.entity.Account
-import ru.barabo.plastic.schema.service.AccountService
+import ru.barabo.plastic.schema.entity.account.Account
+import ru.barabo.plastic.schema.service.account.AccountService
 import javax.swing.*
 import javax.swing.table.AbstractTableModel
 

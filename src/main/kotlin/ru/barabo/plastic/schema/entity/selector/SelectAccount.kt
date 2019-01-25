@@ -1,9 +1,9 @@
 package ru.barabo.plastic.schema.entity.selector
 
 import ru.barabo.db.annotation.*
-import ru.barabo.plastic.schema.service.AccountService
-import ru.barabo.plastic.schema.service.CurrencyService
-import ru.barabo.plastic.schema.service.OfficeService
+import ru.barabo.plastic.schema.service.account.AccountService
+import ru.barabo.plastic.schema.service.account.CurrencyService
+import ru.barabo.plastic.schema.service.account.OfficeService
 
 @SelectQuery("""
 select a.doc, a.code, a.label, a.description, a.opened, a.client, c.label CLIENT_NAME,

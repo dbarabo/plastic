@@ -10,6 +10,7 @@ class TabAccount : JPanel()  {
     init {
         layout = BorderLayout()
 
+
         val toolBarAccount = ToolBarAccount(TableAccount)
 
         val detailAccountValue = DetailAccountValue()

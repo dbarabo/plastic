@@ -1,4 +1,4 @@
-package ru.barabo.plastic.schema.entity
+package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.ColumnName
 import ru.barabo.db.annotation.Converter
@@ -14,13 +14,12 @@ where cl.classified = p.client
 
  union
 
- select c.terminal_id, min(c.merchant_name) label, 0 is_pos
-  from od.ptkb_transact_ctl_mtl c
- where c.terminal_id not in (select p.terminalid from ptkb_poses p)
-   and (c.merchant_id like 'PTC%' or c.merchant_id like '0226%')
-group by c.terminal_id
+ select d.code terminalid, d.label, 0 is_pos
+from od.department d
+where d.closed > sysdate
+  and d.category = 14
 
- order by 2
+ order by 3, 2
 """)
 data class Terminal(
     @ColumnName("terminalid")

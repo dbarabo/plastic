@@ -2,8 +2,8 @@ package ru.barabo.plastic.schema.gui.account
 
 import ru.barabo.gui.swing.table.ColumnTableModel
 import ru.barabo.gui.swing.table.EntityTable
-import ru.barabo.plastic.schema.entity.Account
-import ru.barabo.plastic.schema.service.AccountService
+import ru.barabo.plastic.schema.entity.account.Account
+import ru.barabo.plastic.schema.service.account.AccountService
 
 object TableAccount : EntityTable<Account>(columns, AccountService)
 

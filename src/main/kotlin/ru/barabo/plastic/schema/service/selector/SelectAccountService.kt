@@ -4,9 +4,9 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.AfinaOrm
-import ru.barabo.plastic.schema.entity.AccountValue
+import ru.barabo.plastic.schema.entity.account.AccountValue
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
-import ru.barabo.plastic.schema.service.AccountValueService
+import ru.barabo.plastic.schema.service.account.AccountValueService
 
 object SelectAccountService : StoreFilterService<SelectAccount>(AfinaOrm, SelectAccount::class.java),
     StoreListener<List<AccountValue>> {

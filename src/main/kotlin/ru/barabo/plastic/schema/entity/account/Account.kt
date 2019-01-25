@@ -1,13 +1,12 @@
-package ru.barabo.plastic.schema.entity
+package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.BooleanConverter
-import ru.barabo.plastic.schema.service.AccountValueService
 
 const val SEQ_CLASSIFIED = "select classified.nextval from dual"
 
 @TableName("OD.PTKB_TRANSACT_ACCOUNT")
-@SelectQuery("select * from OD.PTKB_TRANSACT_ACCOUNT order by ID")
+@SelectQuery("select * from OD.PTKB_TRANSACT_ACCOUNT order by NAME")
 data class Account(
     @ColumnName("ID")
     @ColumnType(java.sql.Types.BIGINT)

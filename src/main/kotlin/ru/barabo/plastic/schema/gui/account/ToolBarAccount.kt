@@ -1,8 +1,8 @@
 package ru.barabo.plastic.schema.gui.account
 
 import ru.barabo.gui.swing.table.saveEntityShowError
-import ru.barabo.plastic.schema.entity.Account
-import ru.barabo.plastic.schema.service.AccountService
+import ru.barabo.plastic.schema.entity.account.Account
+import ru.barabo.plastic.schema.service.account.AccountService
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JOptionPane

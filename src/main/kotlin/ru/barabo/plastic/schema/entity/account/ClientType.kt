@@ -1,9 +1,8 @@
-package ru.barabo.plastic.schema.entity
+package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.ColumnName
 import ru.barabo.db.annotation.ColumnType
 import ru.barabo.db.annotation.SelectQuery
-import ru.barabo.plastic.schema.service.AccountValueService
 
 @SelectQuery("""
   select d.classified, d.label from od.doctype d

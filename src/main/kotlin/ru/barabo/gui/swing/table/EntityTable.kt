@@ -3,7 +3,12 @@ package ru.barabo.gui.swing.table
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
-import ru.barabo.db.service.StoreService
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import javax.swing.JMenuItem
+import javax.swing.JPopupMenu
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 import javax.swing.event.ListSelectionEvent
@@ -21,8 +26,9 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
 
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
-
         selectionModel.addListSelectionListener(::selectListener)
+
+        componentPopupMenu = getPopupMenu()
 
         store.addListener(this)
     }
@@ -50,7 +56,7 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
     override fun refreshAll(elemRoot: List<T>, refreshType: EditType) {
 
         if(refreshType == EditType.CHANGE_CURSOR &&
-           selectionModel.minSelectionIndex == store.selectedRowIndex) return;
+           selectionModel.minSelectionIndex == store.selectedRowIndex) return
 
         val tableModel = model as? AbstractTableModel ?: return
 
@@ -58,4 +64,39 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
     }
 
     override fun getColumnClass(column: Int): Class<*>  = model.getColumnClass(column)
+
+    private fun getPopupMenu(): JPopupMenu =
+        JPopupMenu().apply {
+            add( JMenuItem("Копировать строку").apply {
+                addActionListener { copyRow(it)}
+            })
+
+            add( JMenuItem("Копировать всю таблицу").apply {
+                addActionListener { copyTable(it)}
+            })
+        }
+
+    private fun copyTable(e: ActionEvent) {
+
+        val data = store.elemRoot()
+
+        val tableData = StringBuilder()
+
+        for (row in data) {
+            tableData.append(row).append("\n")
+        }
+
+        val selection = StringSelection(tableData.toString())
+
+        Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
+    }
+
+    private fun copyRow(e: ActionEvent) {
+        val row = store.selectedEntity() ?: return
+
+        val selection = StringSelection(row.toString())
+
+        Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
+    }
 }
+

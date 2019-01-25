@@ -2,22 +2,24 @@ package ru.barabo.plastic.schema.gui.account
 
 import ru.barabo.gui.swing.table.ColumnTableModel
 import ru.barabo.gui.swing.table.EntityTable
-import ru.barabo.plastic.schema.entity.ClientType
-import ru.barabo.plastic.schema.entity.Currency
-import ru.barabo.plastic.schema.entity.Office
-import ru.barabo.plastic.schema.entity.Terminal
-import ru.barabo.plastic.schema.service.ClientTypeService
-import ru.barabo.plastic.schema.service.CurrencyService
-import ru.barabo.plastic.schema.service.OfficeService
-import ru.barabo.plastic.schema.service.TerminalService
+import ru.barabo.plastic.schema.entity.account.ClientType
+import ru.barabo.plastic.schema.entity.account.Currency
+import ru.barabo.plastic.schema.entity.account.Office
+import ru.barabo.plastic.schema.entity.account.Terminal
+import ru.barabo.plastic.schema.service.account.ClientTypeService
+import ru.barabo.plastic.schema.service.account.CurrencyService
+import ru.barabo.plastic.schema.service.account.OfficeService
+import ru.barabo.plastic.schema.service.account.TerminalService
 
 object TableCurrency : EntityTable<Currency>(currencyColumns, CurrencyService)
 
-object TableTerminal : EntityTable<Terminal>(terminalColumns,  TerminalService)
+object TableTerminal : EntityTable<Terminal>(terminalColumns, TerminalService)
 
-object TableOffice : EntityTable<Office>(officeColumns,  OfficeService)
+object TableOffice : EntityTable<Office>(officeColumns, OfficeService)
 
-object TableClientType : EntityTable<ClientType>(clientTypeColumns,  ClientTypeService)
+object TableClientType : EntityTable<ClientType>(clientTypeColumns,
+    ClientTypeService
+)
 
 private val currencyColumns = listOf(
     ColumnTableModel("Код валюты", 20, Currency::code, false),

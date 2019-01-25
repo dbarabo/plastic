@@ -1,18 +1,18 @@
 package ru.barabo.plastic.schema.gui.account
 
-import org.apache.log4j.Logger
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import ru.barabo.gui.swing.table.saveEntityShowError
 import ru.barabo.plastic.main.resources.ResourcesManager
-import ru.barabo.plastic.schema.entity.AccountValue
+import ru.barabo.plastic.schema.entity.account.AccountValue
 import ru.barabo.plastic.schema.entity.selector.DOCTYPE_BANK
 import ru.barabo.plastic.schema.entity.selector.DOCTYPE_JURIC
 import ru.barabo.plastic.schema.entity.selector.DOCTYPE_PBOUL
 import ru.barabo.plastic.schema.entity.selector.SelectClient
+import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.plastic.schema.gui.selector.SelectAccountTab
 import ru.barabo.plastic.schema.gui.selector.SelectClientTab
-import ru.barabo.plastic.schema.service.*
+import ru.barabo.plastic.schema.service.account.*
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import java.awt.Container
 import java.awt.GridBagConstraints
@@ -24,7 +24,7 @@ import javax.swing.border.TitledBorder
 
 class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
-    private val logger = Logger.getLogger(DetailAccountValue::class.java.name)
+   // private val logger = Logger.getLogger(DetailAccountValue::class.java.name)
 
     private val accountSelectButton: JButton
 
@@ -70,7 +70,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
             groupPanel("Вычисляемый счет", 5, 4).apply {
 
-                comboBox("Формула:", 0, AccountValueService.calcFuncList).apply {
+                comboBox("Формула:", 0).apply {
                     calcFormulaAccount = this
 
                     addActionListener {
@@ -86,7 +86,12 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
             groupPanel("Счет в другом банке", 9, 6).apply {
 
-                textFieldVertical("Код счета:",  0).apply { extCodeAccount = this }
+                textFieldVertical("Код счета:",  0).apply {
+                    extCodeAccount = this
+                    addKeyListener( FilterKeyLister {
+                        accountValue?.extCodeAccount = text?.trim()
+                    })
+                }
 
                 button("Банк счета", SELECT_BANK, 2) { selectBank()  }.apply { extBank = this }
 
@@ -108,6 +113,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
         SelectClient.filter.filterEntity.doctype = DOCTYPE_BANK
         SelectClient.filter.filterEntity.doctype2 = DOCTYPE_BANK
+        SelectClient.filter.applyFilter()
 
         SelectClientTab.selectTab(extBank) {
             checkAccountValueShowError()
@@ -123,6 +129,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
         SelectClient.filter.filterEntity.doctype = DOCTYPE_JURIC
         SelectClient.filter.filterEntity.doctype2 = DOCTYPE_PBOUL
+        SelectClient.filter.applyFilter()
 
         SelectClientTab.selectTab(extClient) {
             checkAccountValueShowError()
@@ -199,7 +206,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     override fun refreshAll(elemRoot: List<AccountValue>, refreshType: EditType) {
         accountValue = AccountValueService.selectedEntity()
 
-        logger.error("refreshAll accountValue=$accountValue")
+        //logger.error("refreshAll accountValue=$accountValue")
 
         updateComponents()
     }
@@ -213,8 +220,6 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     private fun updateComponents() {
 
         val parentAccount = AccountService.selectedEntity()
-
-        logger.error("parentAccount=$parentAccount")
 
         updateAccount(!(parentAccount?.isCalc?:true))
 
@@ -241,9 +246,12 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     private fun updateCalcFunc(isEnabledCalc: Boolean) {
 
         with(calcFormulaAccount) {
+
+            calcFormulaAccount.checkAddNewList(AccountService.getCalcFuncByChecked())
+
             selectedItem = accountValue?.calcFormula
 
-            logger.error("selectedItem=${accountValue?.calcFormula}")
+            //logger.error("selectedItem=${accountValue?.calcFormula}")
 
             isEnabled = isEnabledCalc
         }
@@ -254,6 +262,32 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
             isEnabled = isEnabledCalc
         }
     }
+
+    private fun JComboBox<String>.checkAddNewList(list: List<String>) {
+        if(list.isEmpty()) {
+            removeAllItems()
+            return
+        }
+
+        if(isNoNeedRemoveOldList(list)) return
+
+        removeAllItems()
+
+        for(item in list) {
+            addItem(item)
+        }
+    }
+
+    private fun JComboBox<String>.isNoNeedRemoveOldList(list: List<String>): Boolean {
+        if(itemCount != list.size) return false
+
+        for(index in 0 until itemCount) {
+            if(!list.contains(getItemAt(index))) return false
+        }
+
+        return true
+    }
+
 
     private fun updateOtherBank(isExternSupport: Boolean) {
 
@@ -342,15 +376,15 @@ fun Container.button(label: String, title: String, gridY: Int, clickListener: ()
     }
 }
 
-fun Container.liteGroup(title: String, gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1): JPanel = JPanel().apply {
+fun Container.liteGroup(title: String, gridY: Int, gridX: Int = 0): JPanel = JPanel().apply {
     border = TitledBorder(title)
 
     layout = GridBagLayout()
 
-    this@liteGroup.add(this, labelConstraint(gridY, gridX, height))
+    this@liteGroup.add(this, labelConstraint(gridY, gridX))
 }
 
-fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1): JPanel = JPanel().apply {
+fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int = 0): JPanel = JPanel().apply {
     border = TitledBorder(title)
 
     layout = GridBagLayout()
@@ -363,7 +397,7 @@ internal fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0, width: 
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)
 
-internal fun labelConstraint(gridY: Int, gridX: Int = 0, height: Int = 1) =
+internal fun labelConstraint(gridY: Int, gridX: Int = 0) =
     GridBagConstraints(gridX, gridY, 1, 1, 0.0, 0.0,
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)

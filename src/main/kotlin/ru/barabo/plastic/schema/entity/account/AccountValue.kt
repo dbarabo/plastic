@@ -1,7 +1,7 @@
-package ru.barabo.plastic.schema.entity
+package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.*
-import ru.barabo.plastic.schema.service.*
+import ru.barabo.plastic.schema.service.account.*
 
 @TableName("OD.PTKB_TRANSACT_ACCOUNT_VALUE")
 @SelectQuery("""
@@ -116,14 +116,14 @@ data class AccountValue(
 
         return arrayOf(
             account?.id?:Long::class.javaObjectType,
-            if(account?.isCheckCurrency == true)CurrencyService.selectedEntity()?.code?:Int::class.javaObjectType else Int::class.javaObjectType,
+            if(account?.isCheckCurrency == true) CurrencyService.selectedEntity()?.code?:Int::class.javaObjectType else Int::class.javaObjectType,
 
             if(account?.isCheckTerminal == true || account?.isCheckBankomat == true)
                 TerminalService.selectedEntity()?.terminalId?:String::class.javaObjectType else String::class.javaObjectType,
 
-            if(account?.isCheckOffice == true)OfficeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType,
+            if(account?.isCheckOffice == true) OfficeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType,
 
-            if(account?.isCheckClienttype == true)ClientTypeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType
+            if(account?.isCheckClienttype == true) ClientTypeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType
         )
     }
 }

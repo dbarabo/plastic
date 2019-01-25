@@ -1,4 +1,4 @@
-package ru.barabo.plastic.schema.entity
+package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.ColumnName
 import ru.barabo.db.annotation.ColumnType
