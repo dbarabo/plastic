@@ -18,7 +18,7 @@ import javax.swing.*
 
 private const val TITLE = "Выдача карты клиенту"
 
-private fun parentWindow(component: Component): Frame? = SwingUtilities.getWindowAncestor(component) as? Frame
+fun parentWindow(component: Component): Frame? = SwingUtilities.getWindowAncestor(component) as? Frame
 
 class OutCardToClient(private val component: Component, private val cardField: RowFieldInPath) :
     JDialog(parentWindow(component), TITLE, true) {

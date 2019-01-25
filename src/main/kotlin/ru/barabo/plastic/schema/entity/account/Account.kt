@@ -55,4 +55,6 @@ data class Account(
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(BooleanConverter::class)
     var isExternSupport: Boolean = false
-)
+) {
+    override fun toString(): String = name?:""
+}

@@ -4,10 +4,12 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.AfinaOrm
+import ru.barabo.plastic.schema.entity.account.Account
 import ru.barabo.plastic.schema.entity.schema.Schema
 import ru.barabo.plastic.schema.entity.schema.TransType
+import java.lang.Exception
 
-object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java), StoreListener<List< TransType>> {
+object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java), StoreListener<List<TransType>> {
 
     init {
         TransTypeService.addListener(this)
@@ -17,5 +19,17 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
         if(refreshType in listOf(EditType.INIT, EditType.CHANGE_CURSOR, EditType.ALL)) {
             initData()
         }
+    }
+
+    fun createByDebetCredit(debet: Account?, credit: Account?) {
+        val deb = debet ?: throw Exception("Счет дебета не может быть пустым")
+
+        val cred = credit ?: throw Exception("Счет кредита не может быть пустым")
+
+        val newSchema = Schema(debetAccount = deb.id, creditAccount = cred.id,
+            transType = TransTypeService.selectedEntity()?.transactType,
+            rowOrder = dataList.size + 1)
+
+        save(newSchema)
     }
 }

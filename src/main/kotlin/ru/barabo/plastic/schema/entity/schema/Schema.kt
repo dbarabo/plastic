@@ -7,8 +7,9 @@ import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
 import ru.barabo.plastic.schema.service.schema.TransTypeService
 import ru.barabo.plastic.unnamed.general.parseLong
 
+@TableName("OD.PTKB_TRANSACT_SCHEMA")
 @SelectQuery("""
-select s.id, s.transact_type, s.debet_account, s.credit_account, ad.name debet_name, ac.name credit_account,
+select s.id, s.transact_type, s.debet_account, s.credit_account, ad.name debet_name, ac.name credit_name,
 s.INDICATOR_DEBET, s.reverse_indicator,s.DOCUMENT_TYPE,
 s.calc_amount, s.calc_description, va.name amount_name, vd.name description_name,
 s.condition, s.CONDITION_VARIANT,
@@ -46,10 +47,12 @@ data class Schema(
     var creditAccount: Long? = null,
 
     @ColumnName("debet_name")
+    @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
     var debetName: String? = null,
 
     @ColumnName("credit_name")
+    @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
     var creditName: String? = null,
 
@@ -61,7 +64,7 @@ data class Schema(
     @ColumnName("reverse_indicator")
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(ReverseIndicatorConverter::class)
-    var reverseIndicator: String? = null,
+    var reverseIndicator: String? = "Ошибка индикатора",
 
     @ColumnName("DOCUMENT_TYPE")
     @Converter(BooleanConverter::class)
@@ -78,10 +81,12 @@ data class Schema(
 
     @ColumnName("amount_name")
     @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
     var amountName: String? = null,
 
     @ColumnName("description_name")
     @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
     var descriptionName: String? = null,
 
     @ColumnName("condition")
@@ -94,12 +99,12 @@ data class Schema(
 
     @ColumnName("row_order")
     @ColumnType(java.sql.Types.INTEGER)
-    var rowOrder: Int? = null
+    var rowOrder: Int? = 1
 ) : ParamsSelect {
 
     override fun selectParams(): Array<Any?>? = arrayOf(
-        TransTypeService.selectedEntity()?.transactType?: String::class.java,
-        String::class.java)
+        TransTypeService.selectedEntity()?.transactType?: String::class.javaObjectType,
+        String::class.javaObjectType)
 
 }
 
