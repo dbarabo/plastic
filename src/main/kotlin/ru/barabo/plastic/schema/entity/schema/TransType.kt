@@ -12,10 +12,11 @@ import ru.barabo.plastic.unnamed.general.parseLong
       od.ptkb_transact_schema s,
       od.ptkb_transact_variable v
      where t.HEADER_NAME = ?
+     and coalesce(t.IS_OUT_TYPE, 0) != -1
      and s.TRANSACT_TYPE(+) = t.TRANS_TYPE
      and v.id(+) = s.condition
      and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 where s2.transact_type = t.TRANS_TYPE))
-     order by t.id
+     order by t.TRANS_TYPE
 """)
 data class TransType(
     @SequenceName("")

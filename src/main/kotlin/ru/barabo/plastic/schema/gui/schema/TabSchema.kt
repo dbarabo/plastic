@@ -12,21 +12,35 @@ class TabSchema : JPanel()  {
 
         val topLeftSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, JScrollPane(TableHeaderTransactType),
             JScrollPane(TableTransType)).apply {
-            setDividerLocation(0.3)
+
             isOneTouchExpandable = true
         }
 
         val topSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, topLeftSplitBar, JScrollPane(TableConditionVariant)).apply {
             isOneTouchExpandable = true
-            setDividerLocation(0.85)
         }
 
         val mainSplitBar = JSplitPane(JSplitPane.VERTICAL_SPLIT, topSplitBar, JScrollPane(TableSchema) ).apply {
-            setDividerLocation(0.75)
+            isOneTouchExpandable = true
         }
 
         add(ToolBarSchema(TableSchema), BorderLayout.NORTH)
 
         add(mainSplitBar, BorderLayout.CENTER)
+
+        with(topLeftSplitBar) {
+            resizeWeight = 0.2
+            setDividerLocation(0.2)
+        }
+
+        with(topSplitBar) {
+            resizeWeight = 0.9
+            setDividerLocation(0.9)
+        }
+
+        with(mainSplitBar) {
+            resizeWeight = 0.8
+            setDividerLocation(0.8)
+        }
     }
 }

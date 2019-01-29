@@ -20,16 +20,16 @@ private val headerColumns = listOf(
 object TableTransType : EntityTable<TransType>(transTypeColumns, TransTypeService)
 
 private val transTypeColumns = listOf(
-    ColumnTableModel("Наименование", 100, TransType::name, false),
-    ColumnTableModel("Тип транзакции", 30, TransType::transactType, false),
+    ColumnTableModel("Наименование", 200, TransType::name, false),
+    ColumnTableModel("Тип транзакции", 60, TransType::transactType, false),
     ColumnTableModel("Эквайринг?", 30, TransType::isEquaringType, false),
-    ColumnTableModel("Условие", 50, TransType::conditionName, false)
+    ColumnTableModel("Условие", 40, TransType::conditionName, false)
 )
 
 object TableConditionVariant : EntityTable<ConditionVariant>(conditionVariantColumns, ConditionVariantService)
 
 private val conditionVariantColumns = listOf(
-    ColumnTableModel("Вариант условия", 100, ConditionVariant::conditionVariant, false)
+    ColumnTableModel("Вариант условия", 50, ConditionVariant::conditionVariant, false)
 )
 
 object TableSchema : EntityTable<Schema>(schemaColumns, SchemaService)
@@ -40,11 +40,11 @@ private val schemaColumns = listOf(
 
     ColumnTableModel("Это дебет", 30, Schema::isDebetIndicator, true),
     ColumnTableModel("реверс индикатора", 30, Schema::reverseIndicator, true),
-    ColumnTableModel("Это внутр.перевод", 100, Schema::isInternalTransfer, true),
+    ColumnTableModel("Это внутр.перевод", 50, Schema::isInternalTransfer, true),
 
     ColumnTableModel("Рассчет.Сумма", 80, Schema::amountName, true),
     ColumnTableModel("Рассчет.Назначение", 80, Schema::descriptionName, true),
 
-    ColumnTableModel("Сортировка", 30, Schema::rowOrder, false)
+    ColumnTableModel("Сортировка", 30, Schema::rowOrder, true)
 )
 

@@ -65,7 +65,7 @@ data class Schema(
     @ColumnName("reverse_indicator")
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(ReverseIndicatorConverter::class)
-    var reverseIndicator: String? = "Ошибка индикатора",
+    var reverseIndicator: Boolean = false,
 
     @ColumnName("DOCUMENT_TYPE")
     @Converter(BooleanConverter::class)
@@ -110,29 +110,12 @@ data class Schema(
 
 
 object ReverseIndicatorConverter : ConverterValue {
-    override fun convertFromBase(value: Any, javaType: Class<*>): Any? =
-        (value as? Number)?.toInt()?.let { intToString(it) }
+    override fun convertFromBase(value: Any, javaType: Class<*>): Any? = (value as? Number)?.toInt()?:0 != 0
 
     override fun convertFromStringToJava(value: String, javaType: Class<*>): Any? =
-        value.parseLong()?.toInt()?.let { intToString(it) }
+        value.parseLong()?.toInt()?.let { it != 0 } ?: false
 
-    override fun convertToBase(value: Any): Any = (value as? String)?.let { stringToInt(it) } ?: "Ахтунг!!!"
-
-    private fun intToString(value: Int) =
-        when (value) {
-            0 -> "Ошибка индикатора"
-            1 -> "Реверс дебет<->кредит"
-            2 -> "Не меняет дебет с кредит"
-            else -> "Ахтунг!!!"
-        }
-
-    private fun stringToInt(value: String) =
-        when (value) {
-            "Ошибка индикатора" -> 0
-            "Реверс дебет<->кредит" -> 1
-            "Не меняет дебет с кредит" -> 2
-            else -> null
-        }
+    override fun convertToBase(value: Any): Any = (value as? Boolean)?.let { if(it) 1 else 0 } ?: 0
 }
 
 object BooleanDebetIndicatorConverter : ConverterValue {

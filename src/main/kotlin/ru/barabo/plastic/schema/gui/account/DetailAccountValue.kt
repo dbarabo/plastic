@@ -1,5 +1,7 @@
 package ru.barabo.plastic.schema.gui.account
 
+import javafx.scene.control.ComboBox
+import org.apache.log4j.Logger
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import ru.barabo.gui.swing.table.saveEntityShowError
@@ -24,7 +26,7 @@ import javax.swing.border.TitledBorder
 
 class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
-   // private val logger = Logger.getLogger(DetailAccountValue::class.java.name)
+    private val logger = Logger.getLogger(DetailAccountValue::class.java.name)
 
     private val accountSelectButton: JButton
 
@@ -77,7 +79,9 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
                         checkAccountValueShowError()
 
-                        accountValue?.calcFormula = this.selectedItem as? String
+                        logger.error("CHECK_LISTENER=$selectedItem")
+
+                        accountValue?.calcFormula = selectedItem as? String
                     }
                 }
 
@@ -206,7 +210,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     override fun refreshAll(elemRoot: List<AccountValue>, refreshType: EditType) {
         accountValue = AccountValueService.selectedEntity()
 
-        //logger.error("refreshAll accountValue=$accountValue")
+        logger.error("refreshAll accountValue=$accountValue")
 
         updateComponents()
     }
@@ -249,9 +253,11 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
             calcFormulaAccount.checkAddNewList(AccountService.getCalcFuncByChecked())
 
-            selectedItem = accountValue?.calcFormula
+            logger.error("calcFormula=${accountValue?.calcFormula}")
 
-            //logger.error("selectedItem=${accountValue?.calcFormula}")
+            logger.error("selectedItem=$selectedItem")
+
+            selectedItem = accountValue?.calcFormula
 
             isEnabled = isEnabledCalc
         }
@@ -264,6 +270,9 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     }
 
     private fun JComboBox<String>.checkAddNewList(list: List<String>) {
+
+        logger.error("list=$list")
+
         if(list.isEmpty()) {
             removeAllItems()
             return
@@ -271,11 +280,22 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
         if(isNoNeedRemoveOldList(list)) return
 
+        updateItemsList(list)
+    }
+
+    private fun <T> JComboBox<T>.updateItemsList(list: List<T>) {
+
+        val listeners = actionListeners
+
+        listeners.forEach { removeActionListener(it) }
+
         removeAllItems()
 
         for(item in list) {
             addItem(item)
         }
+
+        listeners.forEach { addActionListener(it) }
     }
 
     private fun JComboBox<String>.isNoNeedRemoveOldList(list: List<String>): Boolean {
