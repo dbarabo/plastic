@@ -7,7 +7,7 @@ import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
 import java.awt.EventQueue
 
-abstract class StoreService<T: Any, out G>(private val orm: TemplateQuery, val clazz: Class<T>) {
+abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>) {
 
     private val listenerList = ArrayList<StoreListener<G>>()
 

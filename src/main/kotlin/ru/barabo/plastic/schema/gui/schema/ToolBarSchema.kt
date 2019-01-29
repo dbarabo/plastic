@@ -1,6 +1,5 @@
 package ru.barabo.plastic.schema.gui.schema
 
-import ru.barabo.plastic.schema.service.schema.SchemaService
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JTable
@@ -9,6 +8,8 @@ class ToolBarSchema(table: JTable) : AbstractTopToolBar(table) {
 
     private val buttons = arrayOf(
         ButtonKarkas("insertDB", "Создать Схему проводки", { createSchema() },	null),
+        ButtonKarkas("condition", "Создать вариант условия", { createConditon() },	null),
+        ButtonKarkas("condition", "Правка варианта усл.", { updateConditon() },	null),
         ButtonKarkas(null, null, null, null)
     )
 
@@ -20,5 +21,13 @@ class ToolBarSchema(table: JTable) : AbstractTopToolBar(table) {
 
     private fun createSchema() {
         DialogCreateSchema(this).showDialogResultOk()
+    }
+
+    private fun createConditon() {
+        DialogCreateCondition(this).showDialogResultOk()
+    }
+
+    private fun updateConditon() {
+        DialogUpdateCondition(this).showDialogResultOk()
     }
 }

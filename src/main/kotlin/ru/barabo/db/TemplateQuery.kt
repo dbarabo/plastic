@@ -5,6 +5,7 @@ import ru.barabo.db.annotation.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.declaredMemberProperties
@@ -84,8 +85,27 @@ open class TemplateQuery (private val query :Query) {
     fun <T> select(row :Class<T>, callBack :(row :T)->Unit) {
         val selectQuery =  getSelect(row)
 
-        val params = if(ParamsSelect::class.java.isAssignableFrom(row)) {
-            (row.newInstance() as ParamsSelect).selectParams() } else null
+        val params = selectParams(row)
+
+        select(selectQuery, params, row, callBack)
+    }
+
+    private fun <T> selectParams(row :Class<T>): Array<Any?>? = if(ParamsSelect::class.java.isAssignableFrom(row)) {
+        (row.newInstance() as ParamsSelect).selectParams() } else null
+
+    @Throws(SessionException::class)
+    fun <T> selectById(row :Class<T>, idValue: T, callBack :(row :T)->Unit) {
+
+        val idColumn = getIdColumnName(row) ?: return
+
+        val selectQuery =  getSelect(row).addWhereIdToSelect(idColumn)
+
+        val params = selectParams(row)
+
+        val list = ArrayList<Any?>()
+        list += idValue
+
+        params?.let { list.addAll(it) }
 
         select(selectQuery, params, row, callBack)
     }
@@ -233,7 +253,7 @@ open class TemplateQuery (private val query :Query) {
                 val converter = member.findAnnotation<Converter>()?.converterClazz
 
                 return FieldData(annotationName.name,
-                        valueToSql(member.call(item), annotationType?.type, converter) )
+                    valueToSql(member.call(item), annotationType?.type, converter) )
             }
         }
         throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
@@ -327,6 +347,25 @@ open class TemplateQuery (private val query :Query) {
         return newValue
     }
 
+}
+
+private fun String.addWhereIdToSelect(idColumnName: String): String {
+
+    val replaceRow = "\nWHERE $idColumnName = ?"
+
+    val replaceRowAnd = "$replaceRow\n AND "
+
+    val source = toUpperCase()
+
+    val replaceSelectWhere = source.replaceFirst("\\sWHERE\\s".toRegex(), replaceRowAnd)
+
+    if(replaceSelectWhere != source) return replaceSelectWhere
+
+    val replaceSelectOrder = source.replaceFirst("\\sORDER\\sBY\\s".toRegex(), replaceRowAnd)
+
+    if(replaceSelectOrder != source) return replaceSelectOrder
+
+    return "$this $replaceRow"
 }
 
 typealias FieldData = Pair<String, Any>

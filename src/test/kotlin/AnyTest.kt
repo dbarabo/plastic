@@ -1,5 +1,6 @@
 import org.apache.log4j.Logger
 import org.junit.Test
+import ru.barabo.db.annotation.SelectQuery
 import ru.barabo.plastic.afina.VersionChecker
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
@@ -10,7 +11,33 @@ class AnyTest {
 
     private val logger = Logger.getLogger(AnyTest::class.simpleName)!!
 
+    private val select = """
+select t.id, t.NAME, t.HEADER_NAME, t.TRANS_TYPE, t.IS_OUT_TYPE, s.condition, v.name condition_name
+from od.ptkb_plastic_transact_type t,
+od.ptkb_transact_schema s,
+od.ptkb_transact_variable v
+where t.HEADER_NAME = ?
+and s.TRANSACT_TYPE(+) = t.TRANS_TYPE
+and v.id(+) = s.condition
+and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 where s2.transact_type = t.TRANS_TYPE))
+order by t.id
+"""
+
     @Test
+    fun reqexpTestReplace() {
+
+
+
+        val x = select.toUpperCase().replaceFirst("\\sWHERE\\s".toRegex(), "\nWHERE id = ?\n and ")
+
+        val y = select.toUpperCase().replaceFirst("\\sORDER\\sBY\\s".toRegex(), "\nWHERE id = ? \nORDER BY ")
+
+        logger.error(x)
+
+        logger.error(y)
+    }
+
+    //@Test
     fun filterTest() {
 
 

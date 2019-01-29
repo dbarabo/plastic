@@ -298,6 +298,8 @@ private fun KMutableProperty<*>.getMemberConvertor(): MemberConverter? {
 
 private fun KClass<*>.instanceCreateOrGet() = this.objectInstance ?: this.java.newInstance()
 
+internal fun getIdColumnName(javaType: Class<*>): String? = getIdMember(javaType)?.findAnnotation<ColumnName>()?.name
+
 internal fun getIdMember(javaType: Class<*>): KMutableProperty<*>? = javaType.kotlin.declaredMemberProperties
         .filterIsInstance<KMutableProperty<*>>().firstOrNull { it.findAnnotation<SequenceName>() != null }
 

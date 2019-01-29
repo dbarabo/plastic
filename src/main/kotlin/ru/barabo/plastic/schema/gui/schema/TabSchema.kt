@@ -5,14 +5,25 @@ import javax.swing.JPanel
 import javax.swing.JScrollPane
 import javax.swing.JSplitPane
 
+
 class TabSchema : JPanel()  {
     init {
         layout = BorderLayout()
 
-        val leftSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, JScrollPane(TableHeaderTransactType),
-            JScrollPane(TableTransType)).apply { isOneTouchExpandable = true }
+        val topLeftSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, JScrollPane(TableHeaderTransactType),
+            JScrollPane(TableTransType)).apply {
+            setDividerLocation(0.3)
+            isOneTouchExpandable = true
+        }
 
-        val mainSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftSplitBar, JScrollPane(TableSchema) )
+        val topSplitBar = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, topLeftSplitBar, JScrollPane(TableConditionVariant)).apply {
+            isOneTouchExpandable = true
+            setDividerLocation(0.85)
+        }
+
+        val mainSplitBar = JSplitPane(JSplitPane.VERTICAL_SPLIT, topSplitBar, JScrollPane(TableSchema) ).apply {
+            setDividerLocation(0.75)
+        }
 
         add(ToolBarSchema(TableSchema), BorderLayout.NORTH)
 

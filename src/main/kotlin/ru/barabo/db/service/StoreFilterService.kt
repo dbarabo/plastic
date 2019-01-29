@@ -20,6 +20,30 @@ open class StoreFilterService<T: Any>(orm: TemplateQuery, clazz: Class<T>) : Sto
 
     private val filterdList = ArrayList<T>()
 
+    fun reselectRow() {
+
+        val idRow = selectedEntity() ?: return
+
+        orm.selectById(clazz, idRow, ::callBackSelectData)
+
+        sentRefreshAllListener(EditType.CHANGE_CURSOR)
+    }
+
+    private fun callBackSelectRow(item: T) {
+
+        synchronized(dataList) {
+
+            val selectedItem = selectedEntity() ?: return
+
+            val index = dataList.indexOf(selectedItem)
+
+            if(index < 0) return
+
+
+            dataList[index] = item
+        }
+    }
+
     override fun elemRoot(): List<T> = if(isFiltered) filterdList else dataList
 
     override fun dataListCount() = if(isFiltered) filterdList.size else super.dataListCount()

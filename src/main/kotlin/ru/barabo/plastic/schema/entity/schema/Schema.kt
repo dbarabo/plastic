@@ -4,6 +4,7 @@ import ru.barabo.db.ConverterValue
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.BooleanConverter
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
+import ru.barabo.plastic.schema.service.schema.ConditionVariantService
 import ru.barabo.plastic.schema.service.schema.TransTypeService
 import ru.barabo.plastic.unnamed.general.parseLong
 
@@ -104,9 +105,9 @@ data class Schema(
 
     override fun selectParams(): Array<Any?>? = arrayOf(
         TransTypeService.selectedEntity()?.transactType?: String::class.javaObjectType,
-        String::class.javaObjectType)
-
+        ConditionVariantService.selectedEntity()?.conditionVariant ?: String::class.javaObjectType)
 }
+
 
 object ReverseIndicatorConverter : ConverterValue {
     override fun convertFromBase(value: Any, javaType: Class<*>): Any? =
