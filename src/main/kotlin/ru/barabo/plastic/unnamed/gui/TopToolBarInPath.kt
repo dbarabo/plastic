@@ -136,6 +136,9 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
 
         private const val MSG_TO_DOPIKI = "Отправить карты по доп. офисам?"
         private const val TITLE_TO_DOPIKI = "Карты в Доп. офисы"
+
+        @JvmStatic
+        fun getMainBook(component: Component): JTabbedPane? = component.mainBook()
     }
 }
 

@@ -14,4 +14,9 @@ class MainSchemaTab : JTabbedPane() {
 
         addTab("Схема", TabSchema())
     }
+
+
+    companion object {
+        const val TITLE = "Схемы"
+    }
 }

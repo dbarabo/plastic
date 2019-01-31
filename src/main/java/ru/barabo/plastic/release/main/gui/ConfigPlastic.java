@@ -1,6 +1,7 @@
 package ru.barabo.plastic.release.main.gui;
 
 import org.apache.log4j.Logger;
+import ru.barabo.plastic.fio.gui.FioChangeTab;
 import ru.barabo.plastic.release.application.gui.PanelApplication;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.packet.data.DBStorePacket;
@@ -47,10 +48,14 @@ public class ConfigPlastic extends JPanel {
 
         book.addTab("Неименные карты",	new PanelUnnamed(store));
 
+		book.addTab("Смена Перс. данных", new FioChangeTab() );
+
 		book.addTab("Заявление на Выпуск",
 					new PanelApplication(store.getApplicationCard(), store.getClientFind()));
 
-		book.addTab("Схемы", new MainSchemaTab() );
+
+
+		//book.addTab("Схемы", new MainSchemaTab() );
 
 		//book.addTab("Настройки", new ServicePanel());
 

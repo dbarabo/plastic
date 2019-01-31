@@ -11,6 +11,8 @@ import ru.barabo.plastic.release.packet.data.PacketRowField;
 import ru.barabo.plastic.release.reissue.data.DBStoreReIssueCard;
 import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
 import ru.barabo.plastic.release.reissue.data.TypeSelect;
+import ru.barabo.plastic.schema.gui.MainSchemaTab;
+import ru.barabo.plastic.unnamed.gui.TopToolBarInPath;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.impl.AbstractRowFields;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
@@ -19,7 +21,9 @@ import ru.barabo.total.gui.any.ShowMenuListener;
 import ru.barabo.total.gui.table.TotalRowTable;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 
@@ -66,9 +70,45 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 		initButton();
 
-		this.getButtonKarkases()[1].getButton().setVisible(
-				((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace());
+		AbstractButton btrt25 = getButtonKarkases()[1].getButton();
+
+		btrt25.setVisible( ((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace() );
+
+		btrt25.setComponentPopupMenu(createSchemaPopup());
 	}
+
+	private JPopupMenu createSchemaPopup() {
+		JPopupMenu popup = new JPopupMenu();
+
+		JMenuItem item = new JMenuItem("Открыть схемы транзакций");
+
+		item.addActionListener(this::addSchema);
+
+		popup.add(item);
+
+		return popup;
+	}
+
+	private void addSchema(ActionEvent event) {
+
+		JTabbedPane book = TopToolBarInPath.getMainBook(getButtonKarkases()[0].getButton() );
+
+		assert book != null;
+
+		boolean isExists = false;
+
+		for(int index = 0; index < book.getTabCount(); index++) {
+
+			if(MainSchemaTab.TITLE.equals( book.getTitleAt(index) ) ) {
+				isExists = true;
+				break;
+			}
+		}
+		if(!isExists) {
+			book.addTab(MainSchemaTab.TITLE, new MainSchemaTab());
+		}
+	}
+
 	
 	public static void messageError(String error) {
 		JOptionPane.showMessageDialog(null, 

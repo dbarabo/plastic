@@ -413,7 +413,7 @@ fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int 
 }
 
 internal fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1) =
-    GridBagConstraints(gridX, gridY, width, height, 1.0, 1.0,
+    GridBagConstraints(gridX, gridY, width, height, 1.0, 0.6,
         GridBagConstraints.PAGE_START, GridBagConstraints.HORIZONTAL,
         Insets(5, 2, 5, 2), 0, 0)
 
