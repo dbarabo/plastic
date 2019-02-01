@@ -120,7 +120,7 @@ fun createIIAFile(query: String, firstParamId: Number,
     return file
 }
 
-private fun unicFileName(notFileName: String): File {
+fun unicFileName(notFileName: String): File {
 
     val file = File("${hCardOutToday()}/${getApplicationFileName()}")
 

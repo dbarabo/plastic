@@ -6,10 +6,13 @@ import ru.barabo.plastic.fio.entity.FioChangeInfo
 import ru.barabo.plastic.fio.service.FioChangeService
 import ru.barabo.plastic.schema.gui.account.groupPanel
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
+import ru.barabo.plastic.unnamed.gui.errorMessage
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTextField
@@ -53,7 +56,13 @@ class DetailFioChange : JPanel(), StoreListener<List<FioChangeInfo>> {
 
             textFieldHorizontReadOnly("Адрес", 0).apply { address = this }
 
-            textFieldHorizontal("Телефон", 1).apply { phone = this }
+            textFieldHorizontal("Телефон", 1).apply {
+                phone = this
+
+                addKeyListener( UpdateKeyListener {text ->
+                    client?.let { it.phone = text }
+                })
+            }
         }
 
         groupPanel("Документ", 6, 3 ).apply {
@@ -65,7 +74,13 @@ class DetailFioChange : JPanel(), StoreListener<List<FioChangeInfo>> {
         }
 
         groupPanel("Дополнительно", 9, 2).apply {
-            textFieldHorizontal("Кодовое слово", 0).apply { codeWord = this }
+            textFieldHorizontal("Кодовое слово", 0).apply {
+                codeWord = this
+
+                addKeyListener( UpdateKeyListener { text ->
+                    client?.let { it.codeWord = text }
+                })
+             }
 
             textFieldHorizontReadOnly("ID в ПЦ", 1).apply { idInProcCenter = this }
         }
@@ -81,6 +96,11 @@ class DetailFioChange : JPanel(), StoreListener<List<FioChangeInfo>> {
         if(refreshType in listOf(EditType.INIT, EditType.CHANGE_CURSOR, EditType.ALL)) {
             client = FioChangeService.selectedEntity()
             updateInfo()
+
+            if(client?.idInProcCenter?.isEmpty() != false) {
+
+                errorMessage("Клиент не зарегистрирован в ПЦ, поэтому информация по нему не может быть отправлена")
+            }
         }
     }
 
@@ -104,6 +124,19 @@ class DetailFioChange : JPanel(), StoreListener<List<FioChangeInfo>> {
         codeWord.text = client?.codeWord
 
         idInProcCenter.text = client?.idInProcCenter
+    }
+}
+
+class UpdateKeyListener(private val setter: (String?)->Unit) : KeyListener {
+    override fun keyTyped(e: KeyEvent?) {}
+
+    override fun keyPressed(e: KeyEvent?) {}
+
+    override fun keyReleased(e: KeyEvent?) {
+
+        val textField = (e?.source as? JTextField) ?: return
+
+        setter(textField.text)
     }
 }
 
