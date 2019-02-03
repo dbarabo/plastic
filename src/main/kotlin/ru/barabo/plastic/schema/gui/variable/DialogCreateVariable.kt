@@ -3,44 +3,60 @@ package ru.barabo.plastic.schema.gui.variable
 import ru.barabo.plastic.schema.entity.variable.Variable
 import ru.barabo.plastic.schema.entity.variable.VariableType
 import ru.barabo.plastic.schema.gui.account.groupPanel
+import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.schema.AbstractDialog
 import ru.barabo.plastic.schema.gui.schema.comboBox
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
-import ru.barabo.plastic.schema.service.schema.SchemaService
-import ru.barabo.plastic.schema.service.schema.TransTypeService
 import ru.barabo.plastic.schema.service.variable.VariableService
 import java.awt.Component
-import javax.swing.JComboBox
 import javax.swing.JTextField
 
-class DialogCreateVariable(private val component: Component) : AbstractDialog(component, "Создать функцию") {
+class DialogCreateVariable(private var variable: Variable, component: Component) :
+    AbstractDialog(component, "Правка/Создание функции/условия") {
 
-    protected val condition: JComboBox<Variable>
-
-    protected val variant: JTextField
+    private val nameVar: JTextField
 
     init {
 
-        val typeCondition =
-            if (TransTypeService.selectedEntity()?.isEquaringType == true) VariableType.PRIOR_CONDITION
-            else VariableType.CONDITION
+        groupPanel("Задайте значения для создаваемой функции", 0, 2, 0).apply {
 
-        groupPanel("Выберите условие и задайте 1 вариант значения", 0, 2, 0).apply {
+            textFieldHorizontal("Имя функции/условия", 0).apply {
+                nameVar = this
 
-            comboBox("Условие", 0, VariableService.getVarByType(typeCondition)).apply { condition = this }
+                text = variable.name
+            }
 
-            textFieldHorizontal("Вариант значения", 1).apply { variant = this }
+            comboBox("Тип функции", 1, VariableType.values().toList()).apply {
+
+                selectedItem = variable.typeVar
+
+                addActionListener {
+
+                    (selectedItem as? VariableType)?.let { variable.typeVar = it }
+                }
+            }
+
+            comboBox("Функция", 2, VariableService.getFuncListByType(variable.typeVar)).apply {
+                selectedItem = variable.calcFunc
+
+                addActionListener {
+
+                    (selectedItem as? String)?.let { variable.calcFunc = it }
+                }
+            }
         }
 
-        createOkCancelButton(2)
+        createOkCancelButton(3)
 
         pack()
     }
 
     override fun okProcess() {
 
-        
+        processShowError {
+            variable.name = nameVar.text?.trim()
 
-        //SchemaService.addConditionVariant(condition.selectedItem as? Variable, variant.text?.trim())
+            VariableService.save(variable)
+        }
     }
 }

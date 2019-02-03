@@ -10,7 +10,14 @@ object VariableService : StoreFilterService<Variable>(AfinaOrm, Variable::class.
 
   override val cashedParamsFuncList: MutableMap<String, List<String>> = HashMap()
 
+  /**
+   * список уже созданных переменных-вычислиний по их типу
+   */
   fun getVarByType(type: VariableType) = dataList.filter { it.typeVar == type }
+
+  /**
+   * список доступных функций в пакете по ее типу
+   */
+  fun getFuncListByType(type: VariableType) = getFuncListByParams(type.resultAndParams)
 }
 
-private fun VariableType.getFuncParams():  List<String> = resultAndParams.map { it.label }

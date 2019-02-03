@@ -10,8 +10,8 @@ class TabVariable : JPanel() {
         layout = BorderLayout()
 
 
+        add(ToolBarVariable(TableVariable), BorderLayout.NORTH)
+
         add(JScrollPane(TableVariable), BorderLayout.CENTER)
-
-
     }
 }

@@ -11,7 +11,7 @@ import java.awt.Component
 import javax.swing.JComboBox
 import javax.swing.JTextField
 
-open class DialogCreateCondition(private val component: Component) : AbstractDialog(component, "Создать условие") {
+open class DialogCreateCondition(component: Component) : AbstractDialog(component, "Создать условие") {
 
     protected val condition: JComboBox<Variable>
 

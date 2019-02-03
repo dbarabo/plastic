@@ -8,7 +8,7 @@ class ToolBarSchema(table: JTable) : AbstractTopToolBar(table) {
 
     private val buttons = arrayOf(
         ButtonKarkas("insertDB", "Создать Схему проводки", { createSchema() },	null),
-        ButtonKarkas("condition", "Создать вариант условия", { createConditon() },	null),
+        ButtonKarkas("condition", "Создать условие", { createConditon() },	null),
         ButtonKarkas("condition", "Правка варианта усл.", { updateConditon() },	null),
         ButtonKarkas(null, null, null, null)
     )

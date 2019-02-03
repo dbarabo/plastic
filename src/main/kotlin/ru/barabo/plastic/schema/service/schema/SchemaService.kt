@@ -28,8 +28,12 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
 
         val cred = credit ?: throw Exception("Счет кредита не может быть пустым")
 
-        val newSchema = Schema(debetAccount = deb.id, creditAccount = cred.id,
+        val newSchema = Schema(
+            debetAccount = deb.id,
+            creditAccount = cred.id,
             transType = TransTypeService.selectedEntity()?.transactType,
+            condition = ConditionVariantService.selectedEntity()?.condition,
+            conditionVariant = ConditionVariantService.selectedEntity()?.conditionVariant,
             rowOrder = dataList.size + 1)
 
         save(newSchema)
