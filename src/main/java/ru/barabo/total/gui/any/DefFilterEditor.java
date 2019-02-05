@@ -1,10 +1,12 @@
 package ru.barabo.total.gui.any;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.*;
 
 public class DefFilterEditor extends DefaultFieldEditor {
 	
-	//final static transient private Logger logger = Logger.getLogger(DefFilterEditor.class.getName());
+	final static transient private Logger logger = Logger.getLogger(DefFilterEditor.class.getName());
 
 	public DefFilterEditor() {
 		super(new JTextField());
@@ -24,13 +26,16 @@ public class DefFilterEditor extends DefaultFieldEditor {
 
 	@Override
 	protected void setFieldValue(JComponent field, Object value) {
+
+		logger.error("DefFilterEditor.setFieldValue value=" + value);
+
 		if(value == null) {
 			value = "";
 		}
 
 		((JTextField)field).setText( value.toString() );
 
-		((JTextField) field).selectAll();
+		//((JTextField) field).selectAll();
 
 	}
 

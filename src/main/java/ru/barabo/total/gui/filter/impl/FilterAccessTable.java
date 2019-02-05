@@ -71,17 +71,17 @@ public class FilterAccessTable<P, C> extends JTable implements FilterTable {
 	}
 
 	@Override
-	public void setFilterPress() {
+	public void setFilterPress(String textFilter) {
 
 		int columnIndex = this.getSelectedColumn();
-
+/*
 		JTextComponent field = (JTextComponent) ((DefFilterEditor) defaultEditor).getField();
 
 		if (field == null) {
 			return;
 		}
-
-		((FilterAccessModel) this.getModel()).setFilterValue(field.getText(), columnIndex);
+*/
+		((FilterAccessModel) this.getModel()).setFilterValue(textFilter /*field.getText()*/, columnIndex);
 	}
 
 }

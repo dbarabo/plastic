@@ -6,10 +6,11 @@ import ru.barabo.db.annotation.SelectQuery
 import ru.barabo.plastic.schema.service.schema.TransTypeService
 
 @SelectQuery("""
-    select distinct s.TRANSACT_TYPE, s.CONDITION, s.CONDITION_VARIANT
+    select s.TRANSACT_TYPE, s.CONDITION, s.CONDITION_VARIANT, s.CONDITION_VARIANT OLD_VARIANT
       from od.ptkb_transact_schema s
-     where s.condition = ?
-     order by 2
+     where s.TRANSACT_TYPE = ?
+     group by s.TRANSACT_TYPE, s.CONDITION, s.CONDITION_VARIANT
+     order by min(s.id)
 """)
 data class ConditionVariant (
     @ColumnName("TRANSACT_TYPE")
@@ -19,8 +20,12 @@ data class ConditionVariant (
     var condition: Long? = null,
 
     @ColumnName("CONDITION_VARIANT")
-    var conditionVariant: String? = null
+    var conditionVariant: String? = null,
+
+    @ColumnName("OLD_VARIANT")
+    var oldVariant: String? = null
+
 ) : ParamsSelect {
 
-    override fun selectParams(): Array<Any?>? = arrayOf(TransTypeService.selectedEntity()?.condition ?: String::class.java)
+    override fun selectParams(): Array<Any?>? = arrayOf(TransTypeService.selectedEntity()?.transactType ?: String::class.java)
 }

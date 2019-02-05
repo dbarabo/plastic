@@ -56,8 +56,8 @@ DefaultFieldEditor(JComponent field)	{
 	public void actionPerformed(ActionEvent arg0) {
 
 		logger.info("STOP!!!");
-		super.stopCellEditing();
-		// fireEditingStopped();
+		//super.stopCellEditing();
+		 fireEditingStopped();
 	}
 
 	@Override

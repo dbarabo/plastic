@@ -9,12 +9,15 @@ import ru.barabo.plastic.schema.gui.schema.comboBox
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.schema.service.variable.VariableService
 import java.awt.Component
+import javax.swing.JComboBox
 import javax.swing.JTextField
 
 class DialogCreateVariable(private var variable: Variable, component: Component) :
     AbstractDialog(component, "Правка/Создание функции/условия") {
 
     private val nameVar: JTextField
+
+    private val funcList: JComboBox<String>
 
     init {
 
@@ -33,10 +36,14 @@ class DialogCreateVariable(private var variable: Variable, component: Component)
                 addActionListener {
 
                     (selectedItem as? VariableType)?.let { variable.typeVar = it }
+
+                    updateFuncList()
                 }
             }
 
             comboBox("Функция", 2, VariableService.getFuncListByType(variable.typeVar)).apply {
+                funcList = this
+
                 selectedItem = variable.calcFunc
 
                 addActionListener {
@@ -49,6 +56,14 @@ class DialogCreateVariable(private var variable: Variable, component: Component)
         createOkCancelButton(3)
 
         pack()
+    }
+
+    private fun updateFuncList() {
+        val list = VariableService.getFuncListByType(variable.typeVar)
+
+        funcList.removeAllItems()
+
+        list.forEach { funcList.addItem(it) }
     }
 
     override fun okProcess() {

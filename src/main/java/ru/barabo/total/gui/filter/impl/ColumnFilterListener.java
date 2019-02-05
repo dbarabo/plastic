@@ -12,7 +12,7 @@ public class ColumnFilterListener implements TableColumnModelListener {
 
 	private FilterTable listenerTable;
 	
-	public ColumnFilterListener(FilterTable listenerTable) {
+	ColumnFilterListener(FilterTable listenerTable) {
 		this.listenerTable = listenerTable;
 	}
 	

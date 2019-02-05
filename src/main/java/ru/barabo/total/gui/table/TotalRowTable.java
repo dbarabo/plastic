@@ -1,5 +1,6 @@
 package ru.barabo.total.gui.table;
 
+import org.apache.log4j.Logger;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.ListenerStore;
@@ -19,7 +20,7 @@ import java.util.List;
 public class TotalRowTable<E extends AbstractRowFields> extends JTable
 implements ListenerStore<E> {
 	
-	//final static transient private Logger logger = Logger.getLogger(TotalRowTable.class.getName());
+	final static transient private Logger logger = Logger.getLogger(TotalRowTable.class.getName());
 
 	private DBStore<E> store;
 
@@ -175,6 +176,10 @@ implements ListenerStore<E> {
 	@Override
 	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
 
+		logger.error("stateRefresh="+stateRefresh);
+		logger.error("isMustFullRefresh="+isMustFullRefresh);
+		logger.error("store="+ store);
+
 		if(isMustFullRefresh || stateRefresh == StateRefresh.ALL) {
 			isMustFullRefresh = false;
 			((AbstractTableModel) this.getModel()).fireTableStructureChanged();
@@ -183,8 +188,10 @@ implements ListenerStore<E> {
 		}
 		
 		if(store instanceof AbstractFilterStore) {
+			logger.error("repaint="+ store);
 			this.repaint();
 		} else {
+			logger.error("fireTableDataChanged="+ store);
 			((AbstractTableModel)this.getModel()).fireTableDataChanged();
 		}
 	}

@@ -13,9 +13,9 @@ import javax.swing.JTextField
 
 open class DialogCreateCondition(component: Component) : AbstractDialog(component, "Создать условие") {
 
-    protected val condition: JComboBox<Variable>
+    private val condition: JComboBox<Variable>
 
-    protected val variant: JTextField
+    private val variant: JTextField
 
     init {
 
@@ -36,12 +36,6 @@ open class DialogCreateCondition(component: Component) : AbstractDialog(componen
     }
 
     override fun okProcess() {
-        SchemaService.addConditionVariant(condition.selectedItem as? Variable, variant.text?.trim())
-    }
-}
-
-class DialogUpdateCondition(component: Component) : DialogCreateCondition(component) {
-    override fun okProcess() {
-        SchemaService.updateConditionVariant(condition.selectedItem as? Variable, variant.text?.trim())
+        SchemaService.addCondition(condition.selectedItem as? Variable, variant.text?.trim())
     }
 }

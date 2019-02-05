@@ -37,13 +37,19 @@ public class FilterModelSimple extends AbstractTableModel {
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return true;
 	}
-	
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		return String.class;
+	}
+
 	@Override
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 	
 		if("".equals(aValue)) aValue = null;
 
 		store.setFilterValue(columnIndex, (String)aValue);
+		//mainTable.repaint();
 		((AbstractTableModel)mainTable.getModel()).fireTableDataChanged();
 
 		// modelTable.requestFocus();

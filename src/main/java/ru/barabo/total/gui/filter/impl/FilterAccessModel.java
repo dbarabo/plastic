@@ -75,7 +75,8 @@ public class FilterAccessModel<P, C> extends AbstractTableModel {
 
 		toAccessStore.setFilterValue(-1, allValues);
 
-		((AbstractTableModel) accessTable.getModel()).fireTableDataChanged();
+		//((AbstractTableModel) accessTable.getModel()).fireTableDataChanged();
+		accessTable.repaint();
 
         searchAddStore.searchTo(srcFilterStore.getData());
 	}

@@ -10,6 +10,8 @@ object AccountService : StoreFilterService<Account>(AfinaOrm, Account::class.jav
 
     override val cashedParamsFuncList: MutableMap<String, List<String>> = HashMap<String, List<String>>()
 
+    fun getAccountById(id: Long) = dataList.firstOrNull { it.id == id }
+
     fun getCalcFuncByChecked(): List<String> {
         val account = AccountService.selectedEntity() ?: return emptyList()
 

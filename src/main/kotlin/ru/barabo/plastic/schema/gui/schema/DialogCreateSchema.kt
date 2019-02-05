@@ -1,75 +1,86 @@
 package ru.barabo.plastic.schema.gui.schema
 
 import ru.barabo.plastic.schema.entity.account.Account
-import ru.barabo.plastic.schema.gui.account.*
+import ru.barabo.plastic.schema.entity.schema.Schema
+import ru.barabo.plastic.schema.entity.variable.Variable
+import ru.barabo.plastic.schema.entity.variable.VariableType
+import ru.barabo.plastic.schema.gui.account.groupPanel
+import ru.barabo.plastic.schema.gui.account.labelConstraint
+import ru.barabo.plastic.schema.gui.account.textConstraint
+import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.schema.service.account.AccountService
 import ru.barabo.plastic.schema.service.schema.SchemaService
-import ru.barabo.plastic.unnamed.gui.dialog.parentWindow
+import ru.barabo.plastic.schema.service.variable.VariableService
 import java.awt.Component
 import java.awt.Container
-import java.awt.GridBagLayout
 import java.util.*
 import javax.swing.JComboBox
-import javax.swing.JDialog
 import javax.swing.JLabel
+import javax.swing.JTextField
 
-private const val TITLE = "Создание схемы проводки"
+class DialogCreateSchema(private val schema: Schema, component: Component) :
+    AbstractDialog(component, "Создание/Правка схемы проводки") {
 
-class DialogCreateSchema(private val component: Component) : JDialog(parentWindow(component),
-    TITLE, true) {
-
-    @Volatile private var resultOk = true
-
-    private val debet: JComboBox<Account>
-
-    private val credit: JComboBox<Account>
+    private val variant: JTextField
 
     init {
-        layout = GridBagLayout()
+         groupPanel("Выберите счета дебета и кредита", 0, 2, 0).apply {
 
-        groupPanel("Выберите счета дебета и кредита", 0, 2, 0).apply {
+            comboBox("Дебет", 0, AccountService.elemRoot()).apply {
 
-            comboBox("Дебет", 0, AccountService.elemRoot()).apply { debet = this }
+                schema.debetAccount?.let {
+                    selectedItem = AccountService.getAccountById(it)
+                }
 
-            comboBox("Кредит", 1, AccountService.elemRoot()).apply { credit = this }
+                addActionListener {
+                    schema.debetAccount = (selectedItem as? Account)?.id
+                }
+             }
+
+            comboBox("Кредит", 1, AccountService.elemRoot()).apply {
+
+                schema.creditAccount?.let {
+                    selectedItem = AccountService.getAccountById(it)
+                }
+
+                addActionListener {
+                    schema.creditAccount = (selectedItem as? Account)?.id
+                }
+            }
+
+            textFieldHorizontal("Вариант условия", 3).apply {variant = this}
+
+            comboBox("Рассчет.сумма:", 4, VariableService.getVarByType(VariableType.AMOUNT_VAR).addEmptyList()).apply {
+                addActionListener {
+                    schema.calcAmount = (selectedItem as? Variable)?.id
+                }
+            }
         }
 
-        groupPanel("", 3, 2, 0).apply {
-            onlyButton("Создать", 0, 0, "saveDB"){ createSchema() }
-
-            onlyButton("Отменить", 0, 1, "deleteDB"){ cancel() }
-        }
+        createOkCancelButton(5)
 
         pack()
     }
 
-    private fun createSchema() {
-        resultOk = true
+    override fun okProcess() {
 
-        processShowError {
-            SchemaService.createByDebetCredit(
-                debet.selectedItem as? Account,
-                credit.selectedItem as? Account
-            )
+        if(!variant.text?.trim().isNullOrEmpty()) {
+            schema.conditionVariant = variant.text?.trim()
         }
-
-        dispose()
+        SchemaService.save(schema)
     }
+}
 
-    private fun cancel() {
+private inline fun <reified T> List<T>.addEmptyList(): List<T> {
+    val mutableList = ArrayList<T>()
 
-        resultOk = false
+    val empty = T::class.java.newInstance()
 
-        dispose()
-    }
+    mutableList.add(empty)
 
-    fun showDialogResultOk(): Boolean {
-        resultOk = false
+    mutableList.addAll(this)
 
-        isVisible = true
-
-        return resultOk
-    }
+    return mutableList
 }
 
 fun <T> Container.comboBox(label: String, gridY: Int, list: List<T>? = null): JComboBox<T> {

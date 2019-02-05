@@ -29,7 +29,7 @@ private val transTypeColumns = listOf(
 object TableConditionVariant : EntityTable<ConditionVariant>(conditionVariantColumns, ConditionVariantService)
 
 private val conditionVariantColumns = listOf(
-    ColumnTableModel("Вариант условия", 50, ConditionVariant::conditionVariant, false)
+    ColumnTableModel("Вариант условия", 50, ConditionVariant::conditionVariant, true)
 )
 
 object TableSchema : EntityTable<Schema>(schemaColumns, SchemaService)

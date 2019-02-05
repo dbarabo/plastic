@@ -25,16 +25,16 @@ private val SIMPLE_CONDITION_PARAMS = listOf(TypeParams.VARCHAR2, TypeParams.NUM
 
 /**
  * result-amount;
- * params: idCtl, minIdTransactCtl, sumAmount, idDebetTransactAccount, idCreditTransactAccount, directionIndicator
+ * params: minIdTransactCtl, sumAmount
  */
 private val GROUP_SUM_FUNC_PARAMS = listOf(TypeParams.NUMBER,
-    TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.VARCHAR2)
+    TypeParams.NUMBER, TypeParams.VARCHAR2, TypeParams.NUMBER)
 
 /**
  * result-description;
- * params: idCtl, minIdTransactCtl, countTransact, allSumAmount, calcSumAmount,
+ * params: minIdTransactCtl, countTransact, allSumAmount, calcSumAmount,
  * minDatePeriod, maxDatePeriod
  */
 private val GROUP_DESCRIPTION_FUNC_PARAMS = listOf(TypeParams.VARCHAR2,
-    TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER,
+    TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER,
     TypeParams.DATE, TypeParams.DATE)

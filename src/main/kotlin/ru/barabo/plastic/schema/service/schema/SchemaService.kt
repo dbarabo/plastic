@@ -5,11 +5,9 @@ import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
-import ru.barabo.plastic.schema.entity.account.Account
 import ru.barabo.plastic.schema.entity.schema.ConditionVariant
 import ru.barabo.plastic.schema.entity.schema.Schema
 import ru.barabo.plastic.schema.entity.variable.Variable
-import java.lang.Exception
 
 object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java), StoreListener<List<ConditionVariant>> {
 
@@ -23,32 +21,18 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
         }
     }
 
-    fun createByDebetCredit(debet: Account?, credit: Account?) {
-        val deb = debet ?: throw Exception("Счет дебета не может быть пустым")
+    fun createDefaultSchema() = Schema(
+        debetAccount = null,
+        creditAccount = null,
+        transType = TransTypeService.selectedEntity()?.transactType,
+        condition = ConditionVariantService.selectedEntity()?.condition,
+        conditionVariant = ConditionVariantService.selectedEntity()?.conditionVariant,
+        rowOrder = dataList.size + 1)
 
-        val cred = credit ?: throw Exception("Счет кредита не может быть пустым")
-
-        val newSchema = Schema(
-            debetAccount = deb.id,
-            creditAccount = cred.id,
-            transType = TransTypeService.selectedEntity()?.transactType,
-            condition = ConditionVariantService.selectedEntity()?.condition,
-            conditionVariant = ConditionVariantService.selectedEntity()?.conditionVariant,
-            rowOrder = dataList.size + 1)
-
-        save(newSchema)
-    }
-
-    fun addConditionVariant(condition: Variable?, variant: String?) {
+    fun addCondition(condition: Variable?, variant: String?) {
         val condVariant = checkConditions(condition, variant)
 
         addCondition(condVariant)
-    }
-
-    fun updateConditionVariant(condition: Variable?, variant: String?) {
-        val condVariant = checkConditions(condition, variant)
-
-        updateConditionVariant(condVariant)
     }
 
     private fun checkConditions(condition: Variable?, variant: String?): CondVariant {
@@ -59,15 +43,6 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
         if(selectedEntity()?.transType == null) throw Exception("Сначала создайте схему для типа транзакции, а потом можно будет создать условие для схемы")
 
         return CondVariant(condition?.id ?: selectedEntity()?.condition!!, variant)
-    }
-    private fun updateConditionVariant(condVariant: CondVariant) {
-        val oldCondition = selectedEntity()?.condition ?: return
-
-        val params = arrayOf(condVariant.conditionId, condVariant.variant, selectedEntity()?.transType, oldCondition)
-
-        AfinaQuery.execute(EXEC_UPDATE_CONDITION, params)
-
-        TransTypeService.reselectRow()
     }
 
     private fun addCondition(condVariant: CondVariant) {
@@ -84,14 +59,6 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
            set CONDITION = ?,
                CONDITION_VARIANT = ?
          where TRANSACT_TYPE = ?
-    """
-
-    private const val EXEC_UPDATE_CONDITION = """
-        update OD.PTKB_TRANSACT_SCHEMA
-           set CONDITION = ?,
-               CONDITION_VARIANT = ?
-         where TRANSACT_TYPE = ?
-           and CONDITION = ?
     """
 }
 

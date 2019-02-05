@@ -70,18 +70,17 @@ public class FilterTableSimple extends JTable implements FilterTable {
 	}
 	
 	@Override
-	public void setFilterPress() {
+	public void setFilterPress(String textFilter) {
 		
 		int columnIndex = this.getSelectedColumn();
-
+/*
 		JTextComponent field = (JTextComponent)((DefFilterEditor)defaultEditor).getField();
 		
 		if (field == null) {
-
 			return;
 		}
-
-		store.setFilterValue(columnIndex, field.getText());
+*/
+		store.setFilterValue(columnIndex, textFilter/*field.getText()*/);
 
 		// this.requestFocus();
 	}
