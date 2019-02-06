@@ -11,11 +11,11 @@ class MainSchemaTab : JTabbedPane() {
 
         setTabPlacement(SwingConstants.BOTTOM)
 
+        addTab("Схемы", TabSchema())
+
         addTab("Счета", TabAccount())
 
         addTab("Функции", TabVariable())
-
-        addTab("Схема", TabSchema())
     }
 
 

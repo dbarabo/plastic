@@ -107,7 +107,7 @@ open class TemplateQuery (private val query :Query) {
 
         params?.let { list.addAll(it) }
 
-        select(selectQuery, params, row, callBack)
+        select(selectQuery, list.toArray(), row, callBack)
     }
 
     @Throws(SessionException::class)

@@ -50,14 +50,32 @@ class DialogCreateSchema(private val schema: Schema, component: Component) :
 
             textFieldHorizontal("Вариант условия", 3).apply {variant = this}
 
-            comboBox("Рассчет.сумма:", 4, VariableService.getVarByType(VariableType.AMOUNT_VAR).addEmptyList()).apply {
+            comboBox("Рассчет.сумма:", 4,
+                VariableService.getVarByType(VariableType.AMOUNT_VAR).addEmptyVal()).apply {
+
+                schema.calcAmount?.let {
+                    selectedItem = VariableService.getVariableById(it)
+                }
+
                 addActionListener {
                     schema.calcAmount = (selectedItem as? Variable)?.id
                 }
             }
+
+            comboBox("Рассчет.назначение:", 5,
+                 VariableService.getVarByType(VariableType.DESCRIPTION_VAR).addEmptyVal()).apply {
+
+                schema.calcDescription?.let {
+                    selectedItem = VariableService.getVariableById(it)
+                }
+
+                addActionListener {
+                     schema.calcDescription = (selectedItem as? Variable)?.id
+                }
+            }
         }
 
-        createOkCancelButton(5)
+        createOkCancelButton(6)
 
         pack()
     }
@@ -71,7 +89,7 @@ class DialogCreateSchema(private val schema: Schema, component: Component) :
     }
 }
 
-private inline fun <reified T> List<T>.addEmptyList(): List<T> {
+inline fun <reified T> List<T>.addEmptyVal(): List<T> {
     val mutableList = ArrayList<T>()
 
     val empty = T::class.java.newInstance()

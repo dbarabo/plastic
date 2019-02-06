@@ -26,7 +26,7 @@ abstract class AbstractDialog(component: Component, title: String) :
 
     fun Container.createOkCancelButton(gridY: Int = 1, gridX: Int = 0): JPanel =
         groupPanel("", gridY, 2, gridX).apply {
-            onlyButton("Создать", 0, 0, "saveDB"){ ok() }
+            onlyButton("Сохранить", 0, 0, "saveDB"){ ok() }
 
             onlyButton("Отменить", 0, 1, "deleteDB"){ cancel() }
         }
