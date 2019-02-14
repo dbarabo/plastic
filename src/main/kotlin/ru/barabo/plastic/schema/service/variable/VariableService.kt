@@ -5,7 +5,6 @@ import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.schema.entity.variable.Variable
 import ru.barabo.plastic.schema.entity.variable.VariableType
 import ru.barabo.plastic.schema.service.CashFunc
-import ru.barabo.plastic.schema.service.account.AccountService
 
 object VariableService : StoreFilterService<Variable>(AfinaOrm, Variable::class.java), CashFunc {
 

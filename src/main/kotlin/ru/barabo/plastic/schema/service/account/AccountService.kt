@@ -8,7 +8,7 @@ import ru.barabo.plastic.schema.service.TypeParams
 
 object AccountService : StoreFilterService<Account>(AfinaOrm, Account::class.java), CashFunc {
 
-    override val cashedParamsFuncList: MutableMap<String, List<String>> = HashMap<String, List<String>>()
+    override val cashedParamsFuncList: MutableMap<String, List<String>> = HashMap()
 
     fun getAccountById(id: Long) = dataList.firstOrNull { it.id == id }
 

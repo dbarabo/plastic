@@ -136,11 +136,12 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 	private final static String SEL_WORK_PLACE = "select od.PTKB_PLASTIC_AUTO.getPlasticWorkPlace from dual";
 
 	private final static long MAIN_PK_WORK_PLACE = 1005956055;
+	private final static long BOSS_PK_WORK_PLACE = 1176984896;
 	private final static long SUPER_WORK_PLACE = 1000005945;
 
 	public boolean isWorkPlaceDopik() {
 
-		return !(userWorkPlace == SUPER_WORK_PLACE || userWorkPlace == MAIN_PK_WORK_PLACE);
+		return !(userWorkPlace == SUPER_WORK_PLACE || userWorkPlace == MAIN_PK_WORK_PLACE || userWorkPlace == BOSS_PK_WORK_PLACE);
 	}
 
 	public boolean isSuperWorkspace() {
