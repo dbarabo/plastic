@@ -32,9 +32,7 @@ private val GROUP_SUM_FUNC_PARAMS = listOf(TypeParams.NUMBER,
 
 /**
  * result-description;
- * params: minIdTransactCtl, countTransact, allSumAmount, calcSumAmount,
- * defDescription
+ * params: minIdTransactCtl, allSumAmount, calcSumAmount, defDescription
  */
 private val GROUP_DESCRIPTION_FUNC_PARAMS = listOf(TypeParams.VARCHAR2,
-    TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER,
-    TypeParams.VARCHAR2)
+    TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.NUMBER, TypeParams.VARCHAR2)
