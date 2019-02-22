@@ -38,7 +38,7 @@ interface CashFunc {
 
 fun List<TypeParams>.toStringLine() = this.joinToString("-")
 
-private const val PACKAGE_FUNC = "PTKB_TRANSACT_FUNC"
+const val PACKAGE_FUNC = "PTKB_TRANSACT_FUNC"
 
 private const val AND_EXISTS_PARAMS = """
    and exists (select 1
