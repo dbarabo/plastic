@@ -5,7 +5,7 @@ import ru.barabo.plastic.afina.AfinaQuery
 
 interface CashAccountValueByFunc {
 
-   val cashedAccountParamsFuncList: MutableMap<String, Long>
+    val cashedAccountParamsFuncList: MutableMap<String, Long>
 
     fun calcValueAccountByFunc(funcName: String, paramValues: Array<Any>): Long {
 
@@ -43,9 +43,7 @@ interface CashAccountValueByFunc {
     private fun queryFunc(funcName: String, params: Array<Any>) =
         "select od.$PACKAGE_FUNC.$funcName( ${params.toQuest()} ) from dual"
 
-    private fun Array<Any>.toQuest() = joinToString(", ") { it -> "?" }
-
-
+    private fun Array<Any>.toQuest() = joinToString(", ") { "?" }
 }
 
 private val logger = Logger.getLogger(CashAccountValueByFunc::class.java.name)

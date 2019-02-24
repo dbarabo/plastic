@@ -1,6 +1,5 @@
 package ru.barabo.plastic.schema.gui.account
 
-import javafx.scene.control.ComboBox
 import org.apache.log4j.Logger
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
@@ -210,8 +209,6 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     override fun refreshAll(elemRoot: List<AccountValue>, refreshType: EditType) {
         accountValue = AccountValueService.selectedEntity()
 
-        logger.error("refreshAll accountValue=$accountValue")
-
         updateComponents()
     }
 
@@ -225,7 +222,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
         val parentAccount = AccountService.selectedEntity()
 
-        updateAccount(!(parentAccount?.isCalc?:true))
+        updateAccount(parentAccount?.isCalc != true)
 
         updateCalcFunc(parentAccount?.isCalc == true)
 

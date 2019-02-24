@@ -1,7 +1,9 @@
 package ru.barabo.plastic.schema.entity.account
 
 import ru.barabo.db.annotation.*
+import ru.barabo.plastic.schema.service.CashAccountValueByFunc
 import ru.barabo.plastic.schema.service.account.*
+import kotlin.jvm.Transient
 
 @TableName("OD.PTKB_TRANSACT_ACCOUNT_VALUE")
 @SelectQuery("""
@@ -106,15 +108,19 @@ data class AccountValue(
     @ColumnName("ext_client_label")
     @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
-    var extClientLabel: String? = null
+    var extClientLabel: String? = null,
 
-) : ParamsSelect {
+    @Transient private var lastParams: Array<Any>? = null
+
+) : ParamsSelect, CashAccountValueByFunc {
+
+    override val cashedAccountParamsFuncList: MutableMap<String, Long> = HashMap()
 
     override fun selectParams(): Array<Any?>? {
 
         val account = AccountService.selectedEntity()
 
-        return arrayOf(
+        val params:Array<Any?> =arrayOf(
             account?.id?:Long::class.javaObjectType,
             if(account?.isCheckCurrency == true) CurrencyService.selectedEntity()?.code?:Int::class.javaObjectType else Int::class.javaObjectType,
 
@@ -125,5 +131,11 @@ data class AccountValue(
 
             if(account?.isCheckClienttype == true) ClientTypeService.selectedEntity()?.id?:Long::class.javaObjectType else Long::class.javaObjectType
         )
+
+        lastParams = params as? Array<Any>
+
+        return params
     }
+
+    fun getCalcFuncValue() = calcValueAccountByFunc(calcFormula!!, lastParams!!)
 }
