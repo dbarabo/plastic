@@ -7,7 +7,7 @@ interface CashAccountValueByFunc {
 
     val cashedAccountParamsFuncList: MutableMap<String, Long>
 
-    fun calcValueAccountByFunc(funcName: String, paramValues: Array<Any>): Long {
+    fun calcValueAccountByFunc(funcName: String, paramValues: Array<Any?>): Long {
 
         val keyString = toKeyValues(funcName, paramValues)
 
@@ -18,32 +18,32 @@ interface CashAccountValueByFunc {
         )
     }
 
-    private fun addToMap(keyString: String, funcName: String, paramValues: Array<Any>): Long {
+    private fun addToMap(keyString: String, funcName: String, paramValues: Array<Any?>): Long {
         cashedAccountParamsFuncList[keyString] = execFunc(funcName, paramValues)
 
-        return cashedAccountParamsFuncList[keyString] ?: 0L
+        return cashedAccountParamsFuncList[keyString] ?: -1L
     }
 
-    private fun toKeyValues(funcName: String, paramValues: Array<Any>): String ="@$funcName@" + paramValues.joinToString("|")
+    private fun toKeyValues(funcName: String, paramValues: Array<Any?>): String ="@$funcName@" + paramValues.joinToString("|")
 
-    private fun execFunc(funcName: String, paramValues: Array<Any>): Long {
+    private fun execFunc(funcName: String, paramValues: Array<Any?>): Long {
 
         val select = queryFunc(funcName, paramValues)
 
         val value = try {
-            AfinaQuery.selectValue ( select ) as? Number
+            AfinaQuery.selectValue ( select,  paramValues ) as? Number
         } catch (e: Exception) {
             logger.error(e)
             null
         }
 
-        return value?.toLong() ?: 0L
+        return value?.toLong() ?: -1L
     }
 
-    private fun queryFunc(funcName: String, params: Array<Any>) =
+    private fun queryFunc(funcName: String, params: Array<Any?>) =
         "select od.$PACKAGE_FUNC.$funcName( ${params.toQuest()} ) from dual"
 
-    private fun Array<Any>.toQuest() = joinToString(", ") { "?" }
+    private fun Array<Any?>.toQuest() = joinToString(", ") { "?" }
 }
 
 private val logger = Logger.getLogger(CashAccountValueByFunc::class.java.name)

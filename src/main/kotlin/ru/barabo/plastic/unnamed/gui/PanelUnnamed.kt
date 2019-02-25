@@ -5,12 +5,14 @@ import ru.barabo.plastic.release.main.data.DBStorePlastic
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class PanelUnnamed(dbStorePlastic: DBStorePlastic) : JPanel() {
+class PanelUnnamed : JPanel() {
 
     init {
         layout = BorderLayout()
 
         val book = HideTabbedPane()
+
+        val dbStorePlastic = DBStorePlastic.getInstance()
 
         book.addTab( TabInPath(dbStorePlastic.unnamedInPath) )
 
@@ -25,5 +27,9 @@ class PanelUnnamed(dbStorePlastic: DBStorePlastic) : JPanel() {
         add(leftButton, BorderLayout.WEST)
 
         add(book, BorderLayout.CENTER)
+    }
+
+    companion object {
+        const val TITLE = "Неименные карты"
     }
 }

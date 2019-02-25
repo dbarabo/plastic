@@ -1,6 +1,9 @@
 package ru.barabo.plastic.release.reissue.gui;
 
 import org.apache.log4j.Logger;
+import ru.barabo.gui.swing.StaticMenu;
+import ru.barabo.plastic.fio.gui.FioChangeTab;
+import ru.barabo.plastic.main.resources.ResourcesManager;
 import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
 import ru.barabo.plastic.release.ivr.xml.IvrXml;
@@ -12,6 +15,7 @@ import ru.barabo.plastic.release.reissue.data.DBStoreReIssueCard;
 import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
 import ru.barabo.plastic.release.reissue.data.TypeSelect;
 import ru.barabo.plastic.schema.gui.MainSchemaTab;
+import ru.barabo.plastic.unnamed.gui.PanelUnnamed;
 import ru.barabo.plastic.unnamed.gui.TopToolBarInPath;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.impl.AbstractRowFields;
@@ -39,13 +43,18 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 	
 	private final static String INCORRECT_DATA = "Некорректные данные";
 
-
 	private final ButtonKarkas[] selectTypeReissue = {
-			
+
 			new ButtonKarkas("time", "Отбор: Карты истекшие", this::selectTime, 0),
 			new ButtonKarkas("lost", "Отбор: Карты действующие", this::selectLost, 0),
 			new ButtonKarkas("application", "Отбор: Заявления 'На отправку'",
 					this::selectApplication, 0)
+	};
+
+	private final ButtonKarkas[] moreDelbIssue = {
+			new ButtonKarkas("unnamed", "Неименные карты", this::showUnnamedCard, 0),
+			new ButtonKarkas("user", "Смена персональных данных", this::showChangeFio, 0),
+			new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0)
 	};
 	
 	private final ButtonKarkas[] buttonKarkases = {
@@ -59,6 +68,9 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 			new ButtonKarkas("password", "сменить ПИН-код!", this::changePin, null),
 
+			new ButtonKarkas(null, null, null, null),
+
+			new StaticMenu("more", "Ещё...", moreDelbIssue)
 	};
 
 	private DBStore<E> store;
@@ -74,42 +86,26 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 		btrt25.setVisible( ((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace() );
 
-		btrt25.setComponentPopupMenu(createSchemaPopup());
+		AbstractButton more = getButtonKarkases()[7].getButton();
+
+		more.setVisible( !((DBStoreReIssueCard) store).getDBStorePacket().isWorkPlaceDopik() );
 	}
 
-	private JPopupMenu createSchemaPopup() {
-		JPopupMenu popup = new JPopupMenu();
+	private void showShema(ActionEvent event) {
 
-		JMenuItem item = new JMenuItem("Открыть схемы транзакций");
-
-		item.addActionListener(this::addSchema);
-
-		popup.add(item);
-
-		return popup;
+		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), MainSchemaTab.TITLE, MainSchemaTab.class );
 	}
 
-	private void addSchema(ActionEvent event) {
+	private void showChangeFio(ActionEvent event) {
 
-		JTabbedPane book = TopToolBarInPath.getMainBook(getButtonKarkases()[0].getButton() );
-
-		assert book != null;
-
-		boolean isExists = false;
-
-		for(int index = 0; index < book.getTabCount(); index++) {
-
-			if(MainSchemaTab.TITLE.equals( book.getTitleAt(index) ) ) {
-				isExists = true;
-				break;
-			}
-		}
-		if(!isExists) {
-			book.addTab(MainSchemaTab.TITLE, new MainSchemaTab());
-		}
+		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), FioChangeTab.TITLE, FioChangeTab.class );
 	}
 
-	
+	private void showUnnamedCard(ActionEvent event) {
+
+		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), PanelUnnamed.TITLE, PanelUnnamed.class );
+	}
+
 	public static void messageError(String error) {
 		JOptionPane.showMessageDialog(null, 
 				error,  null, JOptionPane.ERROR_MESSAGE );

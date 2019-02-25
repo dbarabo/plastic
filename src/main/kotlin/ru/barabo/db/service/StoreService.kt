@@ -32,7 +32,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
     protected open fun processUpdate(item: T) {}
 
-    protected open fun beforeRead() {}
+    protected open fun afterSelectInit() {}
 
     protected fun callBackSelectData(item: T) {
 
@@ -57,9 +57,9 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     fun initData() {
         dataList.removeAll(dataList)
 
-        beforeRead()
-
         orm.select(clazz, ::callBackSelectData)
+
+        afterSelectInit()
 
         sentRefreshAllListener(INIT)
     }

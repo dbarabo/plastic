@@ -12,4 +12,8 @@ class FioChangeTab : JPanel() {
 
         add(DetailFioChange(), BorderLayout.CENTER)
     }
+
+    companion object {
+        const val TITLE = "Смена Перс. данных"
+    }
 }

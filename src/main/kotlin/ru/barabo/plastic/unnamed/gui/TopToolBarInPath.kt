@@ -1,6 +1,7 @@
 package ru.barabo.plastic.unnamed.gui
 
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
+import ru.barabo.plastic.schema.gui.MainSchemaTab
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath
 import ru.barabo.plastic.unnamed.general.StoreInTotal
@@ -138,7 +139,22 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
         private const val TITLE_TO_DOPIKI = "Карты в Доп. офисы"
 
         @JvmStatic
-        fun getMainBook(component: Component): JTabbedPane? = component.mainBook()
+        fun addNewTabIfAbsent(anyMainBookComponent: Component, titleNewTab: String, newTab: Class<out Component>) {
+            val book = anyMainBookComponent.mainBook() ?: throw Exception("main book not found")
+
+            for (index in 0 until book.tabCount) {
+
+                if (titleNewTab == book.getTitleAt(index)) {
+                    book.selectedIndex = index
+                    return
+                }
+            }
+
+            val selectedIndex = book.tabCount - 1
+            book.insertTab(titleNewTab, null, newTab.newInstance(), null, selectedIndex)
+
+            book.selectedIndex = selectedIndex
+        }
     }
 }
 

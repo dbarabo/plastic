@@ -46,10 +46,6 @@ public class ConfigPlastic extends JPanel {
 		book.addTab("Пакеты на SMS",
 					new PanelSmsPacket(store.getSmsPacket(), store.getSmsContent()));
 
-        book.addTab("Неименные карты",	new PanelUnnamed(store));
-
-		book.addTab("Смена Перс. данных", new FioChangeTab() );
-
 		book.addTab("Заявление на Выпуск",
 					new PanelApplication(store.getApplicationCard(), store.getClientFind()));
 

@@ -112,6 +112,12 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         AccountValueService.addListener(this)
     }
 
+    override fun refreshAll(elemRoot: List<AccountValue>, refreshType: EditType) {
+        accountValue = AccountValueService.selectedEntity()
+
+        updateComponents()
+    }
+
     private fun selectBank() {
 
         SelectClient.filter.filterEntity.doctype = DOCTYPE_BANK
@@ -206,12 +212,6 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         }
     }
 
-    override fun refreshAll(elemRoot: List<AccountValue>, refreshType: EditType) {
-        accountValue = AccountValueService.selectedEntity()
-
-        updateComponents()
-    }
-
     private fun saveAccountValue() {
 
         accountValue?.let { AccountValueService.saveEntityShowError(it) }
@@ -220,13 +220,13 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
     private fun updateComponents() {
 
-        val parentAccount = AccountService.selectedEntity()
+        val parentAccount = AccountService.selectedEntity() ?: return
 
-        updateAccount(parentAccount?.isCalc != true)
+        updateAccount(!parentAccount.isCalc)
 
-        updateCalcFunc(parentAccount?.isCalc == true)
+        updateCalcFunc(parentAccount.isCalc)
 
-        updateOtherBank(parentAccount?.isExternSupport == true)
+        updateOtherBank(parentAccount.isExternSupport)
     }
 
     private fun updateAccount(isEnabledAccount: Boolean ) {

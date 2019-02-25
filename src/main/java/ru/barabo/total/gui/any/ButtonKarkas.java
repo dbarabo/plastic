@@ -10,6 +10,7 @@ public class ButtonKarkas {
 
 	private String ico;
 	private String name;
+
 	private ActionListener listener;
 	private Integer groupIndex;
 	
@@ -22,6 +23,14 @@ public class ButtonKarkas {
 		this.name = name;
 		this.listener = listener;
 		this.groupIndex = groupIndex;
+	}
+
+	protected void setListener(ActionListener listener) {
+		this.listener = listener;
+	}
+
+	public ButtonKarkas(String ico, String name) {
+		this(ico, name, null, null);
 	}
 	
 	public AbstractButton getButton() {
