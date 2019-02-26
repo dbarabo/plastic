@@ -1,6 +1,5 @@
 package ru.barabo.plastic.schema.service.account
 
-import org.apache.log4j.Logger
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
@@ -14,7 +13,7 @@ object AccountValueService : StoreFilterService<AccountValue>(AfinaOrm, AccountV
 
     override val cashedAccountParamsFuncList: MutableMap<String, Long> = HashMap()
 
-    private val logger = Logger.getLogger(AccountValueService::class.java.name)
+    //private val logger = Logger.getLogger(AccountValueService::class.java.name)
 
     private var isCheckInit: Boolean = false
 
@@ -57,15 +56,27 @@ object AccountValueService : StoreFilterService<AccountValue>(AfinaOrm, AccountV
         item.code = accountRow[0] as String
 
         item.labelAccount = accountRow[1] as String
+
+        item.department = accountRow[2] as? String
     }
 
     private fun processNullAccountValue(item: AccountValue) {
         item.code = "0000000000000000000000"
 
         item.labelAccount = "Нуль-счет для транзакций без проводок"
+
+        item.department = ""
     }
 
-    private const val SELECT_ACCOUNT = "select a.code, a.label from od.account a where a.doc = ?"
+    private const val SELECT_ACCOUNT = """
+        select a.code, a.label, d.label
+          from od.account a,
+               od.doctree dt,
+               od.department d
+         where a.doc = ?
+           and a.doc = dt.classified(+)
+          and dt.operobj = d.classified(+)
+"""
 }
 
 inline fun <reified T> updateAccountValue(): StoreListener<List<T>> =

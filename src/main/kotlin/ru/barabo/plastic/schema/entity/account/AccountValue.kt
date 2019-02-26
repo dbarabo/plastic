@@ -9,11 +9,14 @@ import kotlin.reflect.KClass
     select v.id, v.TRANSACT_ACCOUNT, v.CURRENCY, v.TERMINAL_ID, v.OFFICE, v.CLIENTTYPE,
     v.ACCOUNT_VALUE, ac.code, ac.label account_label, cl.label int_client_label, v.CALC_FUNC,
     v.depend_account, depend.name depend_account_name,
-    v.ACCOUNT_EXT_CODE, v.EXT_BANK_ID, bank.label ext_bank_name, v.ext_client, extcl.label ext_client_label
+    v.ACCOUNT_EXT_CODE, v.EXT_BANK_ID, bank.label ext_bank_name, v.ext_client, extcl.label ext_client_label,
+    d.label DEP_LABEL
     from OD.PTKB_TRANSACT_ACCOUNT_VALUE v,
          od.account ac, od.client cl,
         OD.PTKB_TRANSACT_ACCOUNT depend,
-        od.client bank, od.client extcl
+        od.client bank, od.client extcl,
+        od.doctree dt,
+        od.department d
 
      where v.TRANSACT_ACCOUNT = ?
        and COALESCE(v.CURRENCY, -1) = COALESCE(?, COALESCE(v.CURRENCY, -1))
@@ -28,6 +31,9 @@ import kotlin.reflect.KClass
 
        and v.EXT_BANK_ID = bank.classified(+)
        and v.ext_client = extcl.classified(+)
+
+       and ac.doc = dt.classified(+)
+       and dt.operobj = d.classified(+)
 """)
 data class AccountValue(
     @ColumnName("ID")
@@ -107,7 +113,12 @@ data class AccountValue(
     @ColumnName("ext_client_label")
     @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
-    var extClientLabel: String? = null
+    var extClientLabel: String? = null,
+
+    @ColumnName("DEP_LABEL")
+    @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
+    var department: String? = null
 
 ) : ParamsSelect {
     override fun selectParams(): Array<Any?>? = paramsInSelect()

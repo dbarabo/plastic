@@ -37,6 +37,8 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
     private val extCodeAccount: JTextField
 
+    private val departmentAccount: JTextArea
+
     private val extBank: JButton
 
     private val extClient: JButton
@@ -59,17 +61,23 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
         layout = GridBagLayout()
 
         groupPanel("Значение счета", 0, 5).apply {
-            groupPanel("Счет", 0, 3).apply {
+            groupPanel("Счет", 0, 4).apply {
 
                 button("Счет:", SELECT_ACCOUNT, 0) { selectAccount() }.apply { accountSelectButton = this }
 
-                textArea("Описание счета", 2, 2).apply {
+                textArea("Название счета", 2, 2).apply {
                     this.lineWrap = true
                     labelAccount = this
+                    this.isEditable = false
+                }
+
+                textArea("Офис:",  4, 1).apply {
+                    departmentAccount = this
+                    isEditable = false
                 }
             }
 
-            groupPanel("Вычисляемый счет", 5, 4).apply {
+            groupPanel("Вычисляемый счет", 7, 4).apply {
 
                 comboBox("Формула:", 0).apply {
                     calcFormulaAccount = this
@@ -87,7 +95,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
                 comboBox("Зависит от счета:", 2).apply { dependAccount = this }
             }
 
-            groupPanel("Счет в другом банке", 9, 6).apply {
+            groupPanel("Счет в другом банке", 11, 6).apply {
 
                 textFieldVertical("Код счета:",  0).apply {
                     extCodeAccount = this
@@ -101,7 +109,7 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
                 button("Клиент счета", SELECT_CLIENT, 4) { selectClient() }.apply { extClient = this }
             }
 
-            groupPanel("", 15, 2).apply {
+            groupPanel("", 17, 2).apply {
 
                 onlyButton("Сохранить", 0, 0, "saveDB"){ saveAccountValue() }.apply { save = this }
 
@@ -239,6 +247,12 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
 
         with(labelAccount) {
             text = accountValue?.labelAccount
+
+            isEnabled = isEnabledAccount
+        }
+
+        with(departmentAccount) {
+            text = accountValue?.department
 
             isEnabled = isEnabledAccount
         }
