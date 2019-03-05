@@ -7,8 +7,6 @@ import ru.barabo.plastic.schema.entity.selector.SelectClient
 import ru.barabo.plastic.schema.service.selector.SelectAccountService
 import ru.barabo.plastic.schema.service.selector.SelectClientService
 
-object SelectAccountTable : EntityTable<SelectAccount>(accountColumns, SelectAccountService)
-
 private val accountColumns = listOf(
     ColumnTableModel("id счета", 30, SelectAccount::id, false),
     ColumnTableModel("Код счета", 80, SelectAccount::code, false),
@@ -21,7 +19,7 @@ private val accountColumns = listOf(
     ColumnTableModel("ИНН клиента", 30, SelectAccount::clientInn, false)
 )
 
-object SelectClientTable : EntityTable<SelectClient>(clientColumns, SelectClientService)
+object SelectAccountTable : EntityTable<SelectAccount>(accountColumns, SelectAccountService)
 
 private val clientColumns = listOf(
     ColumnTableModel("id клиента", 30, SelectClient::id, false),
@@ -29,3 +27,5 @@ private val clientColumns = listOf(
     ColumnTableModel("Описание клиента", 180, SelectClient::description, false),
     ColumnTableModel("ИНН(БИК) клиента(банка)", 50, SelectClient::innOrBik, false)
 )
+
+object SelectClientTable : EntityTable<SelectClient>(clientColumns, SelectClientService)

@@ -113,7 +113,11 @@ open class TemplateQuery (private val query :Query) {
     @Throws(SessionException::class)
     fun save(item :Any, sessionSetting: SessionSetting = SessionSetting(false)): EditType {
 
-        val idField = getFieldData(item, ID_COLUMN)
+        val idColumn = getIdName(item) ?: throw SessionException("Не найден ID")
+
+        val idField = getFieldData(item, idColumn)
+
+        logger.error("idField.second=${idField.second}")
 
         return if(idField.second is Class<*>) {
 
@@ -126,15 +130,20 @@ open class TemplateQuery (private val query :Query) {
             EditType.INSERT
 
         } else {
-            updateById(item, sessionSetting)
+            updateById(item, idField, sessionSetting)
 
             EditType.EDIT
         }
     }
 
+    private fun getIdName(item: Any): String? = getIdColumnName(item.javaClass)
+
     @Throws(SessionException::class)
     fun deleteById(item: Any, sessionSetting: SessionSetting = SessionSetting(false)) {
-        val idField = getFieldData(item, ID_COLUMN)
+
+        val idColumn = getIdName(item) ?: throw SessionException("Не найден ID")
+
+        val idField = getFieldData(item, idColumn)
 
         val tableName = getTableName(item)
 
@@ -164,13 +173,10 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    private fun updateById(item :Any, sessionSetting: SessionSetting = SessionSetting(false)) {
+    private fun updateById(item :Any, idField: FieldData, sessionSetting: SessionSetting) {
         val tableName = getTableName(item)
 
         val fieldsData = getFieldsDataUpdate(item)
-
-        val idField = fieldsData.firstOrNull { it.first.equals(ID_COLUMN, true) }
-                ?: throw SessionException(errorNotFoundAnnotationColumnName(item::class.simpleName))
 
         val updateFields = fieldsData.filter{!it.first.equals(ID_COLUMN, true)}
 
@@ -246,7 +252,12 @@ open class TemplateQuery (private val query :Query) {
         for (member in item::class.declaredMemberProperties) {
             val annotationName = member.findAnnotation<ColumnName>()
 
+            logger.error("annotationName=$annotationName")
+            logger.error("findColumn=$findColumn")
+
             if(annotationName?.name != null && (findColumn.equals(annotationName.name, true))) {
+
+                logger.error("findIdn=${annotationName.name}")
 
                 val annotationType = member.findAnnotation<ColumnType>()
 
@@ -342,7 +353,9 @@ open class TemplateQuery (private val query :Query) {
             return value
         }
 
-        val (_,  newValue) = getFieldData(value, ID_COLUMN)
+        val idColumn = getIdName(value) ?: throw SessionException("Не найден ID")
+
+        val (_,  newValue) = getFieldData(value, idColumn)
 
         return newValue
     }

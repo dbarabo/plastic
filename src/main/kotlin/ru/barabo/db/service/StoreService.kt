@@ -15,7 +15,7 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
 
     open fun dataListCount() = dataList.size
 
-    open fun getEntity(rowIndex: Int): T? = dataList[rowIndex]
+    open fun getEntity(rowIndex: Int): T? = if(rowIndex < dataList.size) dataList[rowIndex] else null
 
     @Volatile
     private var startedLongTransaction: LongTransactState = LongTransactState.NONE_LONG_TRANSACT

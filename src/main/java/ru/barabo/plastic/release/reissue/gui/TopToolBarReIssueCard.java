@@ -15,6 +15,7 @@ import ru.barabo.plastic.release.reissue.data.DBStoreReIssueCard;
 import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
 import ru.barabo.plastic.release.reissue.data.TypeSelect;
 import ru.barabo.plastic.schema.gui.MainSchemaTab;
+import ru.barabo.plastic.terminal.gui.TabPosTerminal;
 import ru.barabo.plastic.unnamed.gui.PanelUnnamed;
 import ru.barabo.plastic.unnamed.gui.TopToolBarInPath;
 import ru.barabo.total.db.DBStore;
@@ -54,7 +55,9 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 	private final ButtonKarkas[] moreDelbIssue = {
 			new ButtonKarkas("unnamed", "Неименные карты", this::showUnnamedCard, 0),
 			new ButtonKarkas("user", "Смена персональных данных", this::showChangeFio, 0),
-			new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0)
+
+			new ButtonKarkas("pos", "Терминалы (в разработке)", this::showTerminal, 0)
+			//new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0)
 	};
 	
 	private final ButtonKarkas[] buttonKarkases = {
@@ -89,6 +92,11 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 		AbstractButton more = getButtonKarkases()[7].getButton();
 
 		more.setVisible( !((DBStoreReIssueCard) store).getDBStorePacket().isWorkPlaceDopik() );
+	}
+
+	private void showTerminal(ActionEvent event) {
+
+		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), TabPosTerminal.TITLE, TabPosTerminal.class );
 	}
 
 	private void showShema(ActionEvent event) {

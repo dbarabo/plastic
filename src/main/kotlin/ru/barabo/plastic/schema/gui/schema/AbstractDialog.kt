@@ -39,7 +39,7 @@ abstract class AbstractDialog(component: Component, title: String) :
         dispose()
     }
 
-    private fun cancel() {
+    protected fun cancel() {
 
         resultOk = false
 

@@ -7,6 +7,8 @@ import kotlin.reflect.KMutableProperty1
 
 class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>>, val store: StoreService<T, *>) : AbstractTableModel() {
 
+//    private val logger = Logger.getLogger(DefaultTableModel::class.java)
+
     override fun getRowCount(): Int = store.dataListCount()
 
     override fun getColumnCount(): Int = columns.size
@@ -19,6 +21,8 @@ class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>
 
         return prop.get(entity)
     }
+
+    fun getEntityByString(entity: T): String = columns.map { it.prop.get(entity) }.joinToString("\t")
 
     override fun getColumnName(column: Int): String = columns[column].title
 

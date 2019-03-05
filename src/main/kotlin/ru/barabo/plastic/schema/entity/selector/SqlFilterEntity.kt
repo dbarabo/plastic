@@ -5,6 +5,7 @@ import ru.barabo.db.EditType
 import ru.barabo.db.annotation.Filtered
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
+import ru.barabo.plastic.schema.gui.account.DetailAccountValue
 import kotlin.concurrent.thread
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.declaredMemberProperties
@@ -12,6 +13,8 @@ import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaType
 
 class SqlFilterEntity<T: Any>(val filterEntity: T) : StoreListener<List<T>> {
+
+    private val logger = Logger.getLogger(SqlFilterEntity::class.java.name)
 
     private val filteredPairs = processAnnotation()
 
@@ -39,6 +42,9 @@ class SqlFilterEntity<T: Any>(val filterEntity: T) : StoreListener<List<T>> {
         if(isRuningFilter) return false
 
         val newParams = getSqlParams()
+
+        logger.error("SqlFilterEntity.getSqlParams=$newParams")
+        logger.error("SqlFilterEntity.getSqlParams=$priorParams")
 
         if(newParams.contentEquals(priorParams) ) return false
 

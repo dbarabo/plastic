@@ -387,6 +387,20 @@ fun Container.textArea(label: String, gridY: Int, height: Int = 2): JTextArea {
     }
 }
 
+fun Container.textAreaHorizontal(label: String, gridY: Int, height: Int = 2): JTextArea {
+
+    add( JLabel(label), labelConstraint(gridY) )
+
+    return JTextArea().apply {
+
+        this.rows = height
+
+        this.isEditable = false
+
+        this@textAreaHorizontal.add(this, textConstraint(gridY, height, 1) )
+    }
+}
+
 fun Container.onlyButton(title: String, gridY: Int, gridX: Int = 0, ico: String? = null, clickListener: ()->Unit): JButton =
     JButton(title).apply {
         ico?.let { this.icon = ResourcesManager.getIcon(it) }

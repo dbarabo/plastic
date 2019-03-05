@@ -6,7 +6,6 @@ import ru.barabo.db.service.StoreListener
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.JTable
@@ -14,23 +13,25 @@ import javax.swing.ListSelectionModel
 import javax.swing.event.ListSelectionEvent
 import javax.swing.table.AbstractTableModel
 
-open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private val store: StoreFilterService<T>) : JTable(),
+open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>, private val store: StoreFilterService<T>) : JTable(),
     StoreListener<List<T>> {
 
-//    private var renderer: TableCellRenderer = TotalRenderer()
+    private var isFirstRefresh = true
+
+    private val columnSum: Int
 
     init {
         model = DefaultTableModel(columns, store)
 
         setColumnsSize(columns)
 
-        setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-
         selectionModel.addListSelectionListener(::selectListener)
 
         componentPopupMenu = getPopupMenu()
 
         store.addListener(this)
+
+        columnSum = columns.map { it.width }.sum()
     }
 
     private fun selectListener(e: ListSelectionEvent) {
@@ -47,9 +48,15 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
 
     private fun setColumnsSize(columns: List<ColumnTableModel<T, *>>) {
 
+        //setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN)
+
+        val delimetr = width.toDouble() / columnSum
+
         for((index, column) in columns.withIndex()) {
 
-            columnModel.getColumn(index).preferredWidth = column.width
+            columnModel.getColumn(index).preferredWidth = (column.width * delimetr).toInt()
+
+            columnModel.getColumn(index).width = (column.width * delimetr).toInt()
         }
     }
 
@@ -59,6 +66,15 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
            selectionModel.minSelectionIndex == store.selectedRowIndex) return
 
         val tableModel = model as? AbstractTableModel ?: return
+
+        if(isFirstRefresh && elemRoot.isNotEmpty()) {
+            isFirstRefresh = false
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+            tableModel.fireTableStructureChanged()
+            setColumnsSize(columns)
+
+            return
+        }
 
         tableModel.fireTableDataChanged()
     }
@@ -83,7 +99,7 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
         val tableData = StringBuilder()
 
         for (row in data) {
-            tableData.append(row).append("\n")
+            tableData.append(entityToString(row)).append("\n")
         }
 
         val selection = StringSelection(tableData.toString())
@@ -92,11 +108,17 @@ open class EntityTable<T: Any>(columns: List<ColumnTableModel<T, *>>, private va
     }
 
     private fun copyRow(e: ActionEvent) {
-        val row = store.selectedEntity() ?: return
+        val row = store.selectedEntity()?.let { entityToString(it) } ?: return
 
-        val selection = StringSelection(row.toString())
+        val selection = StringSelection(row)
 
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
     }
+
+    private fun entityToString(entity: T): String {
+        return if(model is DefaultTableModel<*>) (model as DefaultTableModel<T>).getEntityByString(entity)
+            else entity.toString()
+    }
+
 }
 

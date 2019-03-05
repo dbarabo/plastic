@@ -25,6 +25,12 @@ public class ButtonKarkas {
 		this.groupIndex = groupIndex;
 	}
 
+	public ButtonKarkas(String ico, String name,
+						ActionListener listener) {
+
+		this(ico, name, listener, null);
+	}
+
 	protected void setListener(ActionListener listener) {
 		this.listener = listener;
 	}

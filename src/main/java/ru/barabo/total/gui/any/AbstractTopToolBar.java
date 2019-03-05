@@ -15,6 +15,12 @@ public abstract class AbstractTopToolBar extends JToolBar {
 
 	
 	abstract protected ButtonKarkas[] getButtonKarkases();
+
+	public AbstractTopToolBar() {
+		setLayout(new FlowLayout(FlowLayout.LEFT) );
+
+		setFloatable(true);
+	}
 	
 	public AbstractTopToolBar(JComponent focusComp) {
 
