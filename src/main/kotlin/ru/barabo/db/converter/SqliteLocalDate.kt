@@ -26,9 +26,9 @@ object SqliteLocalDate : ConverterValue {
         }
 
         return when(javaType) {
-            java.time.LocalDateTime::class.javaObjectType -> Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
+            java.time.LocalDateTime::class.javaObjectType -> milliseconds.toLocalDateTime()
 
-            java.time.LocalDate::class.javaObjectType -> Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDate()
+            java.time.LocalDate::class.javaObjectType -> milliseconds.toLocalDate()
 
             else -> throw Exception("unknown class of javaType $javaType")
         }
@@ -38,3 +38,7 @@ object SqliteLocalDate : ConverterValue {
         Type.localDateToSqlDate(value) else
         Type.localDateToSqlDate(value as LocalDateTime)
 }
+
+fun Long.toLocalDate() = Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
+
+fun Long.toLocalDateTime() = Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime()

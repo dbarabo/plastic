@@ -8,3 +8,9 @@ class DialogOpenPact(component: Component) : AbstractDialogDate(component, "Да
         PosTerminalService.setOpenPact(datePicker.date)
     }
 }
+
+class DialogClosePact(component: Component) : AbstractDialogDate(component, "Дата закрытия договора") {
+    override fun okProcess() {
+        PosTerminalService.setClosePact(datePicker.date)
+    }
+}

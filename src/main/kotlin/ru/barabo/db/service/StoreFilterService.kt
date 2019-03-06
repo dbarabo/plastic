@@ -44,6 +44,12 @@ open class StoreFilterService<T: Any>(orm: TemplateQuery, clazz: Class<T>) : Sto
         }
     }
 
+    override fun initData() {
+        isFiltered = false
+        filterdList?.clear()
+        super.initData()
+    }
+
     override fun elemRoot(): List<T> = if(isFiltered) filterdList else dataList
 
     override fun dataListCount() = if(isFiltered) filterdList.size else super.dataListCount()

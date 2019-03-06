@@ -17,6 +17,6 @@ class TabPosTerminal : JPanel()  {
     }
 
     companion object {
-        const val TITLE = "Терминалы (в разработке)"
+        const val TITLE = "POS-Терминалы"
     }
 }

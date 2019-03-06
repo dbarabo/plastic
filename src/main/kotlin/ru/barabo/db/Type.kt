@@ -117,12 +117,13 @@ enum class Type(val clazz: Class<*>, val sqlType: Int,
             }
         }
 
-        fun localDateToSqlDate(local : LocalDate) : java.sql.Date =
-                java.sql.Date(Date.from(local.atStartOfDay(ZoneId.systemDefault()).toInstant()).time)
+        fun localDateToSqlDate(local : LocalDate) : java.sql.Date = local.toSqlDate()
 
-        fun localDateToSqlDate(local : LocalDateTime) : java.sql.Date =
-                java.sql.Date(Date.from(local.atZone(ZoneId.systemDefault()).toInstant()).time)
-
+        fun localDateToSqlDate(local : LocalDateTime) : java.sql.Date = local.toSqlDate()
     }
 }
+
+fun LocalDate.toSqlDate() = java.sql.Date(Date.from(this.atStartOfDay(ZoneId.systemDefault()).toInstant()).time)
+
+fun LocalDateTime.toSqlDate() = java.sql.Date(Date.from(this.atZone(ZoneId.systemDefault()).toInstant()).time)
 

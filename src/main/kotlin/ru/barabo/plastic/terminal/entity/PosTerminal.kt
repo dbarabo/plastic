@@ -1,5 +1,6 @@
 package ru.barabo.plastic.terminal.entity
 
+import ru.barabo.db.ConverterValue
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.BooleanConverter
 import ru.barabo.db.converter.SqliteLocalDate
@@ -15,7 +16,8 @@ import java.time.format.DateTimeFormatter
    p.PERCENT_COMMISSION, p.COMPUE_RATE,
    coalesce(tc.transact_local_oper, tc.transact_pc_oper + 7/24) MAX_OPER,
    cr.label RATE_NAME,
-   sign(coalesce(p.TERMINAL_OWNER, 0)) TERMINAL_OWNER
+   sign(coalesce(p.TERMINAL_OWNER, 0)) TERMINAL_OWNER,
+   p.SRC_COMMISSION
 
 from od.ptkb_poses p
    , od.client c
@@ -30,7 +32,7 @@ where c.classified = p.client
   and (tc.id is null or tc.id in (select max(c.id) from od.ptkb_transact_ctl_mtl c where c.terminal_id = tc.terminal_id))
   and (coalesce(p.validto, max_date) > sysdate - 180 or
        coalesce(tc.transact_pc_oper, min_date) > sysdate - 180)
-order by p.validfrom desc
+order by p.validfrom desc, p.CLASSIFIED desc
 """)
 data class PosTerminal(
     @ColumnName("CLASSIFIED")
@@ -101,7 +103,13 @@ data class PosTerminal(
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(BooleanConverter::class)
     @ReadOnly
-    var isOwnerTerminal: Boolean = false
+    var isOwnerTerminal: Boolean = false,
+
+    @ColumnName("SRC_COMMISSION")
+    @ColumnType(java.sql.Types.INTEGER)
+    @Converter(SrcCommissionConverter::class)
+    @ReadOnly
+    var srcCommission: String = ""
    ) {
     var pactStartFormat: String = ""
         get() = pactStart.formatDate()
@@ -114,3 +122,26 @@ data class PosTerminal(
 }
 
 private fun LocalDate?.formatDate() = this?.let { DateTimeFormatter.ofPattern("dd.MM.yyyy").format(it) } ?: ""
+
+
+object SrcCommissionConverter : ConverterValue {
+    override fun convertFromBase(value: Any, javaType: Class<*>): Any? =
+        when((value as? Number)?.toInt()) {
+        0 -> "С 30232"
+        1 -> "С 40702"
+        else -> "хз что это"
+    }
+
+    override fun convertFromStringToJava(value: String, javaType: Class<*>): Any? =
+        when(value) {
+        "0" -> "С 30232"
+        "1" -> "С 40702"
+        else -> "хз что это"
+    }
+
+    override fun convertToBase(value: Any): Any =
+        when(value as? String) {
+        "С 40702" -> 1
+            else -> 0
+        }
+}

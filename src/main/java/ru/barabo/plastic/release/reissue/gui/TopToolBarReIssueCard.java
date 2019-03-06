@@ -56,7 +56,7 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			new ButtonKarkas("unnamed", "Неименные карты", this::showUnnamedCard, 0),
 			new ButtonKarkas("user", "Смена персональных данных", this::showChangeFio, 0),
 
-			new ButtonKarkas("pos", "Терминалы (в разработке)", this::showTerminal, 0)
+			new ButtonKarkas("pos", TabPosTerminal.TITLE, this::showTerminal, 0)
 			//new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0)
 	};
 	
@@ -254,10 +254,8 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 		dBStoreReIssueCard.updateAllData();
 	}
 
-
 	@Override
 	protected ButtonKarkas[] getButtonKarkases() {
 		return buttonKarkases;
 	}
-
 }

@@ -12,10 +12,19 @@ import javax.swing.JTextField
 class ToolBarPosTerminal : AbstractTopToolBar() {
 
     private val buttons = arrayOf(
-        ButtonKarkas("insertDB", "Новый терминал") {  DialogCreateTerminal(this).showDialogResultOk() },
-        ButtonKarkas("percent", "Сменить %% ставку") { DialogChangePercentRate(this).showDialogResultOk() },
-        ButtonKarkas("outClient", "Открыть договор") { DialogOpenPact(this).showDialogResultOk() },
-        ButtonKarkas("deleteDB", "Закрыть договор") { DialogClosePact(this).showDialogResultOk() },
+        ButtonKarkas("insertDB", "Новый терминал") {
+            DialogCreateTerminal(this).showDialogResultOk()
+        },
+        ButtonKarkas("percent", "Сменить %% ставку") {
+            DialogChangePercentRate(this).showDialogResultOk()
+        },
+        ButtonKarkas("outClient", "Открыть договор") {
+            DialogOpenPact(this).showDialog(PosTerminalService.selectedEntity()?.pactStart)
+        },
+        ButtonKarkas("deleteDB", "Закрыть договор") {
+            DialogClosePact(this).showDialog(PosTerminalService.selectedEntity()?.pactEnd)
+        },
+        ButtonKarkas("tudasuda", "Источник комиссии") {  },
         ButtonKarkas(null, null, null, null) )
 
     override fun getButtonKarkases(): Array<ButtonKarkas> = buttons
@@ -32,5 +41,7 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
 
         add(findAny)
         add(JLabel(ResourcesManager.getIcon("find")) )
+
+        buttons[4].button?.isEnabled = false
     }
 }
