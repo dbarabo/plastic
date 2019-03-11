@@ -77,7 +77,7 @@ class DialogCreateSchema(private val schema: Schema, component: Component) :
 
         createOkCancelButton(6)
 
-        pack()
+        packWithLocation()
     }
 
     override fun okProcess() {

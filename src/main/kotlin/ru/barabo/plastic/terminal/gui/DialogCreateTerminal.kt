@@ -1,18 +1,18 @@
 package ru.barabo.plastic.terminal.gui
 
 import org.jdesktop.swingx.JXDatePicker
-import ru.barabo.plastic.schema.entity.selector.SelectAccount
-import ru.barabo.plastic.schema.gui.account.groupPanel
-import ru.barabo.plastic.schema.gui.account.labelConstraint
-import ru.barabo.plastic.schema.gui.account.textConstraint
+import ru.barabo.plastic.schema.entity.selector.*
+import ru.barabo.plastic.schema.gui.account.*
 import ru.barabo.plastic.schema.gui.schema.AbstractDialog
 import ru.barabo.plastic.schema.gui.schema.comboBox
 import ru.barabo.plastic.schema.gui.selector.SelectAccountTab
+import ru.barabo.plastic.schema.gui.selector.SelectClientTab
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.terminal.entity.PercentRateTerminal
 import ru.barabo.plastic.terminal.service.PercentRateTerminalService
 import ru.barabo.plastic.terminal.service.PosTerminalService
-import java.awt.*
+import java.awt.Component
+import java.awt.Container
 import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JLabel
@@ -34,40 +34,69 @@ class DialogCreateTerminal(private val component: Component) : AbstractDialog(co
 
     private var selectAccount: SelectAccount? = null
 
+    private val extCodeAccount: JTextField
+
+    private val extBank: JButton
+
+    private val extClient: JButton
+
+    private var selectClient: SelectClient? = null
+
+    private var selectBank: SelectClient? = null
+
     init {
         groupPanel("Выберите счет и задайте имя терминала и %% ставку", 0, 4, 0).apply {
 
             textFieldHorizontal("ID Терминала (J999999)", 0).apply { terminal = this }
 
-            buttonHorisontal("Расчетный счет клиента", defaultSelectAccountLabel(),1, ::selectAccount).apply {
-                accountCode = this
+            groupPanel("Счет в НАШЕМ банке", 1, 2, 0, 2).apply {
+                buttonHorisontal("Расчетный счет клиента", defaultSelectAccountLabel(),0, ::selectAccount).apply {
+                    accountCode = this
+                }
+
+                textFieldHorizontal("Наименование счета", 1).apply {
+                    accountLabel = this
+
+                    isEditable = false
+                    text = selectAccount?.name
+                }
             }
 
-            textFieldHorizontal("Наименование счета", 2).apply {
-                accountLabel = this
+            groupPanel("Счет в ДРУГОМ банке", 3, 3, 0, 2).apply {
+                textFieldHorizontal("Код счета",  0).apply { extCodeAccount = this }
 
-                isEditable = false
-                text = selectAccount?.name
+                button("", DetailAccountValue.SELECT_BANK, 1, 2, ::selectBank).apply { extBank = this }
+
+                button("", DetailAccountValue.SELECT_CLIENT, 2, 2, ::selectClient).apply { extClient = this }
             }
 
-            comboBox("%% Ставка", 3, PercentRateTerminalService.elemRoot()).apply { rateList = this }
+            comboBox("%% Ставка", 6, PercentRateTerminalService.elemRoot()).apply { rateList = this }
 
-            datePickerHorisontal("Дата начала", 4).apply {datePicker = this }
+            datePickerHorisontal("Дата начала", 7).apply {datePicker = this }
 
-            textFieldHorizontal("Адрес терминала", 5).apply { address = this }
+            textFieldHorizontal("Адрес терминала", 8).apply { address = this }
         }
 
-        createOkCancelButton(6)
+        createOkCancelButton(9)
 
-        pack()
+        packWithLocation()
     }
 
     private fun defaultSelectAccountLabel(): String = selectAccount?.code ?: "Нажмите для выбора счета..."
 
     override fun okProcess() {
 
+        selectAccount?.let { createInternalTerminal(it) } ?: createExternalTerminal()
+    }
+
+    private fun createInternalTerminal(selectAccount: SelectAccount) {
         PosTerminalService.createTerminal(terminal.text, selectAccount, rateList.selectedItem as? PercentRateTerminal,
             datePicker.date, address.text)
+    }
+
+    private fun createExternalTerminal() {
+        PosTerminalService.createExternalTerminal(terminal.text, rateList.selectedItem as? PercentRateTerminal,
+            datePicker.date, address.text, selectBank, selectClient, extCodeAccount.text)
     }
 
     private fun selectAccount() {
@@ -80,8 +109,64 @@ class DialogCreateTerminal(private val component: Component) : AbstractDialog(co
 
             accountLabel.text = selectAccount?.name
 
+            clearExtBankAccount()
+
             showDialogResultOk()
         }
+    }
+
+    private fun selectBank() {
+        cancel()
+
+        SelectClient.filter.filterEntity.doctype = DOCTYPE_BANK
+        SelectClient.filter.filterEntity.doctype2 = DOCTYPE_BANK
+        SelectClient.filter.applyFilter()
+
+        SelectClientTab.selectTab(component) {
+            selectBank = it
+
+            extBank.text = it?.label
+
+            clearInternalAccount()
+
+            showDialogResultOk()
+        }
+    }
+
+    private fun selectClient() {
+        cancel()
+
+        SelectClient.filter.filterEntity.doctype = DOCTYPE_JURIC
+        SelectClient.filter.filterEntity.doctype2 = DOCTYPE_PBOUL
+        SelectClient.filter.applyFilter()
+
+        SelectClientTab.selectTab(component) {
+
+            selectClient = it
+
+            extClient.text = it?.label
+
+            clearInternalAccount()
+
+            showDialogResultOk()
+        }
+    }
+
+    private fun clearExtBankAccount() {
+        selectBank = null
+        selectClient = null
+
+        extBank.text = null
+        extClient.text = null
+        extCodeAccount.text = null
+    }
+
+    private fun clearInternalAccount() {
+        selectAccount = null
+
+        accountCode.text = null
+
+        accountLabel.text = null
     }
 }
 

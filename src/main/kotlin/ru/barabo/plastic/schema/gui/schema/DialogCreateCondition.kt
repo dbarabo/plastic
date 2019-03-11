@@ -32,7 +32,7 @@ open class DialogCreateCondition(component: Component) : AbstractDialog(componen
 
         createOkCancelButton(2)
 
-        pack()
+        packWithLocation()
     }
 
     override fun okProcess() {

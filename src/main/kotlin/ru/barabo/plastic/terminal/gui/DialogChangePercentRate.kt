@@ -31,7 +31,7 @@ class DialogChangePercentRate(component: Component) : AbstractDialog(component, 
 
         createOkCancelButton(3)
 
-        pack()
+        packWithLocation()
     }
 
     override fun okProcess() {

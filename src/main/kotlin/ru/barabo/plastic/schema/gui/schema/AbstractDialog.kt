@@ -20,8 +20,12 @@ abstract class AbstractDialog(component: Component, title: String) :
     init {
 
         layout = GridBagLayout()
+    }
 
-        setLocationRelativeTo(parent)
+    fun packWithLocation() {
+        pack()
+
+        setLocationRelativeTo(owner)
     }
 
     fun Container.createOkCancelButton(gridY: Int = 1, gridX: Int = 0): JPanel =

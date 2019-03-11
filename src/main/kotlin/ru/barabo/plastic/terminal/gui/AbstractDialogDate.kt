@@ -20,7 +20,7 @@ abstract class AbstractDialogDate(component: Component, title: String) : Abstrac
 
         createOkCancelButton(2)
 
-        pack()
+        packWithLocation()
     }
 
     fun showDialog(date: LocalDate?): Boolean {

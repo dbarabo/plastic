@@ -55,7 +55,7 @@ class DialogCreateVariable(private var variable: Variable, component: Component)
 
         createOkCancelButton(3)
 
-        pack()
+        packWithLocation()
     }
 
     private fun updateFuncList() {

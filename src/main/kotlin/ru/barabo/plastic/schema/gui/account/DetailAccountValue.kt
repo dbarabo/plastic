@@ -50,11 +50,11 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     private var accountValue: AccountValue? = null
 
     companion object {
-        private const val SELECT_ACCOUNT = "Выберите счет..."
+        const val SELECT_ACCOUNT = "Выберите счет..."
 
-        private const val SELECT_BANK = "Выберите банк..."
+        const val SELECT_BANK = "Выберите банк..."
 
-        private const val SELECT_CLIENT = "Выберите клиента..."
+        const val SELECT_CLIENT = "Выберите клиента..."
     }
 
     init {
@@ -410,14 +410,18 @@ fun Container.onlyButton(title: String, gridY: Int, gridX: Int = 0, ico: String?
         this@onlyButton.add(this, textConstraint(gridY, 1, gridX) )
     }
 
-fun Container.button(label: String, title: String, gridY: Int, clickListener: ()->Unit): JButton {
+fun Container.button(label: String, title: String, gridY: Int, width: Int = 1, clickListener: ()->Unit): JButton {
 
-    add( JLabel(label), labelConstraint(gridY) )
+    var buttonY = gridY
+    if(label.isNotEmpty()) {
+        add( JLabel(label), labelConstraint(gridY) )
+        buttonY++
+    }
 
     return JButton(title).apply {
         addActionListener { clickListener() }
 
-        this@button.add(this, textConstraint(gridY + 1) )
+        this@button.add(this, textConstraint(gridY = buttonY, width = width) )
     }
 }
 
@@ -429,12 +433,12 @@ fun Container.liteGroup(title: String, gridY: Int, gridX: Int = 0): JPanel = JPa
     this@liteGroup.add(this, labelConstraint(gridY, gridX))
 }
 
-fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int = 0): JPanel = JPanel().apply {
+fun Container.groupPanel(title: String, gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1): JPanel = JPanel().apply {
     border = TitledBorder(title)
 
     layout = GridBagLayout()
 
-    this@groupPanel.add(this, textConstraint(gridY, height, gridX))
+    this@groupPanel.add(this, textConstraint(gridY, height, gridX, width))
 }
 
 internal fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1) =
