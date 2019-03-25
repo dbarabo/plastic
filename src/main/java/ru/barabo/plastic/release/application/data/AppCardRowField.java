@@ -236,6 +236,13 @@ public class AppCardRowField extends AbstractRowFields {
 				new String[] { "0", "1" }, null, 1, fields.size(), true, null, null,
 				"Информация о карте", 2, 0, 1));
 
+		fields.add(new DetailField("Статус в ПЦ", true, Type.STRING, null,
+				null, 1, fields.size(), true, null, null, "Информация о карте", 1, 3, 1));
+/*
+		fields.add(new DetailField("Действует с", true, Type.DATE, null,
+				null, 1, fields.size(), true, null, new SimpleDateFormat("dd.MM.yyyy"),
+				"Информация о карте", 1, 4, 1));
+*/
 		fields.get(fields.size() - 1).setValueFieldObject(1);
 
 		return fields;
