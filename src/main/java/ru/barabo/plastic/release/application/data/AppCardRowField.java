@@ -243,7 +243,7 @@ public class AppCardRowField extends AbstractRowFields {
 				null, 1, fields.size(), true, null, new SimpleDateFormat("dd.MM.yyyy"),
 				"Информация о карте", 1, 4, 1));
 */
-		fields.get(fields.size() - 1).setValueFieldObject(1);
+		fields.get(fields.size() - 2).setValueFieldObject(1);
 
 		return fields;
 	}

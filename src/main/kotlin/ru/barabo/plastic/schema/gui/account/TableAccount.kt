@@ -5,7 +5,11 @@ import ru.barabo.gui.swing.table.EntityTable
 import ru.barabo.plastic.schema.entity.account.Account
 import ru.barabo.plastic.schema.service.account.AccountService
 
-object TableAccount : EntityTable<Account>(columns, AccountService)
+object TableAccount : EntityTable<Account>(columns, AccountService) {
+    init {
+        isReadOnly = true
+    }
+}
 
 private val columns = listOf(
     ColumnTableModel("Счет", 50, Account::name, true),

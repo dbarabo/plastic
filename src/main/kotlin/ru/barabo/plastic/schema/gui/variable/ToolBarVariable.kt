@@ -31,7 +31,7 @@ class ToolBarVariable(table: JTable) : AbstractTopToolBar(table) {
         processShowError {
             val editVar = VariableService.selectedEntity() ?: throw Exception("Не выбрана текущая функция для правки")
 
-            DialogCreateVariable(Variable(),this).showDialogResultOk()
+            DialogCreateVariable(editVar,this).showDialogResultOk()
         }
     }
 }

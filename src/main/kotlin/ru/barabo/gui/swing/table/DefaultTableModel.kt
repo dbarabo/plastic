@@ -9,6 +9,8 @@ class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>
 
 //    private val logger = Logger.getLogger(DefaultTableModel::class.java)
 
+    internal var isReadOnly = false
+
     override fun getRowCount(): Int = store.dataListCount()
 
     override fun getColumnCount(): Int = columns.size
@@ -26,10 +28,12 @@ class DefaultTableModel<T: Any>(private val columns: List<ColumnTableModel<T, *>
 
     override fun getColumnName(column: Int): String = columns[column].title
 
-    override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean =
-        if(store.dataListCount() == 0) super.isCellEditable(rowIndex, columnIndex)
-        else columns[columnIndex].isEditable
+    override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
+        if(isReadOnly) return false
 
+        return if(store.dataListCount() == 0) super.isCellEditable(rowIndex, columnIndex)
+        else columns[columnIndex].isEditable
+    }
 
     override fun getColumnClass(columnIndex: Int): Class<*> =
         if(store.dataListCount() == 0) super.getColumnClass(columnIndex)

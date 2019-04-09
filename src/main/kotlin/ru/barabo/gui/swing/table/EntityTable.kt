@@ -34,6 +34,12 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
         columnSum = columns.map { it.width }.sum()
     }
 
+    var isReadOnly: Boolean
+    get() = (model as DefaultTableModel<*>).isReadOnly
+    set(value) {
+        (model as DefaultTableModel<*>).isReadOnly = value
+    }
+
     private fun selectListener(e: ListSelectionEvent) {
         if (e.valueIsAdjusting) return
 

@@ -1,6 +1,8 @@
 package ru.barabo.plastic.schema.gui.schema
 
 import ru.barabo.plastic.schema.entity.schema.HeaderTransactType
+import ru.barabo.plastic.schema.gui.account.TableAccount
+import ru.barabo.plastic.schema.gui.account.onOffButton
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.plastic.schema.service.schema.HeaderTransactTypeService
@@ -35,11 +37,14 @@ class ToolBarSchema(table: JTable) : AbstractTopToolBar(table) {
     init {
         initButton()
 
+        onOffButton("Только чтение", TableSchema.isReadOnly) {
+            TableSchema.isReadOnly = !TableSchema.isReadOnly
+        }
+
         add(findTransact)
 
         HeaderTransactType.filter.initStoreChecker(HeaderTransactTypeService)
     }
-
 
     private fun createSchema() {
         DialogCreateSchema(SchemaService.createDefaultSchema(), this).showDialogResultOk()

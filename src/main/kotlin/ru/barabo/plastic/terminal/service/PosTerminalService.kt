@@ -67,8 +67,6 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
 
         val terminal =  terminalId?.trim()?.toUpperCase() ?: throw Exception("Не указан ID терминала")
 
-        val startPact = pactStart?.let { java.sql.Date(it.time) } ?: java.sql.Date::class.javaObjectType
-
         val addressTerminal = address ?: ""
 
         orm.executeQuery(CREATE_EXTERNAL_TERMINAL, arrayOf(terminal, extClientId, extBankId, extCode, rateId, addressTerminal) )

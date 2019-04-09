@@ -6,6 +6,7 @@ import ru.barabo.plastic.schema.entity.schema.ConditionVariant
 import ru.barabo.plastic.schema.entity.schema.HeaderTransactType
 import ru.barabo.plastic.schema.entity.schema.Schema
 import ru.barabo.plastic.schema.entity.schema.TransType
+import ru.barabo.plastic.schema.gui.account.TableAccount
 import ru.barabo.plastic.schema.service.schema.ConditionVariantService
 import ru.barabo.plastic.schema.service.schema.HeaderTransactTypeService
 import ru.barabo.plastic.schema.service.schema.SchemaService
@@ -32,7 +33,11 @@ private val conditionVariantColumns = listOf(
     ColumnTableModel("Вариант условия", 50, ConditionVariant::conditionVariant, true)
 )
 
-object TableSchema : EntityTable<Schema>(schemaColumns, SchemaService)
+object TableSchema : EntityTable<Schema>(schemaColumns, SchemaService) {
+    init {
+        isReadOnly = true
+    }
+}
 
 private val schemaColumns = listOf(
     ColumnTableModel("Дебет", 100, Schema::debetName, true),
