@@ -18,6 +18,8 @@ public class StaticData {
 
 	private final static String SEL_DESIGN = "{ ? = call od.PTKB_PLASTIC_AUTO.getAllDesignPlastic }";
 
+	private final static String SEL_SALARY_CLIENT_JUR = "{ ? = call od.PTKB_PLASTIC_AUTO.getSalaryClientList }";
+
 	public static class SingletonHolder {
 		static final StaticData HOLDER_INSTANCE = new StaticData();
 	}
@@ -27,24 +29,27 @@ public class StaticData {
 	}
 
 	private String[] typeLabelCards;
-	private int[] typeIdCards;
+	private Integer[] typeIdCards;
 
 	private String[] currencyLabel;
-	private int[] currencyId;
+	private Integer[] currencyId;
 
 	private String[] cardProductLabel;
-	private int[] cardProductId;
+	private Integer[] cardProductId;
 	private String[] cardProductTypeLabel;
 	private String[] cardProductCurrencyLabel;
-	private int[] isSalaryCard;
+	private Integer[] isSalaryCard;
 	private String[] cardProductDesign;
 
 
 	private String[] departmentLabel;
-	private int[] departmentId;
+	private Integer[] departmentId;
 
 	private String[] designLabel;
-	private int[] designId;
+	private Integer[] designId;
+
+	private String[] salaryClientLabel;
+	private Integer[] salaryClientId;
 
 	int getIndexByProductLabel(String productLabel) {
 		for (int index = 0; index < cardProductLabel.length; index++) {
@@ -56,12 +61,15 @@ public class StaticData {
 		return -1;
 	}
 
+	String[] getSalaryClientLabel() { return salaryClientLabel; }
+
+	Integer[] getSalaryClientId() { return salaryClientId; }
+
 	String[] getCardProductDesign() {
 		return cardProductDesign;
 	}
 
-
-	int[] getIsSalaryCard() {
+	Integer[] getIsSalaryCard() {
 		return isSalaryCard;
 	}
 
@@ -77,7 +85,7 @@ public class StaticData {
 		return designLabel;
 	}
 
-	int[] getDesignId() {
+	Integer[] getDesignId() {
 		return designId;
 	}
 
@@ -85,7 +93,7 @@ public class StaticData {
 		return departmentLabel;
 	}
 
-	int[] getDepartmentId() {
+	Integer[] getDepartmentId() {
 		return departmentId;
 	}
 
@@ -93,7 +101,7 @@ public class StaticData {
 		return cardProductLabel;
 	}
 
-	int[] getCardProductId() {
+	Integer[] getCardProductId() {
 		return cardProductId;
 	}
 
@@ -101,7 +109,7 @@ public class StaticData {
 		return typeLabelCards;
 	}
 
-	int[] getTypeIdCards() {
+	Integer[] getTypeIdCards() {
 		return typeIdCards;
 	}
 
@@ -109,7 +117,7 @@ public class StaticData {
 		return currencyLabel;
 	}
 
-	int[] getCurrencyId() {
+	Integer[] getCurrencyId() {
 		return currencyId;
 	}
 
@@ -134,6 +142,8 @@ public class StaticData {
 
 			initDesign();
 
+			initSalaryClientJur();
+
 		} catch (SessionException ignored) {
 		}
 	}
@@ -143,7 +153,7 @@ public class StaticData {
 
 		typeLabelCards = new String[datas.size()];
 
-		typeIdCards = new int[datas.size()];
+		typeIdCards = new Integer[datas.size()];
 
 		int index = 0;
 		for (Object[] row : datas) {
@@ -160,13 +170,13 @@ public class StaticData {
 
 		cardProductLabel = new String[datas.size()];
 
-		cardProductId = new int[datas.size()];
+		cardProductId = new Integer[datas.size()];
 
 		cardProductTypeLabel = new String[datas.size()];
 
 		cardProductCurrencyLabel = new String[datas.size()];
 
-		isSalaryCard = new int[datas.size()];
+		isSalaryCard = new Integer[datas.size()];
 
 		cardProductDesign = new String[datas.size()];
 
@@ -193,7 +203,7 @@ public class StaticData {
 
 		currencyLabel = new String[datas.size()];
 
-		currencyId = new int[datas.size()];
+		currencyId = new Integer[datas.size()];
 
 		int index = 0;
 		for (Object[] row : datas) {
@@ -210,7 +220,7 @@ public class StaticData {
 
 		departmentLabel = new String[datas.size()];
 
-		departmentId = new int[datas.size()];
+		departmentId = new Integer[datas.size()];
 
 		int index = 0;
 		for (Object[] row : datas) {
@@ -227,7 +237,7 @@ public class StaticData {
 
 		designLabel = new String[datas.size()];
 
-		designId = new int[datas.size()];
+		designId = new Integer[datas.size()];
 
 		int index = 0;
 		for (Object[] row : datas) {
@@ -235,6 +245,26 @@ public class StaticData {
 			designId[index] = ((Number) row[0]).intValue();
 
 			designLabel[index] = ((String) row[1]);
+			index++;
+		}
+	}
+
+	private void initSalaryClientJur() throws SessionException {
+		List<Object[]> datas = AfinaQuery.INSTANCE.selectCursor(SEL_SALARY_CLIENT_JUR, null);
+
+		salaryClientLabel = new String[datas.size() + 1];
+
+		salaryClientId = new Integer[datas.size() + 1];
+
+		salaryClientLabel[0] = "";
+		salaryClientId[0] = null;
+
+		int index = 1;
+		for (Object[] row : datas) {
+
+			salaryClientId[index] = ((Number) row[0]).intValue();
+
+			salaryClientLabel[index] = ((String) row[1]);
 			index++;
 		}
 	}

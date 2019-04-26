@@ -22,7 +22,7 @@ public class Field implements FieldItem {
 	private int width;
 	private int index;
 	private boolean isReadOnly;
-	private int[] maps;
+	private Integer[] maps;
 	
 	private Format formatter;
 	
@@ -67,14 +67,14 @@ public class Field implements FieldItem {
     }
 
 	public Field(String label, boolean isGrid, Type clazz,
-			String[] list, String column, int width, int index, boolean isReadOnly, int[] maps) {
+			String[] list, String column, int width, int index, boolean isReadOnly, Integer[] maps) {
 		this(label, isGrid, clazz, list, column, width, index, isReadOnly);
 		this.maps = maps;
 	}
 	
 	public Field(String label, boolean isGrid, Type clazz,
-			String[] list, String column, int width, int index, boolean isReadOnly, 
-			int[] maps, Format formatter) {
+			String[] list, String column, int width, int index, boolean isReadOnly,
+				 Integer[] maps, Format formatter) {
 		this(label, isGrid, clazz, list, column, width, index, isReadOnly, maps);
 		this.formatter = formatter;
 	}
@@ -108,7 +108,7 @@ public class Field implements FieldItem {
 	
 	private String mapIntToStr(int val) {
 		for (int index = 0; index < maps.length; index++) {
-			if(maps[index] == val) {
+			if(maps[index] != null && maps[index] == val) {
 				return list[index];
 			}
 		}
@@ -184,7 +184,7 @@ public class Field implements FieldItem {
 		
 		switch (clazz) {
 		case LONG:
-			val = ((Number)value).longValue(); 
+			val = ((Number)value).longValue();
 			break;
 			
 		case STRING:

@@ -67,6 +67,12 @@ public class AppCardRowField extends AbstractRowFields {
 
 	final static transient String FIELD_NO_PIN_CONVERT = "БЕЗ ПИН-конверта";
 
+	private final static transient String GROUP_CARD_INFO = "Информация о карте";
+
+	private final static transient String GROUP_CARD_SERVICE = "Сервисы/Допы карты";
+
+	final static transient String SALARY_PROJECT_JURIC = "Юр.лицо Зарплат.карты";
+
 	final static transient private String[] CUSTOMERS = new String[] { CUSTOMER_NAME,
 			CUSTOMER_ADDRESS, CUSTOMER_INN };
 
@@ -102,19 +108,20 @@ public class AppCardRowField extends AbstractRowFields {
 				"Общая информация", 0, 2, 1));
 		
 		fields.add(new DetailField("Автор", true, Type.STRING, null,
-				"authorid", 1, fields.size(), true, null, null, "Общая информация", 1, 2, 1));
+				"authorid", 1, fields.size(), true, null, null,
+				"Общая информация", 1, 2, 1));
 		
-		fields.add(new DetailField(PRODUCTCARD_FIELD, true, Type.LONG,
+		fields.add(new DetailField("Продукт карты", true, Type.LONG,
 
 				StaticData.getInstance().getCardProductLabel(),
-				null, 2, fields.size(), true,
+				null, 1, fields.size(), true,
 				StaticData.getInstance().getCardProductId(),
-				null, "Информация о карте", 2, 1, 1,
+				null, GROUP_CARD_INFO, 0, 2, 1,
 				(ActionListener) this::selectDesignProduct));
 		
-		fields.add(new DetailField(EMBOSS_NAME_FIELD, true, Type.STRING,
-				null, "embosname", 1, fields.size(), false, null, null, "Информация о карте", 0,
-				4, 1));
+		fields.add(new DetailField("Имя на карте", true, Type.STRING,
+				null, "embosname", 1, fields.size(), false, null, null,
+				GROUP_CARD_INFO, 1, 0, 1));
 		
 		fields.add(new DetailField("#account", false, Type.LONG,
 				null, "account", 1, fields.size(), true, null, null, null, 0,
@@ -122,33 +129,34 @@ public class AppCardRowField extends AbstractRowFields {
 		
 		fields.add(new DetailField(ISSALARY_FIELD, true, Type.LONG,
 				new String[] { "0", "1" }, null, 1, fields.size(), true, null, null,
-				"Информация о карте", 0, 0, 1,
+				GROUP_CARD_SERVICE, 0, 2, 1,
 				(ActionListener) this::selectTypeProduct));
 		
 		fields.add(new DetailField(CARD_PHONE, true, Type.STRING,
-				null, null, 2, fields.size(), false, null, null, "Информация о карте", 1, 2, 1));
+				null, null, 1, fields.size(), false, null, null,
+				GROUP_CARD_INFO, 1, 1, 1));
 		
 		fields.add(new DetailField(DEPARTMENT_FIELD, true, Type.LONG,
 				StaticData.getInstance().getDepartmentLabel(),
-				null, 2, fields.size(), true,
+				null, 1, fields.size(), true,
 				StaticData.getInstance().getDepartmentId(),
-				null, "Информация о карте", 2, 4, 1));
+				null, GROUP_CARD_SERVICE, 1, 0, 1));
 		
 		fields.add(new DetailField(ISSMS_FIELD, true, Type.LONG,
 				new String[] { "0", "1" }, null, 1, fields.size(), true, null, null,
-				"Информация о карте", 1, 0, 1));
+				GROUP_CARD_SERVICE, 0, 0, 1));
 		
 		fields.get(fields.size() - 1).setValueFieldObject(1);
 
 		fields.add(new DetailField(CODEWORD_FIELD, true,
-				Type.STRING, null, null, 2, fields.size(), false,
-				null, null, "Информация о карте", 1, 3, 1));
+				Type.STRING, null, null, 1, fields.size(), false,
+				null, null, GROUP_CARD_INFO, 1, 2, 1));
 		
 		fields.add(new DetailField(DESIGNCARD_FIELD, true, Type.LONG,
 				StaticData.getInstance().getDesignLabel(),
 				null, 1, fields.size(), true,
 				StaticData.getInstance().getDesignId(),
-				null, "Информация о карте", 0, 2, 1));
+				null, GROUP_CARD_INFO, 0, 3, 1));
 		
 		fields.add(new DetailField(PERSON_NAME, true, Type.STRING,
 				null, null, 4, fields.size(), false, null, null,
@@ -210,7 +218,8 @@ public class AppCardRowField extends AbstractRowFields {
 				getKeyListenerFindClientByCustomer()));
 		
 		fields.add(new DetailField("Счет", true, Type.STRING, null,
-				null, 1, fields.size(), true, null, null, "Информация о карте", 0, 3, 1));
+				null, 1, fields.size(), true, null, null,
+				GROUP_CARD_SERVICE, 1, 1, 1));
 		
 		fields.add(new DetailField(FIELD_STATE_NAME, true, Type.STRING, null,
 				null, 1, fields.size(), true, null, null, "Общая информация", 1, 0, 1));
@@ -218,32 +227,44 @@ public class AppCardRowField extends AbstractRowFields {
 		fields.add(new DetailField("Тип заявления", true, Type.STRING, null,
 				null, 2, fields.size(), true, null, null, "Общая информация", 0, 0, 1));
 		
-		fields.add(new DetailField("Тип карты", true, Type.LONG,
+		fields.add(new DetailField("Платежная система", true, Type.LONG,
 				StaticData.getInstance().getTypeLabelCards(),
 				null, 1, fields.size(), true,
 				StaticData.getInstance().getTypeIdCards(),
-				null, "Информация о карте", 0, 1, 1,
+				null, GROUP_CARD_INFO, 0, 0, 1,
 				(ActionListener) this::selectTypeProduct));
 		
 		fields.add(new DetailField("Валюта карты", true, Type.LONG,
 				StaticData.getInstance().getCurrencyLabel(),
 				null, 1, fields.size(), true,
 				StaticData.getInstance().getCurrencyId(),
-				null, "Информация о карте", 1, 1, 1,
+				null, GROUP_CARD_INFO, 0, 1, 1,
 				(ActionListener) this::selectTypeProduct));
 
 		fields.add(new DetailField(FIELD_NO_PIN_CONVERT, true, Type.LONG,
 				new String[] { "0", "1" }, null, 1, fields.size(), true, null, null,
-				"Информация о карте", 2, 0, 1));
+				GROUP_CARD_SERVICE, 0, 1, 1));
+		// без пин-конверта - чек
+		fields.get(fields.size() - 1).setValueFieldObject(1);
 
+		/*
 		fields.add(new DetailField("Статус в ПЦ", true, Type.STRING, null,
-				null, 1, fields.size(), true, null, null, "Информация о карте", 1, 3, 1));
-/*
+				null, 1, fields.size(), true, null, null,
+				GROUP_CARD_SERVICE, 1, 2, 1));*/
+
 		fields.add(new DetailField("Действует с", true, Type.DATE, null,
 				null, 1, fields.size(), true, null, new SimpleDateFormat("dd.MM.yyyy"),
-				"Информация о карте", 1, 4, 1));
-*/
-		fields.get(fields.size() - 2).setValueFieldObject(1);
+				GROUP_CARD_SERVICE, 1, 2, 1));
+
+		fields.add(new DetailField("№ Карты", true, Type.STRING, null,
+				null, 1, fields.size(), true, null, null,
+				GROUP_CARD_INFO, 1, 3, 1));
+
+		fields.add(new DetailField("Юр.лицо Зарплат.карты", true, Type.LONG,
+				StaticData.getInstance().getSalaryClientLabel(),
+				null, 2, fields.size(), true,
+				StaticData.getInstance().getSalaryClientId(), null,
+				GROUP_CARD_SERVICE, 0, 3, 1));
 
 		return fields;
 	}
@@ -450,7 +471,7 @@ public class AppCardRowField extends AbstractRowFields {
 
 		String[] currencies = StaticData.getInstance().getCardProductCurrencyLabel();
 
-		int[] isSalaries = StaticData.getInstance().getIsSalaryCard();
+		Integer[] isSalaries = StaticData.getInstance().getIsSalaryCard();
 
 		DBStorePlastic dbStorePlastic = StaticData.getInstance().getDbStorePlastic();
 		AppCardRowField fieldRow = dbStorePlastic.getApplicationCard().getRow();

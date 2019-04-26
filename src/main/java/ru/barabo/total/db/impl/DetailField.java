@@ -17,8 +17,8 @@ public class DetailField extends Field implements DetailFieldItem {
 	private DelegateDetailField detailField;
 	
 	public DetailField(String label, boolean isGrid, Type clazz,
-			String[] list, String column, int width, int index, boolean isReadOnly, 
-			int[] maps, Format formatter, String groupLabel, int posX, int posY, int height) {
+			String[] list, String column, int width, int index, boolean isReadOnly,
+					   Integer[] maps, Format formatter, String groupLabel, int posX, int posY, int height) {
 		
 		super(label, isGrid, clazz, list, column, width, index, isReadOnly, maps, formatter);
 		
@@ -27,7 +27,7 @@ public class DetailField extends Field implements DetailFieldItem {
 
 	public DetailField(String label, boolean isGrid, Type clazz,
 			String[] list, String column, int width, int index, boolean isReadOnly,
-			int[] maps, Format formatter,
+					   Integer[] maps, Format formatter,
 			String groupLabel, int posX, int posY, int height,
 			EventListener listener) {
 

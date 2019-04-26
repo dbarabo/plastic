@@ -21,10 +21,10 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 	private final static String SEL_APPLICATION = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardItem( ? ) }";
 	
 	final static private String CREATE_APPLICATION =
-			"{ call od.PTKB_PLASTIC_AUTO.createApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
+			"{ call od.PTKB_PLASTIC_AUTO.createApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
 	final static private String CHANGE_APPLICATION =
-			"{ call od.PTKB_PLASTIC_AUTO.changeApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
+			"{ call od.PTKB_PLASTIC_AUTO.changeApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
 	final static private String TO_SENT_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.toSentStateApplication(?) }";
 
@@ -228,7 +228,8 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 				field.getFieldByLabel(AppCardRowField.ISSMS_FIELD).getVal(),
 				codeWord == null ? "" : codeWord,
 				field.getFieldByLabel(AppCardRowField.DESIGNCARD_FIELD).getVal(),
-				field.getFieldByLabel(AppCardRowField.FIELD_NO_PIN_CONVERT).getVal()
+				field.getFieldByLabel(AppCardRowField.FIELD_NO_PIN_CONVERT).getVal(),
+				field.getFieldByLabel(AppCardRowField.SALARY_PROJECT_JURIC).getVal()
 		};
 	}
 

@@ -37,4 +37,4 @@ class RowFieldInPath : AbstractRowFields() {
 
 fun statePlasticPacketLabels() = StatePlasticPacket.values().map { it.label }.toTypedArray()
 
-fun statePlasticPacketIndexes() =  StatePlasticPacket.values().map {it.ordinal}.toIntArray()
+fun statePlasticPacketIndexes() =  StatePlasticPacket.values().map {it.ordinal}.toTypedArray<Int>();// toIntArray()
