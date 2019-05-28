@@ -53,6 +53,31 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         updateAllData()
     }
 
+    override fun prepareOutCard(resultOutClient: ResultOutClient, limit: Number) {
+
+        prepareOut(resultOutClient, limit)
+
+        updateAllData()
+    }
+
+    private fun prepareOut(resultOutClient: ResultOutClient, limit: Number) {
+        val uniqueSession = AfinaQuery.uniqueSession()
+
+        try {
+            AfinaQuery.execute( EXEC_BIND_CLIENT, resultOutClient.toParamsBind(), uniqueSession)
+
+            AfinaQuery.execute( EXEC_PREPARE_OUT_CARD, arrayOf<Any?>(resultOutClient.contentId, limit), uniqueSession)
+
+            AfinaQuery.commitFree(uniqueSession)
+        } catch (e: Exception) {
+            logger.error(e)
+
+            AfinaQuery.rollbackFree(uniqueSession)
+
+            throw SessionException(e.message!!)
+        }
+    }
+
     private fun outCard(resultOutClient: ResultOutClient) {
 
         val uniqueSession = AfinaQuery.uniqueSession()
@@ -88,6 +113,8 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
 
     companion object {
         private const val SELECT_IN_HOME = "{ ? = call od.PTKB_PLASTIC_AUTO.getUnnamedCardsInHome }"
+
+        private const val EXEC_PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }"
 
         private const val EXEC_BIND_CLIENT = "{ call od.PTKB_PLASTIC_AUTO.bindClientToUnnamedCard(?, ?, ?, ?) }"
 

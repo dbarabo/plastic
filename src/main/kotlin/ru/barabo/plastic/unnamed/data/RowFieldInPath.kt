@@ -21,7 +21,8 @@ class RowFieldInPath : AbstractRowFields() {
         Field("Истекает", true, Type.DATE, null, "CREATED", 50, 6, true, SimpleDateFormat("dd.MM.yyyy")),
         Field("Автор", true, Type.STRING, null, "CREATOR", 50, 7, true),
         Field("Счет", true, Type.STRING, null, null, 90, 8, true),
-        Field("#APP_CARD", false, Type.LONG, null, "APP_CARD", 1, 9, true)
+        Field("#APP_CARD", false, Type.LONG, null, "APP_CARD", 1, 9, true),
+        Field("#CLASS_CARD", false, Type.LONG, null, null, 1, 10, true)
     )
 
     override fun createFields(): MutableList<FieldItem> = fields()
@@ -33,6 +34,10 @@ class RowFieldInPath : AbstractRowFields() {
     fun getTypeCard(): String? = getFieldByLabel("Тип карты").valueField
 
     fun getPacketId(): Number? = getFieldByLabel("#PLASTIC_PACK").`val` as? Number
+
+    fun getClassCard(): Int = (getFieldByLabel("#CLASS_CARD").`val` as? Number)?.toInt() ?: 0
+
+    fun getState(): Int? = (getFieldByLabel("Статус").`val` as? Number)?.toInt()
 }
 
 fun statePlasticPacketLabels() = StatePlasticPacket.values().map { it.label }.toTypedArray()

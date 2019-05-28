@@ -19,6 +19,8 @@ interface StoreInHome : StoreInTotal {
 
     fun outCardToClient(resultOutClient: ResultOutClient)
 
+    fun prepareOutCard(resultOutClient: ResultOutClient, limit: Number)
+
     fun cardSendToDopOffice()
 
     fun cardGetFromOffice()

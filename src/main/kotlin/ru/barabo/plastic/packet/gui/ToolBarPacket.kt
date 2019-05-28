@@ -307,19 +307,11 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
 
         val contentDb = dBStorePacket.dbStorePacketContentPacket
 
-        val limit = parseLimit(JOptionPane.showInputDialog("Заполните одобренный макс. лимит кредитной карты")) ?: return
+        val limit = dialogGetLimit() ?: return
 
         tryCatchDefaultStore(contentDb) {
             contentDb.prepareCardOut(limit)
         }
-    }
-
-    private fun parseLimit(limit: String?): Number? {
-        val limitCheck = limit?.trim()?.replace(",", ".")?.replace(" ", "") ?: return null
-
-        if(limitCheck.isEmpty()) return null
-
-        return DecimalFormat("#######.##").parse(limitCheck)
     }
 
     private fun outClientOnly() {
@@ -839,4 +831,14 @@ internal enum class FilterWork {
 
         return SelectTypes.values()[this.ordinal * 2 + (if (isMy) 1 else 0)]
     }
+}
+
+fun dialogGetLimit(): Number? = parseLimit(JOptionPane.showInputDialog("Заполните одобренный макс. лимит кредитной карты"))
+
+private fun parseLimit(limit: String?): Number? {
+    val limitCheck = limit?.trim()?.replace(",", ".")?.replace(" ", "") ?: return null
+
+    if(limitCheck.isEmpty()) return null
+
+    return DecimalFormat("#######.##").parse(limitCheck)
 }

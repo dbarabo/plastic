@@ -1,17 +1,16 @@
 package ru.barabo.plastic.unnamed.gui
 
+import ru.barabo.plastic.packet.gui.dialogGetLimit
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
 import ru.barabo.plastic.unnamed.general.ResultOutClient
 import ru.barabo.plastic.unnamed.gui.dialog.OutCardToClient
 import ru.barabo.total.db.DBStore
-import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
-import java.lang.Exception
 import javax.swing.JTable
 
 class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, focusTable: JTable)
@@ -24,7 +23,8 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
         StatePlasticPacket.OCI_ALL.dbValue to ButtonKarkas("home", "Карты в ГО", {}, null),
         StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", { cardSendToDopOffice() }, null),
         StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", { cardGetToDopMainOffice() }, null),
-        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
+        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("prepare", "Подготовить к выдаче") { prepareCardOut() },
+        StatePlasticPacket.PREPARE_CARD_TO_OUT.dbValue to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
     )
 
     private var stateButton: ButtonKarkas? =  null
@@ -45,19 +45,33 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
     override fun getButtonKarkases(): Array<ButtonKarkas> = buttons
 
     override fun setCursor(row: RowFieldInPath?) {
-        refreshButtons(row?.getFieldByLabel("Статус"))
+        refreshButtons(row?.getState(), row?.getClassCard()?:0)
     }
 
     override fun refreshData(allData: MutableList<RowFieldInPath>?, stateRefresh: StateRefresh?) {
         setCursor(store.row)
     }
 
-    private fun refreshButtons(stateField: FieldItem?) {
+    private fun prepareCardOut() {
+        OutCardToClient(this, store.row).showResultDialog(::processPrepareCardOut)
+    }
+
+    private fun processPrepareCardOut(resultOutClient: ResultOutClient) {
+
+        val limit = dialogGetLimit() ?: return
+
+        tryCatchDefaultStore(store) {
+            store.prepareOutCard(resultOutClient, limit)
+        }
+    }
+
+    private fun refreshButtons(state: Int?, classCard: Int) {
 
         val oldButton = stateButton?.button
 
-        val newStateButton = stateField?.let { state -> (state.getVal() as? Number)
-            ?.let { stateButtons[it.toInt()] }  } ?: defaultStateButton
+        val realState = getRealStateDbValue(state, classCard)
+
+        val newStateButton = realState?.let { stateButtons[it] } ?: defaultStateButton
 
         val newButton = newStateButton.button ?: createButton(newStateButton)
 
@@ -76,6 +90,13 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
         add(newButton)
         invalidate()
         repaint()
+    }
+
+    private fun getRealStateDbValue(state: Int?, classCard: Int): Int? {
+        if(state == null) return null
+
+        return if(state != StatePlasticPacket.CARD_HOME_OFFICCES.dbValue || classCard != 0) state
+        else StatePlasticPacket.PREPARE_CARD_TO_OUT.dbValue
     }
 
     private fun cardGetToDopMainOffice() {
