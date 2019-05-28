@@ -176,9 +176,9 @@ implements ListenerStore<E> {
 	@Override
 	public void refreshData(List<E> allData, StateRefresh stateRefresh) {
 
-		logger.error("stateRefresh="+stateRefresh);
-		logger.error("isMustFullRefresh="+isMustFullRefresh);
-		logger.error("store="+ store);
+//		logger.error("stateRefresh="+stateRefresh);
+//		logger.error("isMustFullRefresh="+isMustFullRefresh);
+//		logger.error("store="+ store);
 
 		if(isMustFullRefresh || stateRefresh == StateRefresh.ALL) {
 			isMustFullRefresh = false;
@@ -188,10 +188,10 @@ implements ListenerStore<E> {
 		}
 		
 		if(store instanceof AbstractFilterStore) {
-			logger.error("repaint="+ store);
+//			logger.error("repaint="+ store);
 			this.repaint();
 		} else {
-			logger.error("fireTableDataChanged="+ store);
+//			logger.error("fireTableDataChanged="+ store);
 			((AbstractTableModel)this.getModel()).fireTableDataChanged();
 		}
 	}

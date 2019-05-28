@@ -25,6 +25,8 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 	final static private String DELETE_APP_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.deleteContentApplication(?) }";
 
 	final static private String UPD_OUT_CLIENT_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.cardToOneClient(?) }";
+
+	final static private String PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }";
 	
 	final static private String EXEC_CHECK_REISSUE_CARD = "{ call od.PTKB_PLASTIC_AUTO.checkCardToReIssue(?, ?) }";
 
@@ -158,7 +160,8 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
             return "Не выбрана строка содержимого пакета!";
 		}
 		
-		if(field.getState() != DBStorePacket.STATE_GET_HOMES) {
+		if(field.getState() != StatePlasticPacket.CARD_HOME_OFFICCES.getDbValue() &&
+				field.getState() != StatePlasticPacket.PREPARE_CARD_TO_OUT.getDbValue() ) {
 			return DBStorePacket.STATE_NONE_GET_HOMES;
 		}
 
@@ -168,7 +171,7 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
             return e.getMessage();
         }
 
-		field.setState(DBStorePacket.STATE_OUT_CLIENT);
+		field.setState(StatePlasticPacket.CARD_TO_CLIENT.getDbValue());
 
 		sendListenersCursor(field);
 
@@ -176,6 +179,25 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 		setCursor(row);
 
 		return null;
+	}
+
+	public void prepareCardOut(Number limit) throws Exception {
+		PacketContentRowField field = getRow();
+
+		if(field == null) throw new Exception("Не выбрана строка содержимого пакета!");
+
+		if(field.getState() != StatePlasticPacket.CARD_HOME_OFFICCES.getDbValue() ) {
+			throw new Exception(DBStorePacket.STATE_NONE_GET_HOMES);
+		}
+
+		AfinaQuery.INSTANCE.execute(PREPARE_OUT_CARD, new Object[] {field.getId(), limit});
+
+		field.setState(StatePlasticPacket.PREPARE_CARD_TO_OUT.getDbValue());
+
+		sendListenersCursor(field);
+
+		PacketRowField row = dbStorePlastic.getPacket().getRow();
+		setCursor(row);
 	}
 	
 	public String checkReissueCard(Number parentId, Number cardId) {

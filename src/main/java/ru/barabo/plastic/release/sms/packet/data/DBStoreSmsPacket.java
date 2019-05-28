@@ -88,7 +88,7 @@ public class DBStoreSmsPacket extends DBStorePacket {
             return e.getMessage();
         }
 
-		field.setState(StatePlasticPacket.NEW.ordinal());
+		field.setState(StatePlasticPacket.NEW.getDbValue());
 		
 		DBStoreSmsPacketContent content = getDBStoreSmsPacketContent();
 		content.refreshData(getData(), StateRefresh.ALL);
@@ -136,7 +136,7 @@ public class DBStoreSmsPacket extends DBStorePacket {
 			return error;
 		}
 				
-		field.setState(StatePlasticPacket.SMS_SENT.ordinal() );
+		field.setState(StatePlasticPacket.SMS_SENT.getDbValue() );
 		field.setFileApp(fileName);
 
 		updateAllData();

@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PacketContentRowField extends AbstractRowFields {
-	
-	//final static transient private Logger logger = Logger.getLogger(PacketContentRowField.class.getName());
-
 	final static public int PLASTIC_PACK_FIELD = 1;
 
 	final static String FIELD_OFFICE = "Подразделение";
@@ -33,14 +30,8 @@ public class PacketContentRowField extends AbstractRowFields {
 		fields.add(new Field("id Заявления", true, Type.LONG, null, "APP_CARD", 80, 5, true));
 		fields.add(new Field("#PERSON", false, Type.LONG, null, "PERSON", 1, 6, true));
 		fields.add(new Field("#CUSTOMER", false, Type.LONG, null, "CUSTOMER", 1, 7, true));
-		fields.add(new Field("Статус", true, Type.LONG,
-				new String[]{"Новый","Выпуск","Отправлен", "Отправка-Ок", 
-				"Отправка-Error", "Ответ-Ок", "?", "Error-Ответ", "?", "OCI-Ok","?", 
-				"SMS-Отправка","SMS-Ok", "SMS-Error","SMS-Oтвет-Оk", 
-				"SMS-Ответ Част Ок", "SMS-Oтвет-Error","SMS-Oтвет-Error Част","Карты в ГО", "Ушли в доп.офисы",
-				"Карты в Доп. офисах", "Выдано клиенту"}, 
-				"STATE", 90, 8, true, new Integer[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-						15, 16, 17, 18, 19, 20, 21 }));
+		fields.add(new Field("Статус", true, Type.LONG, StatePlasticPacket.labels(),
+				"STATE", 90, 8, true, StatePlasticPacket.dbValues()));
 		
 		fields.add(new Field("Добавлен", true, Type.DATE, null, "CREATED", 80, 9, true));
 		
@@ -60,7 +51,15 @@ public class PacketContentRowField extends AbstractRowFields {
 
 		fields.add(new Field("№ Заявления", true, Type.STRING, null, null, 60, 19, true));
 
+		fields.add(new Field("#CLASS_CARD", false, Type.LONG, null, null, 1, 20, true));
+
 		return fields;
+	}
+
+	public int getClassCard() {
+		Number value = (Number) fieldItems().get(20).getVal();
+
+		return value == null ? 0 : value.intValue();
 	}
 
 	public int getApplicationId() {

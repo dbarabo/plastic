@@ -1,5 +1,6 @@
 package ru.barabo.plastic.release.sms.packet.gui;
 
+import ru.barabo.plastic.packet.gui.ToolBarSmsPacket;
 import ru.barabo.plastic.release.packet.data.PacketContentRowField;
 import ru.barabo.plastic.release.packet.data.PacketRowField;
 import ru.barabo.total.db.DBStore;
@@ -22,7 +23,7 @@ public PanelSmsPacket(DBStore<PacketRowField> store, DBStore<PacketContentRowFie
 
 		TotalRowTable<PacketContentRowField> tableContent = new TotalRowTable<>(storeContent);
 		
-		add(new TopToolBarSmsPacket(store, tableFocus), BorderLayout.NORTH);
+		add(new ToolBarSmsPacket(store, tableFocus), BorderLayout.NORTH);
 		
 		JScrollPane leftPanel = new JScrollPane(tableFocus);
 		

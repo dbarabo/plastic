@@ -1,7 +1,6 @@
 package ru.barabo.plastic.unnamed.gui
 
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
-import ru.barabo.plastic.schema.gui.MainSchemaTab
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath
 import ru.barabo.plastic.unnamed.general.StoreInTotal
@@ -28,10 +27,10 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
     private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
 
     private val stateButtons = mapOf(
-        StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.ordinal to ButtonKarkas("home", "Карты в ГО", { goHomeCard() }, null),
-        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", { }, null),
-        StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", {}, null),
-        StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", {}, null)
+        StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.dbValue to ButtonKarkas("home", "Карты в ГО", { goHomeCard() }, null),
+        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", { }, null),
+        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", {}, null),
+        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("outClient", "Выдать карту", {}, null)
     )
 
     private var stateButton: ButtonKarkas? =  null
@@ -159,7 +158,7 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
 }
 
 fun errorMessage(message: String?): Boolean {
-    JOptionPane.showMessageDialog(null, message, null, JOptionPane.ERROR_MESSAGE)
+    JOptionPane.showMessageDialog(null, message, null, ERROR_MESSAGE)
 
     return false
 }

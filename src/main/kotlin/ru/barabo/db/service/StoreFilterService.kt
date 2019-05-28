@@ -46,7 +46,7 @@ open class StoreFilterService<T: Any>(orm: TemplateQuery, clazz: Class<T>) : Sto
 
     override fun initData() {
         isFiltered = false
-        filterdList?.clear()
+        filterdList.clear()
         super.initData()
     }
 

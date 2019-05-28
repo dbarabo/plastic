@@ -21,10 +21,10 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
     private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
 
     private val stateButtons = mapOf(
-        StatePlasticPacket.OCI_ALL.ordinal to ButtonKarkas("home", "Карты в ГО", {}, null),
-        StatePlasticPacket.CARD_GO.ordinal to ButtonKarkas("toDopiki", "В доп. офис->", { cardSendToDopOffice() }, null),
-        StatePlasticPacket.CARD_SENT_OFFICCES.ordinal to ButtonKarkas("toGet", "Получить в офисе", { cardGetToDopMainOffice() }, null),
-        StatePlasticPacket.CARD_HOME_OFFICCES.ordinal to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
+        StatePlasticPacket.OCI_ALL.dbValue to ButtonKarkas("home", "Карты в ГО", {}, null),
+        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", { cardSendToDopOffice() }, null),
+        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", { cardGetToDopMainOffice() }, null),
+        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
     )
 
     private var stateButton: ButtonKarkas? =  null

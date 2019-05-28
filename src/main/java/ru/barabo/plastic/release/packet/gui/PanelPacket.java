@@ -1,6 +1,7 @@
 package ru.barabo.plastic.release.packet.gui;
 
 
+import ru.barabo.plastic.packet.gui.ToolBarPacket;
 import ru.barabo.plastic.release.packet.data.DBStorePacketAllContent;
 import ru.barabo.plastic.release.packet.data.PacketContentRowField;
 import ru.barabo.plastic.release.packet.data.PacketRowField;
@@ -25,7 +26,7 @@ public class PanelPacket extends JPanel {
 
 		TotalRowTable<PacketContentRowField> tableContent = new TotalRowTable<>(storeContent);
 		
-		add(new TopToolBarPacket<>(store, tableFocus, tableContent), BorderLayout.NORTH);
+		add(new ToolBarPacket<>(store, tableFocus, tableContent)/*new TopToolBarPacket<>(store, tableFocus, tableContent)*/, BorderLayout.NORTH);
 		
 		JScrollPane leftPanel = new JScrollPane(tableFocus);
 		

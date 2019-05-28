@@ -25,13 +25,8 @@ public class PacketRowField extends AbstractRowFields {
 				new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")));
 		fields.add(new Field("Наименование", true, Type.STRING, null, "NAME", 240, 3, true));
 		fields.add(new Field("Изменил", true, Type.STRING, null, "UPDATER", 60, 4, true, null, null));
-		fields.add(new Field("Состояние", true, Type.LONG,
-				new String[]{"Новый","Выпущен","Отправлен","Отправка Ок","Отправка Error",
-				"Ответ Всё Ок", "Ответ Част Ок","Error-Ответ Всё", "Error-Ответ Част",
-				"OCI-ВСЁ", "OCI-Част", "SMS-Отправка","SMS-Ok", "SMS-Error", "SMS-Oтвет-Оk", 
-				"SMS-Ответ Част Ок", "SMS-Oтвет-Error","SMS-Oтвет-Error Част", "Карты в ГО", "Ушли в доп.офисы", 
-				"Карты в Доп. офисах", "Выдано клиенту"}, 
-				"STATE", 120, 5, true, new Integer[]{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21}));
+		fields.add(new Field("Состояние", true, Type.LONG, StatePlasticPacket.labels(),
+				"STATE", 120, 5, true, StatePlasticPacket.dbValues()));
 		fields.add(new Field(FIELD_UPDATED, true, Type.DATE, null, "UPDATED", 100, 6, true, null,
 				new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")));
 

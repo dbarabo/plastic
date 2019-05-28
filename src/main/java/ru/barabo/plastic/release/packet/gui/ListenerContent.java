@@ -8,9 +8,9 @@ import java.util.List;
 
 public class ListenerContent implements ListenerStore<PacketContentRowField> {
 	
-	private TopToolBarPacket topToolBar;
-	
-	ListenerContent(TopToolBarPacket topToolBar) {
+	private ToolBarRefresh topToolBar;
+
+	public ListenerContent(ToolBarRefresh topToolBar) {
 		this.topToolBar = topToolBar;
 	}
 

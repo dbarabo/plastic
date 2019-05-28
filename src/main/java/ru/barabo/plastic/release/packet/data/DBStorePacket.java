@@ -64,24 +64,12 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 	final static private String UPD_REMOVE_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.removePacket(?) }";
 	
 	final static private String UPD_GO_HOME_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.goHomePacket(?) }";
-	
-	final static private String UPD_TO_DOPIKI_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.toDopikiPacket(?) }";
-	
+
 	final static private String UPD_TO_DOPIK_PACKET = "{ call od.PTKB_PLASTIC_AUTO.toDopikPacket(?, ?) }";
 
 	final static private String UPD_GET_HOMES_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.getHomesPacket(?) }";
 	
 	final static private String UPD_OUT_CLIENT_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.cardToClient(?) }";
-	
-	final static private int STATE_SMS_OIA_OK = 14;
-	
-	final static private int STATE_GO_HOME = 18;
-	
-	final static private int STATE_TO_DOPIKI = 19;
-	
-	final static int STATE_GET_HOMES = 20;
-	
-	final static int STATE_OUT_CLIENT = 21;
 	
 	final static private String STATE_NONE_SMS_OIA = "Перевод в 'ГО' может быть только из состояния 'SMS-Oтвет-Оk'";
 	
@@ -102,8 +90,8 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 			+ "from od.PTKB_PLASTIC_PACK "
 			+ "where CREATOR = %s and STATE >= ? and STATE <= ? "
 			+ "and TYPE_PACKET = 0 "
-			+ "and STATE IN (19, 20, 21) "
-			+ "order by UPDATED desc";
+			+ "and STATE >= " + StatePlasticPacket.CARD_SENT_OFFICCES.getDbValue() //19, 20, 21) "
+			+ " order by UPDATED desc";
 	
 	private final static String SEL_FROM_PRODUCTS_NAME =
 			"{ ? = call od.PTKB_PLASTIC_AUTO.getCardProductPacket( ? ) }";
@@ -422,9 +410,10 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		java.util.Date updated = (java.util.Date) field.getFieldByLabel(
 				PacketRowField.FIELD_UPDATED).getVal();
 
+		/*
 		if (updated != null && updated.getTime() > 2 * System.currentTimeMillis()) {
 			return STATE_NONE_DELETE_DRAFT;
-		}
+		}*/
 
         try {
             AfinaQuery.INSTANCE.execute(REISSUE_CARDS, new Object[] {field.getId()});
@@ -476,7 +465,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 			return PACKET_NOT_SELECTED;
 		}
 		
-		if(field.getState() != STATE_GET_HOMES) {
+		if(field.getState() != StatePlasticPacket.CARD_HOME_OFFICCES.getDbValue()) {
 			return STATE_NONE_GET_HOMES;
 		}
 
@@ -502,7 +491,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 			return PACKET_NOT_SELECTED;
 		}
 		
-		if(field.getState() != STATE_TO_DOPIKI) {
+		if(field.getState() != StatePlasticPacket.CARD_SENT_OFFICCES.getDbValue()) {
 			return STATE_NONE_TO_DOPIKI;
 		}
 
@@ -545,34 +534,6 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		return dopiki;
 	}
 
-	public String toDopiki() {
-		
-		PacketRowField field = getRow(); 
-		
-		if(field == null) {
-			return PACKET_NOT_SELECTED;
-		}
-		
-		if(field.getState() != STATE_GO_HOME) {
-			return STATE_NONE_GO_HOME;
-		}
-
-        try {
-            AfinaQuery.INSTANCE.execute(UPD_TO_DOPIKI_PACKET, new Object[] {field.getId()});
-        } catch (SessionException e) {
-            return e.getMessage();
-        }
-
-		field.setState(STATE_TO_DOPIKI);
-		
-		sendListenersCursor(field);
-
-		DBStorePacketContent content = getDBStorePacketContentPacket();
-		content.setCursor(field);
-
-		return null;
-	}
-	
 	public String toDopik(String dopic) {
 		PacketRowField field = getRow();
 
@@ -580,7 +541,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 			return PACKET_NOT_SELECTED;
 		}
 
-		if (field.getState() != STATE_GO_HOME) {
+		if (field.getState() !=  StatePlasticPacket.CARD_GO.getDbValue()) {
 			return STATE_NONE_GO_HOME;
 		}
 
@@ -607,7 +568,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 			return PACKET_NOT_SELECTED;
 		}
 		
-		if(field.getState() != STATE_SMS_OIA_OK) {
+		if(field.getState() != StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.getDbValue()) {
 			return STATE_NONE_SMS_OIA;
 		}
 
@@ -617,7 +578,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
             return e.getMessage();
         }
 
-		field.setState(STATE_GO_HOME);
+		field.setState(StatePlasticPacket.CARD_GO.getDbValue());
 
 		updateAllData();
 
@@ -669,7 +630,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		String fileName = (String) value;
 		
 		if (AfinaQuery.isTestBaseConnect()) {
-			return null;
+			return "null";
 		}
 		
 		return fileName;
