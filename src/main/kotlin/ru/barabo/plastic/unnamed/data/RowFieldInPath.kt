@@ -22,7 +22,9 @@ class RowFieldInPath : AbstractRowFields() {
         Field("Автор", true, Type.STRING, null, "CREATOR", 50, 7, true),
         Field("Счет", true, Type.STRING, null, null, 90, 8, true),
         Field("#APP_CARD", false, Type.LONG, null, "APP_CARD", 1, 9, true),
-        Field("#CLASS_CARD", false, Type.LONG, null, null, 1, 10, true)
+        Field("#CLASS_CARD", false, Type.LONG, null, null, 1, 10, true),
+        Field("#PERSON_ID", false, Type.LONG, null, null, 1, 11, true),
+        Field("#IS_UNNAMED_PERSON", false, Type.LONG, null, null, 1, 12, true)
     )
 
     override fun createFields(): MutableList<FieldItem> = fields()
@@ -38,6 +40,10 @@ class RowFieldInPath : AbstractRowFields() {
     fun getClassCard(): Int = (getFieldByLabel("#CLASS_CARD").`val` as? Number)?.toInt() ?: 0
 
     fun getState(): Int? = (getFieldByLabel("Статус").`val` as? Number)?.toInt()
+
+    fun getPersonId(): Long? = (getFieldByLabel("#PERSON_ID").`val` as? Number)?.toLong()
+
+    fun isUnnamedPerson(): Boolean = (getFieldByLabel("#IS_UNNAMED_PERSON").`val` as? Number)?.toInt() != 0
 }
 
 fun statePlasticPacketLabels() = StatePlasticPacket.values().map { it.label }.toTypedArray()

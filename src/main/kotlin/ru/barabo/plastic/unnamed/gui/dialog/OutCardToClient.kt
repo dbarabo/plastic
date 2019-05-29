@@ -23,7 +23,7 @@ fun parentWindow(component: Component): Frame? = SwingUtilities.getWindowAncesto
 class OutCardToClient(private val component: Component, private val cardField: RowFieldInPath) :
     JDialog(parentWindow(component), TITLE, true) {
 
-    private val clientOutData = ClientOutData()
+    private val clientOutData = ClientOutData.createByCardField(cardField)
 
     private val cardNumber = JTextField(cardField.getCardNumber()).apply {
         isEditable = false
