@@ -789,7 +789,6 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
 
     private fun isRemoveStateButton(realState: StatePlasticPacket?): Boolean {
         return if (stateButton != null && realState != state) {
-
             stateButton?.isEnabled = false
             this.remove(stateButton)
             state = null
