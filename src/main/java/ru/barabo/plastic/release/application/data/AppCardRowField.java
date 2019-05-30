@@ -281,8 +281,6 @@ public class AppCardRowField extends AbstractRowFields {
 		return new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-				
-				logger.info("e.getKeyChar()=" + e.getKeyChar());
 
 				if (e.getKeyChar() != ' ' && e.getKeyChar() != '\b') {
 					return;
@@ -290,9 +288,6 @@ public class AppCardRowField extends AbstractRowFields {
 				
 				DetailField fieldPerson =  (DetailField)getFieldByLabel(PERSON_NAME);
 				setFieldValueFromComponent(fieldPerson);
-
-				logger.info("fieldPerson=" + fieldPerson);
-				logger.info("fieldPerson value=" + fieldPerson.getValueField());
 
 				DetailField fieldPersonAddress = (DetailField) getFieldByLabel(PERSON_ADDRESS);
 				setFieldValueFromComponent(fieldPersonAddress);
@@ -314,8 +309,6 @@ public class AppCardRowField extends AbstractRowFields {
 
 				DBStoreClientFind clientFind = dbStorePlastic.getClientFind();
 
-				logger.info("clientFind setMustUpdate=" + getComponentValueField(fieldPerson));
-
 				clientFind.setPersonActive(true);
 
 				clientFind.setMustUpdate(true);
@@ -328,9 +321,6 @@ public class AppCardRowField extends AbstractRowFields {
 		return new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
-
-				logger.info("e.getKeyChar()=" + e.getKeyChar());
-
 				if (e.getKeyChar() != ' ') {
 					return;
 				}
@@ -351,10 +341,6 @@ public class AppCardRowField extends AbstractRowFields {
 
 					return;
 				}
-
-				logger.info("customerName=" + customerName);
-				logger.info("customerAddress=" + customerAddress);
-				logger.info("customerInn=" + customerInn);
 
 				setFieldValueFromComponent(fieldCustomer);
 				setFieldValueFromComponent(fieldCustomerAddress);
@@ -428,7 +414,6 @@ public class AppCardRowField extends AbstractRowFields {
 
 		FieldItem selectField = fieldRow.getFieldByLabel(comp.getName());
 		if (selectField != null) {
-			logger.info("COMBO_NAME=" + comp.getName() + " VALUE=" + comp.getSelectedItem());
 			selectField.setValueField((String) comp.getSelectedItem());
 		}
 	}
@@ -459,8 +444,6 @@ public class AppCardRowField extends AbstractRowFields {
 
 		setSelectComponentValueToField(e);
 
-		logger.info(e.getSource());
-		
 		String typeCardValue = (String) getTypeCardComponent().getSelectedItem();
 
 		String currencyCardValue = (String) getCurrencyCardComponent().getSelectedItem();
@@ -476,8 +459,6 @@ public class AppCardRowField extends AbstractRowFields {
 		DBStorePlastic dbStorePlastic = StaticData.getInstance().getDbStorePlastic();
 		AppCardRowField fieldRow = dbStorePlastic.getApplicationCard().getRow();
 		final String priorValue = fieldRow.getFieldByLabel(PRODUCTCARD_FIELD).getValueField();
-
-		logger.info("PRODUCTCARD_FIELD priorValue=" + priorValue);
 
 		List<String> items = new ArrayList<>();
 
@@ -497,7 +478,6 @@ public class AppCardRowField extends AbstractRowFields {
 		JComboBox comboCardProduct = getProductCardComponent();
 
 		FactoryComponent.setListItems(comboCardProduct, items);
-		logger.info("priorValue=" + priorValue);
 
 		if (priorValue != null &&
                 items.stream().anyMatch(f -> f.equals(priorValue))) {
@@ -508,8 +488,6 @@ public class AppCardRowField extends AbstractRowFields {
 			fieldRow.getFieldByLabel(PRODUCTCARD_FIELD).setValueField(
 					(String) comboCardProduct.getSelectedItem());
 		}
-
-		logger.info("comboCardProduct.getSelectedItem()=" + comboCardProduct.getSelectedItem());
 
 		selectDesignProduct(new ActionEvent(getDesignComponent(), e.getID(), e.getActionCommand()));
 	}
@@ -581,8 +559,6 @@ public class AppCardRowField extends AbstractRowFields {
 	private void setFieldValueFromComponent(DetailField field) {
 
 		String value = getComponentValueField(field);
-
-		logger.info("setFieldValueFromComponent=" + value);
 
 		DBStorePlastic dbStorePlastic = StaticData.getInstance().getDbStorePlastic();
 

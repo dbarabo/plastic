@@ -311,13 +311,11 @@ implements FilteredStore<E> {
 			
 		case STRING:
 			return isCriteriaString(valueField, valueFilter);
-		
-		case DECIMAL:
-			return false;
-		
+
 		case DATE:
 			return isCriteriaDate(valueField, valueFilter);
-			
+
+		case DECIMAL:
 		default:
 			return false;
 		}
@@ -492,13 +490,9 @@ implements FilteredStore<E> {
 		if(filters == null || filters.length == 0) return null;
 		
 		int fieldIndex = getFieldIndex(columnIndex);
-		
-		logger.info("columnIndex=" + columnIndex + " fieldIndex=" + fieldIndex);
-		
+
 		if(fieldIndex == -1) return null;
 
-		logger.info("filters[fieldIndex]=" + filters[fieldIndex]);
-		
 		return filters[fieldIndex];
 	}
 	

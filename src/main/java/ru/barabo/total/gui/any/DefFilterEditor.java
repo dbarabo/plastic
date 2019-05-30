@@ -26,17 +26,11 @@ public class DefFilterEditor extends DefaultFieldEditor {
 
 	@Override
 	protected void setFieldValue(JComponent field, Object value) {
-
-		logger.error("DefFilterEditor.setFieldValue value=" + value);
-
 		if(value == null) {
 			value = "";
 		}
 
 		((JTextField)field).setText( value.toString() );
-
-		//((JTextField) field).selectAll();
-
 	}
 
 }

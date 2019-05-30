@@ -22,6 +22,7 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.function.Consumer
 import javax.swing.*
+import javax.swing.JOptionPane.QUESTION_MESSAGE
 
 open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>, focusComp: JComponent, private val contentComp: JComponent? = null)
     : AbstractTopToolBar(focusComp), ListenerStore<E>, ToolBarRefresh {
@@ -833,7 +834,9 @@ internal enum class FilterWork {
     }
 }
 
-fun dialogGetLimit(): Number? = parseLimit(JOptionPane.showInputDialog("Заполните одобренный макс. лимит кредитной карты"))
+fun dialogGetLimit(): Number? = parseLimit(
+    JOptionPane.showInputDialog(null, "Заполните одобренный макс. лимит кредитной карты",
+        "Лимит кредита", QUESTION_MESSAGE))
 
 private fun parseLimit(limit: String?): Number? {
     val limitCheck = limit?.trim()?.replace(",", ".")?.replace(" ", "") ?: return null

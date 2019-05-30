@@ -1,7 +1,5 @@
 package ru.barabo.total.gui.any;
 
-import org.apache.log4j.Logger;
-
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
@@ -11,8 +9,7 @@ import java.util.EventObject;
 
 public abstract class DefaultFieldEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 
-	final static transient private Logger logger = Logger.getLogger(DefaultFieldEditor.class
-			.getName());
+	//final static transient private Logger logger = Logger.getLogger(DefaultFieldEditor.class.getName());
 
 	private JComponent field;
 	
@@ -28,8 +25,6 @@ DefaultFieldEditor(JComponent field)	{
 	}
 	
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-		
-		logger.info("SET VALUE=" + value);
 		setFieldValue(field, value);
 		return field;
 	}
@@ -54,8 +49,6 @@ DefaultFieldEditor(JComponent field)	{
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent arg0) {
-
-		logger.info("STOP!!!");
 		//super.stopCellEditing();
 		 fireEditingStopped();
 	}

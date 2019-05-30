@@ -17,6 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
+
+
+	final static transient private Logger logger = Logger.getLogger(DBStoreApplicationCard.class.getName());
 	
 	private final static String SEL_APPLICATION = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardItem( ? ) }";
 	
@@ -39,9 +42,6 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 	final static private String ERROR_CREATE_APPLICATION = "Ошибка создания заявления";
 
 	final static private String NO_STATE_INFO = "не определено Состояние заявления";
-
-	final static transient private Logger logger = Logger
-			.getLogger(DBStoreApplicationCard.class.getName());
 
 	private DBStorePlastic dbStorePlastic;
 	
@@ -162,9 +162,6 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 
 	public String saveApplication() {
 		AppCardRowField field = getRow();
-
-		logger.info("saveApplication field.fieldItems().get(0).getVal()="
-				+ field.fieldItems().get(0).getVal());
 
 		if (field.fieldItems().get(0).getVal() == null) {
 			return createApplication(field);
