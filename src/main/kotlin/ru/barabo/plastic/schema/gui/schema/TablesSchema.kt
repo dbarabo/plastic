@@ -6,7 +6,6 @@ import ru.barabo.plastic.schema.entity.schema.ConditionVariant
 import ru.barabo.plastic.schema.entity.schema.HeaderTransactType
 import ru.barabo.plastic.schema.entity.schema.Schema
 import ru.barabo.plastic.schema.entity.schema.TransType
-import ru.barabo.plastic.schema.gui.account.TableAccount
 import ru.barabo.plastic.schema.service.schema.ConditionVariantService
 import ru.barabo.plastic.schema.service.schema.HeaderTransactTypeService
 import ru.barabo.plastic.schema.service.schema.SchemaService

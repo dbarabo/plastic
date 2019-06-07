@@ -222,6 +222,10 @@ open class Query (protected val dbConnection :DbConnection) {
         execute(query, params, SessionSetting(false), null)
 
     @Throws(SessionException::class)
+    fun executeOut(query: String, params: Array<Any?>?, outParamTypes: IntArray): List<Any?>? =
+        execute(query, params, SessionSetting(false), outParamTypes)
+
+    @Throws(SessionException::class)
     fun execute(query :String, params :Array<Any?>? = null,
                        sessionSetting : SessionSetting,
                        outParamTypes :IntArray? = null): List<Any?>? {

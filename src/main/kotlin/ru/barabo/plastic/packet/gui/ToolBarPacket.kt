@@ -1,11 +1,14 @@
 package ru.barabo.plastic.packet.gui
 
+import org.apache.log4j.Logger
+import ru.barabo.plastic.afina.rtf.RtfCashIn
 import ru.barabo.plastic.main.resources.owner.Cfg
 import ru.barabo.plastic.release.ivr.xml.IvrXml
 import ru.barabo.plastic.release.packet.data.*
 import ru.barabo.plastic.release.packet.gui.ListenerContent
 import ru.barabo.plastic.release.packet.gui.ToolBarRefresh
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard
+import ru.barabo.plastic.unnamed.gui.errorMessage
 import ru.barabo.plastic.unnamed.gui.tryCatchDefaultStore
 import ru.barabo.total.db.DBStore
 import ru.barabo.total.db.ListenerStore
@@ -15,6 +18,7 @@ import ru.barabo.total.gui.any.AbstractTopToolBar
 import ru.barabo.total.gui.any.ButtonKarkas
 import ru.barabo.total.gui.any.ShowMenuListener
 import ru.barabo.total.gui.table.TotalRowTable
+import ru.barabo.total.report.rtf.RtfReport
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.ActionEvent
@@ -28,6 +32,8 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
     : AbstractTopToolBar(focusComp), ListenerStore<E>, ToolBarRefresh {
 
     companion object {
+        private val logger = Logger.getLogger(ToolBarPacket::class.java.simpleName)
+
         private const val MSG_WAIT = "Сейчас нужно просто ждать, когда придут ответные файлы от ПЦ"
 
         private const val MSG_GO_HOME = "Перевести карты в Головной офис?"
@@ -305,13 +311,45 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
 
     private fun prepareCardOut() {
         val dBStorePacket = store as DBStorePacket
-
         val contentDb = dBStorePacket.dbStorePacketContentPacket
 
+        when (contentDb.row?.classCard) {
+            ClassCard.CreditCard -> prepareCreditCardOut(contentDb)
+
+            ClassCard.PlatinaCard -> preparePlatinaCardOut(contentDb)
+
+            else -> errorMessage("Не выбрана строка содержимого пакета!")
+        }
+    }
+
+    private fun prepareCreditCardOut(contentDb: DBStorePacketContent) {
         val limit = dialogGetLimit() ?: return
 
         tryCatchDefaultStore(contentDb) {
-            contentDb.prepareCardOut(limit)
+            contentDb.prepareCreditCardOut(limit)
+        }
+    }
+
+    private fun preparePlatinaCardOut(contentDb: DBStorePacketContent) {
+        tryCatchDefaultStore(contentDb) {
+
+            val platinaCashIn = contentDb.beforePreparePlatinaCardOut()
+            if(platinaCashIn.label == null) return@tryCatchDefaultStore
+
+            CashInDialog(this, platinaCashIn, ::endOkPreparePlatina).isVisible = true
+        }
+    }
+
+    private fun endOkPreparePlatina(platinaCashIn: PlatinaCashIn) {
+
+        val contentDb = (store as DBStorePacket).dbStorePacketContentPacket
+
+        tryCatchDefaultStore(contentDb) {
+            val idCashIn = contentDb.endPreparePlatinaCardOut(platinaCashIn)
+
+            logger.error("idCashIn=$idCashIn")
+
+            RtfReport.build(RtfCashIn(idCashIn))
         }
     }
 
@@ -343,6 +381,7 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
             TopToolBarReIssueCard.messageError(error)
             return
         }
+
 
         if (!dBStorePacket.isTestBaseConnect) {
             val ivrInfo = contentDb.ivrInfo
@@ -723,14 +762,14 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
 
         val contentState = StatePlasticPacket.getStateByDbValue(content.state) ?: return null
 
-        return if(contentState != StatePlasticPacket.CARD_HOME_OFFICCES || content.classCard != 0) contentState
+        return if(contentState != StatePlasticPacket.CARD_HOME_OFFICCES || content.classCard != ClassCard.Any) contentState
         else StatePlasticPacket.PREPARE_CARD_TO_OUT
     }
 
     private fun getRealStateButtonContent(row: PacketContentRowField?): StatePlasticPacket? {
         val stateContent = row?.state?.let { StatePlasticPacket.getStateByDbValue(it) } ?: return null
 
-        return if(stateContent != StatePlasticPacket.CARD_HOME_OFFICCES || row.classCard != 0) stateContent
+        return if(stateContent != StatePlasticPacket.CARD_HOME_OFFICCES || row.classCard != ClassCard.Any) stateContent
         else StatePlasticPacket.PREPARE_CARD_TO_OUT
     }
 

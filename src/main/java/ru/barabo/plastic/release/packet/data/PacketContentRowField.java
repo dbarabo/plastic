@@ -56,10 +56,10 @@ public class PacketContentRowField extends AbstractRowFields {
 		return fields;
 	}
 
-	public int getClassCard() {
+	public ClassCard getClassCard() {
 		Number value = (Number) fieldItems().get(20).getVal();
 
-		return value == null ? 0 : value.intValue();
+		return value == null ? ClassCard.Any : ClassCard.classCardByDbValue(value.intValue() );
 	}
 
 	public int getApplicationId() {

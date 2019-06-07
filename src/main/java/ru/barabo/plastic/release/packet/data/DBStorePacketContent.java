@@ -1,5 +1,7 @@
 package ru.barabo.plastic.release.packet.data;
 
+import oracle.jdbc.OracleTypes;
+import org.apache.log4j.Logger;
 import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
@@ -16,7 +18,7 @@ import java.util.List;
 public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
   implements ListenerStore<PacketRowField> {
 	
-	//final static transient private Logger logger = Logger.getLogger(DBStorePacketContent.class.getName());
+	final static transient private Logger logger = Logger.getLogger(DBStorePacketContent.class.getName());
 	
 	final static private String SEL_CONTENT = "{ ? = call od.PTKB_PLASTIC_AUTO.getPlasticContent( ? ) }";
 	
@@ -27,7 +29,14 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 	final static private String UPD_OUT_CLIENT_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.cardToOneClient(?) }";
 
 	final static private String PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }";
-	
+
+	final static private String BEFORE_PREPARE_PLATINA_OUT =
+			"{ call od.PTKB_PLASTIC_AUTO.prepareCashInPlatinaComission(?, ?, ?, ?, ?, ?, ?) }";
+
+	final static private String AFTER_PREPARE_PLATINA_OUT =
+			"{ call od.PTKB_PLASTIC_AUTO.createOrExistsCashInPlatina(?, ?, ?, ?) }";
+
+
 	final static private String EXEC_CHECK_REISSUE_CARD = "{ call od.PTKB_PLASTIC_AUTO.checkCardToReIssue(?, ?) }";
 
 	final static private String DEL_CONTENT = "delete from od.ptkb_plast_pack_content where id = ?";
@@ -181,14 +190,9 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 		return null;
 	}
 
-	public void prepareCardOut(Number limit) throws Exception {
-		PacketContentRowField field = getRow();
-
-		if(field == null) throw new Exception("Не выбрана строка содержимого пакета!");
-
-		if(field.getState() != StatePlasticPacket.CARD_HOME_OFFICCES.getDbValue() ) {
-			throw new Exception(DBStorePacket.STATE_NONE_GET_HOMES);
-		}
+	public void prepareCreditCardOut(Number limit) throws Exception {
+		PacketContentRowField field = getFieldIdCheckState(StatePlasticPacket.CARD_HOME_OFFICCES,
+				DBStorePacket.STATE_NONE_GET_HOMES);
 
 		AfinaQuery.INSTANCE.execute(PREPARE_OUT_CARD, new Object[] {field.getId(), limit});
 
@@ -198,6 +202,59 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 
 		PacketRowField row = dbStorePlastic.getPacket().getRow();
 		setCursor(row);
+	}
+
+	public PlatinaCashIn beforePreparePlatinaCardOut() throws Exception {
+
+		PacketContentRowField field = getFieldIdCheckState(StatePlasticPacket.CARD_HOME_OFFICCES,
+				DBStorePacket.STATE_NONE_GET_HOMES);
+
+		List<Object> outParam = AfinaQuery.INSTANCE.executeOut(BEFORE_PREPARE_PLATINA_OUT, new Object[] {field.getId()},
+			new int[] {OracleTypes.VARCHAR, OracleTypes.NUMBER, OracleTypes.VARCHAR, OracleTypes.VARCHAR, OracleTypes.VARCHAR, OracleTypes.VARCHAR});
+
+		logger.error("outParam=" + outParam);
+
+		PlatinaCashIn platinaCashIn = PlatinaCashIn.createFromList(outParam, field.getName());
+
+		if(platinaCashIn == null) throw new Exception("BEFORE_PREPARE_PLATINA_OUT return null");
+
+		if(platinaCashIn.getLabel() != null) {
+			return platinaCashIn;
+		}
+
+		field.setState(StatePlasticPacket.PREPARE_CARD_TO_OUT.getDbValue());
+		sendListenersCursor(field);
+
+		PacketRowField row = dbStorePlastic.getPacket().getRow();
+		setCursor(row);
+
+		return platinaCashIn;
+	}
+
+	public Number endPreparePlatinaCardOut(PlatinaCashIn platinaCashIn) throws Exception {
+		PacketContentRowField field = getFieldIdCheckState(StatePlasticPacket.CARD_HOME_OFFICCES,
+				DBStorePacket.STATE_NONE_GET_HOMES);
+
+		List<Object> outParam = AfinaQuery.INSTANCE.executeOut(AFTER_PREPARE_PLATINA_OUT,
+				new Object[] {field.getId(), platinaCashIn.getLabel(), platinaCashIn.getDescriptionDefault()},
+				new int[] {OracleTypes.NUMBER});
+
+		if(outParam == null || outParam.isEmpty()) throw new Exception("endPreparePlatinaCardOut return null");
+
+		return (Number)outParam.get(0);
+	}
+
+	private PacketContentRowField getFieldIdCheckState(StatePlasticPacket stateMustBe,
+													   String exceptionNoneState) throws Exception {
+		PacketContentRowField field = getRow();
+
+		if(field == null) throw new Exception("Не выбрана строка содержимого пакета!");
+
+		if(stateMustBe != null && field.getState() != stateMustBe.getDbValue() ) {
+			throw new Exception(exceptionNoneState);
+		}
+
+		return field;
 	}
 	
 	public String checkReissueCard(Number parentId, Number cardId) {

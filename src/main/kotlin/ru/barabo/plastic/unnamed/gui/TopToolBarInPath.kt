@@ -1,5 +1,7 @@
 package ru.barabo.plastic.unnamed.gui
 
+import org.apache.log4j.Logger
+import ru.barabo.db.Query
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath
@@ -23,6 +25,8 @@ import javax.swing.UIManager
 class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, focusTable: JTable)
     : AbstractTopToolBar(focusTable),
     ListenerStore<RowFieldInPath> {
+
+
 
     private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
 
@@ -126,6 +130,9 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
     }
 
     companion object {
+
+        private val logger = Logger.getLogger(TopToolBarInPath::class.simpleName)!!
+
         private const val MAX_CARD_COUNT = 100
 
         private const val ERROR_MAX_MESSAGE = "Куда Вы столько заказываете!\nУ нас не Сбербанк!"
@@ -150,6 +157,8 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
             }
 
             val selectedIndex = book.tabCount - 1
+
+            logger.error("newTab=$newTab")
             book.insertTab(titleNewTab, null, newTab.newInstance(), null, selectedIndex)
 
             book.selectedIndex = selectedIndex
