@@ -12,7 +12,7 @@ object VersionChecker {
 
     private const val PROGRAM_NAME = "PLASTIC.JAR"
 
-    private const val VERSION_JAR = 19
+    private const val VERSION_JAR = 20
 
     private const val STATE_RUN = 0
 
@@ -48,6 +48,9 @@ object VersionChecker {
     }
 
     private fun checkVersionRun() {
+
+        TimerThreadData.processCheckPlatinaCashInIsExec()
+
         val minVersion = AfinaQuery.selectValueType<Number>(SELECT_VERSION) ?: return
 
         if(minVersion.toInt() <= VERSION_JAR) return

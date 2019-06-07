@@ -4,6 +4,7 @@ import oracle.jdbc.OracleTypes;
 import org.apache.log4j.Logger;
 import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
+import ru.barabo.plastic.afina.TimerThreadData;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.total.db.DBStore;
@@ -241,7 +242,13 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 
 		if(outParam == null || outParam.isEmpty()) throw new Exception("endPreparePlatinaCardOut return null");
 
-		return (Number)outParam.get(0);
+		Number cashIn = (Number)outParam.get(0);
+
+		if(cashIn != null) {
+			TimerThreadData.setPlatinaCashInId(cashIn, field.getId());
+		}
+
+		return cashIn;
 	}
 
 	private PacketContentRowField getFieldIdCheckState(StatePlasticPacket stateMustBe,

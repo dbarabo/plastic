@@ -68,6 +68,8 @@ public class Start extends JFrame{
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    setVisible( true );
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+		VersionChecker.runCheckVersion();
 	}
 
 	private String title() {
