@@ -5,7 +5,6 @@ import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
-import java.awt.event.ActionEvent
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.JTable
@@ -91,19 +90,19 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
         JPopupMenu().apply {
 
             add( JMenuItem("Копировать ячейку").apply {
-                addActionListener { copyCell(it)}
+                addActionListener { copyCell()}
             })
 
             add( JMenuItem("Копировать строку").apply {
-                addActionListener { copyRow(it)}
+                addActionListener { copyRow()}
             })
 
             add( JMenuItem("Копировать всю таблицу").apply {
-                addActionListener { copyTable(it)}
+                addActionListener { copyTable()}
             })
         }
 
-    private fun copyTable(e: ActionEvent) {
+    private fun copyTable() {
 
         val data = store.elemRoot()
 
@@ -118,7 +117,7 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
     }
 
-    private fun copyRow(e: ActionEvent) {
+    private fun copyRow() {
         val row = store.selectedEntity()?.let { entityToString(it) } ?: return
 
         val selection = StringSelection(row)
@@ -126,7 +125,7 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
     }
 
-    private fun copyCell(e: ActionEvent) {
+    private fun copyCell() {
         val row = store.selectedEntity()?.let { entityToString(it) } ?: return
 
         val cell = if(this.selectedColumn >= 0) {
