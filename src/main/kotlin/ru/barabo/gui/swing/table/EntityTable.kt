@@ -89,6 +89,11 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
 
     private fun getPopupMenu(): JPopupMenu =
         JPopupMenu().apply {
+
+            add( JMenuItem("Копировать ячейку").apply {
+                addActionListener { copyCell(it)}
+            })
+
             add( JMenuItem("Копировать строку").apply {
                 addActionListener { copyRow(it)}
             })
@@ -117,6 +122,32 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
         val row = store.selectedEntity()?.let { entityToString(it) } ?: return
 
         val selection = StringSelection(row)
+
+        Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
+    }
+
+    private fun copyCell(e: ActionEvent) {
+        val row = store.selectedEntity()?.let { entityToString(it) } ?: return
+
+        val cell = if(this.selectedColumn >= 0) {
+
+            var count = 0
+            var start = -1
+            while(count < this.selectedColumn) {
+                start = row.indexOf('\t', start + 1)
+                if(start >= 0) {
+                    count++
+                }
+            }
+
+            var end = row.indexOf('\t', start + 1)
+            end = if(end < 0) row.length else end
+
+            row.substring(start + 1, end - 1)
+        } else {
+            row
+        }
+        val selection = StringSelection(cell)
 
         Toolkit.getDefaultToolkit().systemClipboard.setContents(selection, selection)
     }
