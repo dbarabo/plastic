@@ -12,7 +12,7 @@ object VersionChecker {
 
     private const val PROGRAM_NAME = "PLASTIC.JAR"
 
-    private const val VERSION_JAR = 20
+    private const val VERSION_JAR = 22
 
     private const val STATE_RUN = 0
 
@@ -37,7 +37,7 @@ object VersionChecker {
 
     private fun updateActualVersion(state: Int) {
 
-        val params = arrayOf(PROGRAM_NAME,
+        val params = arrayOf<Any?>(PROGRAM_NAME,
             VERSION_JAR,
             InetAddress.getLocalHost().hostAddress,
             File(VersionChecker::class.java.protectionDomain.codeSource.location.path).toURI().path,

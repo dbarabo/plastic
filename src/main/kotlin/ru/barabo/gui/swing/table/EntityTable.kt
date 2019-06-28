@@ -142,7 +142,7 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
             var end = row.indexOf('\t', start + 1)
             end = if(end < 0) row.length else end
 
-            row.substring(start + 1, end - 1)
+            row.substring(start + 1, end)
         } else {
             row
         }
