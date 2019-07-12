@@ -12,6 +12,8 @@ import javax.swing.JTextField
 class ToolBarPosTerminal : AbstractTopToolBar() {
 
     private val buttons = arrayOf(
+        ButtonKarkas("refresh", "Обновить") { refreshData() },
+
         ButtonKarkas("insertDB", "Новый терминал") {
             DialogCreateTerminal(this).showDialogResultOk()
         },
@@ -42,6 +44,14 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
         add(findAny)
         add(JLabel(ResourcesManager.getIcon("find")) )
 
-        buttons[4].button?.isEnabled = false
+        buttons[5].button?.isEnabled = false
+    }
+
+    private fun refreshData() {
+        PosTerminalService.initData()
+
+        if(findAny.text?.isNotEmpty() == true) {
+            PosTerminalService.setFilterByAny(findAny.text)
+        }
     }
 }

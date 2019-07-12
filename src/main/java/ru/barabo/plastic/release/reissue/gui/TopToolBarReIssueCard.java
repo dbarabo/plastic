@@ -89,9 +89,9 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 		btrt25.setVisible( ((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace() );
 
-		AbstractButton more = getButtonKarkases()[7].getButton();
+		// AbstractButton more = getButtonKarkases()[7].getButton();
 
-		more.setVisible( !((DBStoreReIssueCard) store).getDBStorePacket().isWorkPlaceDopik() );
+		// more.setVisible( !((DBStoreReIssueCard) store).getDBStorePacket().isWorkPlaceDopik() );
 	}
 
 	private void showTerminal(ActionEvent event) {
