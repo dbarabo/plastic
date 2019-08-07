@@ -10,6 +10,7 @@ import ru.barabo.plastic.release.resources.RtfDataLoanPactCredit;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.impl.AbstractDBStore;
 import ru.barabo.total.report.rtf.RtfReport;
+import ru.barabo.total.utils.Util;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 
 	final static private String TO_SENT_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.toSentStateApplication(?) }";
 
-    final static private String SEND_TO_PC_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.sendToPcApplication(?) }";
+    final static private String SEND_TO_PC_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.sendToPcApplication(?, ?, ?) }";
 
 	final static private String APPLICATION_IS_EMPTY = "Нечего сохранять в заявлении";
 
@@ -121,11 +122,24 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 
     private String sendToPcApplication(AppCardRowField field) {
         try {
-            AfinaQuery.INSTANCE.execute(SEND_TO_PC_APPLICATION, new Object[] { field.fieldItems().get(0).getVal() });
-        } catch (SessionException e) {
+			String fileName = DBStorePacket.getAppFile();
+
+			List<Object> values = AfinaQuery.INSTANCE.execute(SEND_TO_PC_APPLICATION, new Object[]{fileName, field.getId()}, new int[] { OracleTypes.CLOB });
+
+			if(values == null || values.size() == 0 || values.get(0) == null) {
+				throw new Exception(DBStorePacket.ERROR_CREATE_FILE);
+			}
+
+			String data = Util.clob2string(( java.sql.Clob )values.get(0));
+
+			String path = AfinaQuery.isTestBaseConnect() ? "c:"  : Util.getPathFileOut();
+			path = path + "/" + fileName;
+
+			return DBStorePacket.saveFile(path, data);
+
+        } catch (Exception e) {
             return e.getMessage();
         }
-        return null;
     }
 
 	public String toSentApplication() {

@@ -29,7 +29,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 
 	private static final String STATE_NONE_ISSUE = "Создание файла возможно только в состоянии 'ВЫПУЩЕН'";
 	
-	private static final String ERROR_CREATE_FILE = "Ошибка при формировании тела файла";
+	public static final String ERROR_CREATE_FILE = "Ошибка при формировании тела файла";
 	
 	private static final String PACKET_NEW_NOT_SENT = "Неготовые к отправке";
 	
@@ -620,8 +620,8 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		
 		return null;
 	}
-	
-	protected String getAppFile() {
+
+	static public String getAppFile() {
 		
 		Object value = AfinaQuery.INSTANCE.selectValue(SEL_FILENAME, null);
 
@@ -867,7 +867,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 		return null;
 	}
 	
-	private String saveFile(String  path, String data) {
+	static public String saveFile(String  path, String data) {
         
 		logger.info("!!!!!" + data);
 
