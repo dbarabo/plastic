@@ -5,6 +5,7 @@ import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
 import ru.barabo.plastic.unnamed.general.ResultOutClient
+import ru.barabo.plastic.unnamed.gui.dialog.ChangeOfficeCard
 import ru.barabo.plastic.unnamed.gui.dialog.OutCardToClient
 import ru.barabo.total.db.DBStore
 import ru.barabo.total.db.ListenerStore
@@ -31,6 +32,8 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
 
     private val buttons = arrayOf(
             ButtonKarkas("toApplication", "Заявление", { gotoApplication(store) }, null),
+            ButtonKarkas("inversia", "Передать м/у офисами", { moveToDepartment() }, null),
+
             ButtonKarkas(null, null, null, null))
 
     init {
@@ -54,6 +57,12 @@ class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, f
 
     private fun prepareCardOut() {
         OutCardToClient(this, store.row).showResultDialog(::processPrepareCardOut)
+    }
+
+    private fun moveToDepartment() {
+        tryCatchDefaultStore(store) {
+            ChangeOfficeCard(this, store).showDialogResultOk()
+        }
     }
 
     private fun processPrepareCardOut(resultOutClient: ResultOutClient) {

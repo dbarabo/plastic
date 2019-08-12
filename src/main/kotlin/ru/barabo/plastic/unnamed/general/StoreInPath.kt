@@ -1,5 +1,6 @@
 package ru.barabo.plastic.unnamed.general
 
+import ru.barabo.plastic.unnamed.entity.Department
 import ru.barabo.total.db.FilteredStore
 
 interface StoreInTotal {
@@ -24,6 +25,8 @@ interface StoreInHome : StoreInTotal {
     fun cardSendToDopOffice()
 
     fun cardGetFromOffice()
+
+    fun moveCardToDepartment(toDepartment: Department?)
 }
 
 interface FilteredStoreInHome<E> : StoreInHome, FilteredStore<E>

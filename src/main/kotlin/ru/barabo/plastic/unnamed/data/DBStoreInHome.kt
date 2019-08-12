@@ -7,8 +7,10 @@ import ru.barabo.db.SessionSetting
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.afina.clobToString
 import ru.barabo.plastic.release.main.data.DBStorePlastic
+import ru.barabo.plastic.unnamed.entity.Department
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
 import ru.barabo.plastic.unnamed.general.ResultOutClient
+import ru.barabo.plastic.unnamed.service.DepartmentService
 import java.io.File
 import java.lang.Exception
 import java.nio.charset.Charset
@@ -25,6 +27,14 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
 
             1
         } ?: throw SessionException(MSG_ERROR_NO_CONTENT)
+
+        updateAllData()
+    }
+
+    override fun moveCardToDepartment(toDepartment: Department?) {
+        val department = toDepartment ?: throw Exception("Не выбран офис назначения")
+
+        AfinaQuery.execute(EXEC_MOVE_CARD_TO_DEPARTMNENT, arrayOf(department.id, row?.id))
 
         updateAllData()
     }
@@ -112,6 +122,8 @@ class DBStoreInHome(dbStorePlastic: DBStorePlastic) : DBStoreInPath(dbStorePlast
         AfinaQuery.selectCursor(SELECT_IN_HOME).map { createRowField<RowFieldInPath>(it) }.toMutableList()
 
     companion object {
+        private val EXEC_MOVE_CARD_TO_DEPARTMNENT = "{ call od.PTKB_PLASTIC_AUTO.moveUnnamedCardToOffice(?, ?)}"
+
         private const val SELECT_IN_HOME = "{ ? = call od.PTKB_PLASTIC_AUTO.getUnnamedCardsInHome }"
 
         private const val EXEC_PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }"
