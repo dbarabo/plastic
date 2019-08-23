@@ -1,5 +1,6 @@
 package ru.barabo.plastic.release.application.gui;
 
+import ru.barabo.plastic.gui.PlasticGui;
 import ru.barabo.plastic.release.application.data.AppCardRowField;
 import ru.barabo.plastic.release.application.data.ClientRowField;
 import ru.barabo.plastic.release.application.gui.table.FindClientTable;
@@ -18,6 +19,8 @@ public class PanelApplication extends JPanel {
 		setLayout(new BorderLayout());
 
 		TableSheetForm<AppCardRowField> detailForm = new TableSheetForm<>(store, null);
+
+		PlasticGui.INSTANCE.setFormReleaseApplication(detailForm);
 
 		JScrollPane leftPanel = new JScrollPane(detailForm);
 

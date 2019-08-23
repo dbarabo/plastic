@@ -2,6 +2,7 @@ package ru.barabo.plastic.unnamed.data
 
 import ru.barabo.db.SessionException
 import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.plastic.gui.PlasticGui
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.plastic.unnamed.general.FilteredStoreOutClient
 import ru.barabo.total.db.FieldItem
@@ -14,7 +15,7 @@ class DBStoreOutClient(private val dbStorePlastic: DBStorePlastic) : AbstractFil
 
         val applicationId =  row.getApplicationId()?.toInt() ?: throw SessionException(MSG_ERROR_NO_CONTENT)
 
-        dbStorePlastic.applicationCard.setViewType(applicationId)
+        PlasticGui.openApplicationForm(applicationId)
     }
 
     override fun changePinCode() {

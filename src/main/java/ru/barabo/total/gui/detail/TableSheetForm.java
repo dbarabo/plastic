@@ -41,24 +41,28 @@ public class TableSheetForm<E extends AbstractRowFields> extends JPanel implemen
 		
 		this.store = store;
 
+		this.fields = fields;
+
+		createForm();
+
+		store.addListenerStore(this);
+	}
+
+	private void createForm() {
 		if (fields == null) {
 			List tmp = store.getFields();
-			this.fields = initFields(tmp);
-		} else {
-			this.fields = fields;
+			fields = initFields(tmp);
 		}
 
 		Collections.sort(this.fields, this);
 
 		setToForm();
-
-		store.addListenerStore(this);
 	}
+
+
 	
 	
 	private List<DetailFieldItem> initFields(List<DetailFieldItem> subFields) {
-		
-
 
 		fields = new ArrayList<DetailFieldItem>();
 
@@ -321,6 +325,25 @@ public class TableSheetForm<E extends AbstractRowFields> extends JPanel implemen
 	public void setCursor(E row) {
 		updataValues(store.getRow());
 	}
+
+	public DetailFieldItem getFieldItemByLabel(String label) {
+		for (DetailFieldItem field : fields) {
+
+			if(label.equals(field.getLabel())) {
+				return field;
+			}
+
+			if(field.getSubFields() != null) {
+				for (DetailFieldItem subField : field.getSubFields()) {
+					if(label.equals(subField.getLabel())) {
+						return subField;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	
 	/**
 	 * обновляет текущие данные у компонент

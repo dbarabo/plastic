@@ -211,6 +211,11 @@ public class Field implements FieldItem {
 	}
 
 	@Override
+	public void setListField(String[] valueList) {
+		list = valueList;
+	}
+
+	@Override
 	public String getValueField() {
 		if (val == null) {
 			return null;

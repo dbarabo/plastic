@@ -1,6 +1,7 @@
 package ru.barabo.plastic.release.application.data;
 
 import org.apache.log4j.Logger;
+import ru.barabo.plastic.gui.PlasticGui;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.Type;
@@ -41,7 +42,7 @@ public class AppCardRowField extends AbstractRowFields {
 
 	final static transient String CARD_PHONE = "Телефон";
 
-	final static transient String CUSTOMER_ID = "#customer";
+	public final static transient String CUSTOMER_ID = "#customer";
 
 	final static transient String CUSTOMER_NAME = "Владелец";
 
@@ -61,7 +62,7 @@ public class AppCardRowField extends AbstractRowFields {
 
 	final static transient String DESIGNCARD_FIELD = "Дизайн карты";
 
-	private final static transient String PRODUCTCARD_FIELD = "Продукт карты";
+	public final static transient String PRODUCTCARD_FIELD = "Продукт карты";
 
 	final static transient public String FIELD_STATE_NAME = "Состояние";
 
@@ -72,6 +73,9 @@ public class AppCardRowField extends AbstractRowFields {
 	private final static transient String GROUP_CARD_SERVICE = "Сервисы/Допы карты";
 
 	final static transient String SALARY_PROJECT_JURIC = "Юр.лицо Зарплат.карты";
+
+	public final static transient String ACCOUNT_LABEL = "Счет";
+
 
 	final static transient private String[] CUSTOMERS = new String[] { CUSTOMER_NAME,
 			CUSTOMER_ADDRESS, CUSTOMER_INN };
@@ -111,7 +115,7 @@ public class AppCardRowField extends AbstractRowFields {
 				"authorid", 1, fields.size(), true, null, null,
 				"Общая информация", 1, 2, 1));
 		
-		fields.add(new DetailField("Продукт карты", true, Type.LONG,
+		fields.add(new DetailField(PRODUCTCARD_FIELD, true, Type.LONG,
 
 				StaticData.getInstance().getCardProductLabel(),
 				null, 1, fields.size(), true,
@@ -216,10 +220,11 @@ public class AppCardRowField extends AbstractRowFields {
 				null, null,
 				"Информация о Владельце", 0, 21, 1,
 				getKeyListenerFindClientByCustomer()));
-		
-		fields.add(new DetailField("Счет", true, Type.STRING, null,
+
+		fields.add(new DetailField(ACCOUNT_LABEL, true, Type.STRING, new String[]{"", ""},
 				null, 1, fields.size(), true, null, null,
-				GROUP_CARD_SERVICE, 1, 1, 1));
+				GROUP_CARD_SERVICE, 1, 1, 1, (ActionListener)this::selectAccount)
+				);
 		
 		fields.add(new DetailField(FIELD_STATE_NAME, true, Type.STRING, null,
 				null, 1, fields.size(), true, null, null, "Общая информация", 1, 0, 1));
@@ -361,6 +366,12 @@ public class AppCardRowField extends AbstractRowFields {
 		};
 	}
 
+	private void selectAccount(ActionEvent e) {
+		setSelectComboBoxValueToField(e);
+
+		AppCardRowField fieldRow = StaticData.getInstance().getDbStorePlastic().getApplicationCard().getRow();
+	}
+
 	private void selectDesignProduct(ActionEvent e) {
 
 		setSelectComboBoxValueToField(e);
@@ -392,7 +403,7 @@ public class AppCardRowField extends AbstractRowFields {
         }
 
 		JComboBox comboDesign = getDesignComponent();
-		FactoryComponent.setListItems(comboDesign, items);
+		FactoryComponent.setListItemsT(comboDesign, items);
 
 		if (priorValue != null &&
                 items.stream().anyMatch(f -> f.equals(priorValue))) {
@@ -403,6 +414,8 @@ public class AppCardRowField extends AbstractRowFields {
 			fieldRow.getFieldByLabel(DESIGNCARD_FIELD).setValueField(
 					(String) comboDesign.getSelectedItem());
 		}
+
+		PlasticGui.updateAccountByField(fieldRow);
 	}
 
 	private void setSelectComboBoxValueToField(ActionEvent e) {
@@ -413,6 +426,7 @@ public class AppCardRowField extends AbstractRowFields {
 		AppCardRowField fieldRow = dbStorePlastic.getApplicationCard().getRow();
 
 		FieldItem selectField = fieldRow.getFieldByLabel(comp.getName());
+
 		if (selectField != null) {
 			selectField.setValueField((String) comp.getSelectedItem());
 		}
@@ -477,7 +491,7 @@ public class AppCardRowField extends AbstractRowFields {
 
 		JComboBox comboCardProduct = getProductCardComponent();
 
-		FactoryComponent.setListItems(comboCardProduct, items);
+		FactoryComponent.setListItemsT(comboCardProduct, items);
 
 		if (priorValue != null &&
                 items.stream().anyMatch(f -> f.equals(priorValue))) {
@@ -506,6 +520,13 @@ public class AppCardRowField extends AbstractRowFields {
 		}
 
 		return field;
+	}
+
+
+	private JComboBox getAccountCardComboBox() {
+		DetailField field = (DetailField) fieldItems().get(29);
+
+		return (JComboBox)field.getComponent();
 	}
 	
 	private JComboBox getProductCardComponent() {

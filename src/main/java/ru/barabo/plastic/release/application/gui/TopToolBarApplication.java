@@ -2,6 +2,7 @@ package ru.barabo.plastic.release.application.gui;
 
 
 import org.apache.log4j.Logger;
+import ru.barabo.plastic.gui.PlasticGui;
 import ru.barabo.plastic.release.application.data.AppCardRowField;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
@@ -57,8 +58,7 @@ public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTo
 
 	private void newApplication(ActionEvent e) {
 
-		store.setViewType(-1);
-
+		PlasticGui.openApplicationForm(-1);
 		store.getRow();
 	}
 

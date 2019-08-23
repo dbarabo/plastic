@@ -43,7 +43,9 @@ open class Query (protected val dbConnection :DbConnection) {
     @Throws(SessionException::class)
     fun select(query :String, params :Array<Any?>? = null, sessionSetting : SessionSetting = SessionSetting(false) ) :List<Array<Any?>> {
 
-        logger.info("select=$query")
+        if(query.indexOf("od.PTKB_VERSION_JAR j") < 0) {
+            logger.info("select=$query")
+        }
 
         params?.forEach { logger.info(it?.toString()) }
 

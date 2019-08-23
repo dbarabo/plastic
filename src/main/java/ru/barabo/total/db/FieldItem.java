@@ -26,6 +26,8 @@ public interface FieldItem {
 	 */
 	String[] getListField();
 
+	void setListField(String[] valueList);
+
 	/**
 	 * возврат значения фильтра для целых возвращает в виде min;max
 	 */

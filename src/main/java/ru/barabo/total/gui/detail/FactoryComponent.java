@@ -9,6 +9,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
+import org.apache.log4j.Logger;
 import ru.barabo.total.db.DetailFieldItem;
 import ru.barabo.total.db.FieldItem;
 
@@ -60,15 +61,15 @@ public class FactoryComponent {
 
 	static public void initValue(JComboBox<String> comp, FieldItem field, String valueField) {
 
-		setListItems(comp, Arrays.asList(field.getListField()), valueField);
+		setListItemsT(comp, Arrays.asList(field.getListField()), valueField);
 	}
 	
-	static public void setListItems(JComboBox<String> comp, List<String> itemValues) {
+	static public void setListItemsT(JComboBox<String> comp, List<String> itemValues) {
 
-		setListItems(comp, itemValues, UNICAL_STRING);
+		setListItemsT(comp, itemValues, UNICAL_STRING);
 	}
 
-	private static <T> void setListItems(JComboBox<T> comp, List<T> itemValues, T newValue) {
+	static public <T> void setListItemsT(JComboBox<T> comp, List<T> itemValues, T newValue) {
 		ActionListener[] listeners = comp.getActionListeners();
 
 		for (ActionListener listener : listeners) {

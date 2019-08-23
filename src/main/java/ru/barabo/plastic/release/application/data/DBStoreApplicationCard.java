@@ -1,9 +1,9 @@
 package ru.barabo.plastic.release.application.data;
 
 import oracle.jdbc.OracleTypes;
-import org.apache.log4j.Logger;
 import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
+import ru.barabo.plastic.gui.PlasticGui;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.packet.data.DBStorePacket;
 import ru.barabo.plastic.release.resources.RtfDataLoanPactCredit;
@@ -19,16 +19,13 @@ import java.util.List;
 
 public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 
-
-	final static transient private Logger logger = Logger.getLogger(DBStoreApplicationCard.class.getName());
-	
 	private final static String SEL_APPLICATION = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardItem( ? ) }";
-	
+
 	final static private String CREATE_APPLICATION =
-			"{ call od.PTKB_PLASTIC_AUTO.createApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
+			"{ call od.PTKB_PLASTIC_AUTO.createApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
 	final static private String CHANGE_APPLICATION =
-			"{ call od.PTKB_PLASTIC_AUTO.changeApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
+			"{ call od.PTKB_PLASTIC_AUTO.changeApplicationCard(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 
 	final static private String TO_SENT_APPLICATION = "{ call od.PTKB_PLASTIC_AUTO.toSentStateApplication(?) }";
 
@@ -200,10 +197,6 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 
 		params[params.length - 1] = field.fieldItems().get(0).getVal();
 
-		for (Object par : params) {
-			logger.info("changeApplication par=" + par);
-		}
-
         try {
             AfinaQuery.INSTANCE.execute(CHANGE_APPLICATION, params);
         } catch (SessionException e) {
@@ -240,7 +233,8 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 				codeWord == null ? "" : codeWord,
 				field.getFieldByLabel(AppCardRowField.DESIGNCARD_FIELD).getVal(),
 				field.getFieldByLabel(AppCardRowField.FIELD_NO_PIN_CONVERT).getVal(),
-				field.getFieldByLabel(AppCardRowField.SALARY_PROJECT_JURIC).getVal()
+				field.getFieldByLabel(AppCardRowField.SALARY_PROJECT_JURIC).getVal(),
+				field.getFieldByLabel(AppCardRowField.ACCOUNT_LABEL).getVal()
 		};
 	}
 
@@ -350,6 +344,8 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
     void setCustomerFromClient(ClientRowField clientField) {
 		AppCardRowField cursor = getRow();
 
+		Number oldCustomer = (Number)cursor.getFieldByLabel(AppCardRowField.CUSTOMER_ID).getVal();
+
 		cursor.getFieldByLabel(AppCardRowField.CUSTOMER_ID).setValueField(
 				clientField.fieldItems().get(ClientRowField.ID_INDEX).getValueField());
 
@@ -362,6 +358,12 @@ public class DBStoreApplicationCard extends AbstractDBStore<AppCardRowField> {
 		cursor.getFieldByLabel(AppCardRowField.CUSTOMER_INN).setValueField(
 				clientField.fieldItems().get(ClientRowField.INN_INDEX).getValueField());
 
+
+		Number newCustomer = (Number)cursor.getFieldByLabel(AppCardRowField.CUSTOMER_ID).getVal();
+
+		if(newCustomer != null && (oldCustomer == null || newCustomer.intValue() != oldCustomer.intValue())) {
+			PlasticGui.updateAccountByField(cursor);
+		}
 		sendListenersCursor(cursor);
 	}
 

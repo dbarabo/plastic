@@ -153,6 +153,11 @@ public class GroupFieldItem implements DetailFieldItem {
 	}
 
 	@Override
+	public void setListField(String[] valueList) {
+
+	}
+
+	@Override
 	public String getValueField() {
 		return null;
 	}

@@ -2,6 +2,7 @@ package ru.barabo.plastic.packet.gui
 
 import org.apache.log4j.Logger
 import ru.barabo.plastic.afina.rtf.RtfCashIn
+import ru.barabo.plastic.gui.PlasticGui
 import ru.barabo.plastic.main.resources.owner.Cfg
 import ru.barabo.plastic.release.ivr.xml.IvrXml
 import ru.barabo.plastic.release.packet.data.*
@@ -622,24 +623,21 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
     }
 
     private fun gotoApplication() {
-        val dBStorePacket = store as DBStorePacket
-
-        val contentDb = dBStorePacket.dbStorePacketContentPacket
-
-        val contentRow = contentDb.row
+        val contentRow = (store as DBStorePacket).dbStorePacketContentPacket.row
 
         if (contentRow == null || contentRow.id == null) {
             TopToolBarReIssueCard.messageError(MSG_ERROR_NO_CONTENT)
             return
         }
 
+        PlasticGui.openApplicationForm(contentRow.applicationId)
+        /*
         val applicationDB = dBStorePacket.dbStoreApplicationCard
-
         applicationDB.setViewType(contentRow.applicationId)
 
         val mainBook = getMainBook() ?: return
-
         mainBook.selectedIndex = mainBook.tabCount - 1
+         */
     }
 
     private fun deleteOne() {
