@@ -55,7 +55,7 @@ public abstract class AbstractTopToolBar extends JToolBar {
 		groups.get(index).add(button);
 	}
 	
-	protected AbstractButton createButton(ButtonKarkas karkas) {
+	public AbstractButton createButton(ButtonKarkas karkas) {
 		if(karkas.getName() == null) return null;
 		
 		ImageIcon icon = ResourcesManager.getIcon(karkas.getIco());

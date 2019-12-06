@@ -115,6 +115,29 @@ open class Query (protected val dbConnection :DbConnection) {
     }
 
     @Throws(SessionException::class)
+    fun selectCursor(query :String, params :Array<Any?>? = null,
+                     sessionSetting : SessionSetting = SessionSetting(false),
+                     callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
+
+        logger.info("select=$query")
+        params?.forEach { logger.info(it?.toString()) }
+
+        val session = dbConnection.getSession(sessionSetting)
+
+        val request = prepareSelectCursor(session, query, params, sessionSetting)
+
+        try {
+            fetchData(request.resultSetCursor!!, callBack)
+        }catch (e : SQLException) {
+            logger.error("fetch", e)
+            closeQueryData(session, TransactType.ROLLBACK, request.statement, request.resultSetCursor)
+            throw SessionException(e.message as String)
+        }
+
+        closeQueryData(session, sessionSetting.transactType, request.statement, request.resultSetCursor)
+    }
+
+    @Throws(SessionException::class)
     fun select(query :String, params :Array<Any?>? = null,
                sessionSetting : SessionSetting = SessionSetting(false),
                callBack :(isNewRow :Boolean, value :Any?, column :String?)->Unit) {
@@ -249,6 +272,8 @@ open class Query (protected val dbConnection :DbConnection) {
 
     @Throws(SessionException::class)
     private fun prepareSelectCursor(session :Session, query :String, params :Array<Any?>?, sessionSetting : SessionSetting) :QueryRequest {
+
+        logger.info("query=$query")
 
         params?.forEach { logger.debug(it?.toString()) }
 

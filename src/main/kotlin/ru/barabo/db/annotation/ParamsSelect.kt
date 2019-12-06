@@ -2,5 +2,5 @@ package ru.barabo.db.annotation
 
 interface ParamsSelect {
 
-    fun selectParams() :Array<Any?>?
+    fun selectParams(): Array<Any?>?
 }

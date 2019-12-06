@@ -69,17 +69,17 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    private fun saveFilePacket(packetId: Any) {
-
-        val file = File("${hCardOutToday()}/${getApplicationFileName()}")
-
-        val clob = AfinaQuery.execute(CREATE_FILE,
-            arrayOf(packetId, file.name), intArrayOf(OracleTypes.CLOB))!![0] as Clob
-
-        file.writeText(clob.clobToString(), charset = Charset.forName("cp1251"))
-    }
-
     companion object {
+        fun saveFilePacket(packetId: Any) {
+
+            val file = File("${hCardOutToday()}/${getApplicationFileName()}")
+
+            val clob = AfinaQuery.execute(CREATE_FILE,
+                arrayOf(packetId, file.name), intArrayOf(OracleTypes.CLOB))!![0] as Clob
+
+            file.writeText(clob.clobToString(), charset = Charset.forName("cp1251"))
+        }
+
         private const val SELECT_INPATH = "{ ? = call od.PTKB_PLASTIC_AUTO.getUnnamedCards }"
 
         private const val CREATE_UNNAMED_CARDS = "{ call od.PTKB_PLASTIC_AUTO.createUnnamedCards(?, ?, ?) }"

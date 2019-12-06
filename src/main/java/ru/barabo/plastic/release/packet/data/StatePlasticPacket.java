@@ -8,7 +8,7 @@ public enum StatePlasticPacket {
 	SENT_OK("Отправка Ок", 3),
 	SENT_ERROR("Отправка Error", 4),
 	RESPONSE_OK_ALL("Ответ Всё Ок", 5),
-	RESPONSE_OK_PART("Ответ Част Ок", 6),
+	UNCLAIMED("Невостребованные", 6),
 	RESPONSE_ERROR_ALL("Error-Ответ Всё", 7),
 	RESPONSE_ERROR_PART("Error-Ответ Част", 8),
 	OCI_ALL("OCI-ВСЁ", 9),

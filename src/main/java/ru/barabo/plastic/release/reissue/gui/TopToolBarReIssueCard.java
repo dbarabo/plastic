@@ -2,6 +2,7 @@ package ru.barabo.plastic.release.reissue.gui;
 
 import org.apache.log4j.Logger;
 import ru.barabo.gui.swing.StaticMenu;
+import ru.barabo.plastic.card.gui.PanelCards;
 import ru.barabo.plastic.fio.gui.FioChangeTab;
 import ru.barabo.plastic.main.resources.ResourcesManager;
 import ru.barabo.plastic.main.resources.owner.Cfg;
@@ -15,6 +16,7 @@ import ru.barabo.plastic.release.reissue.data.DBStoreReIssueCard;
 import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
 import ru.barabo.plastic.release.reissue.data.TypeSelect;
 import ru.barabo.plastic.schema.gui.MainSchemaTab;
+import ru.barabo.plastic.schema.gui.selector.SelectorTab;
 import ru.barabo.plastic.terminal.gui.TabPosTerminal;
 import ru.barabo.plastic.unnamed.gui.PanelUnnamed;
 import ru.barabo.plastic.unnamed.gui.TopToolBarInPath;
@@ -57,7 +59,9 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			new ButtonKarkas("user", "Смена персональных данных", this::showChangeFio, 0),
 
 			new ButtonKarkas("pos", TabPosTerminal.TITLE, this::showTerminal, 0),
-			new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0)
+			new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0),
+
+			new ButtonKarkas(null, "???", this::showNewCard, 0)
 	};
 	
 	private final ButtonKarkas[] buttonKarkases = {
@@ -74,6 +78,8 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			new ButtonKarkas(null, null, null, null),
 
 			new StaticMenu("more", "Ещё...", moreDelbIssue)
+
+			//new ButtonKarkas("return", "Вернуться", this::returnBack, null),
 	};
 
 	private DBStore<E> store;
@@ -114,6 +120,12 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), PanelUnnamed.TITLE, PanelUnnamed.class );
 	}
 
+	private void showNewCard(ActionEvent event) {
+
+		TopToolBarInPath.addNewTabIfAbsent( getButtonKarkases()[0].getButton(), PanelCards.TITLE, PanelCards.class );
+	}
+
+
 	public static void messageError(String error) {
 		JOptionPane.showMessageDialog(null, 
 				error,  null, JOptionPane.ERROR_MESSAGE );
@@ -142,6 +154,12 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 		((TotalRowTable)focusComp).setMustFullRefresh();
 		store.setViewType(2);
 		focusComp.requestFocus();
+	}
+
+	private void returnBack(ActionEvent e) {
+
+		SelectorTab tab = (SelectorTab)this.getParent();
+		tab.tabsSaver.cancel();
 	}
 
 	/**

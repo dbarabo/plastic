@@ -25,16 +25,16 @@ public class DBStorePacketContent extends AbstractDBStore<PacketContentRowField>
 	
 	final static private String INS_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.addContent(?, ?, ?, ?, ?, ?, ?, ?, ?, ?) }";
 	
-	final static private String DELETE_APP_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.deleteContentApplication(?) }";
+	final static public String DELETE_APP_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.deleteContentApplication(?) }";
 
-	final static private String UPD_OUT_CLIENT_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.cardToOneClient(?) }";
+	final static public String UPD_OUT_CLIENT_CONTENT = "{ call od.PTKB_PLASTIC_AUTO.cardToOneClient(?) }";
 
-	final static private String PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }";
+	final static public String PREPARE_OUT_CARD = "{ call od.PTKB_PLASTIC_AUTO.prepareOutCard(?, ?) }";
 
-	final static private String BEFORE_PREPARE_PLATINA_OUT =
+	final static public String BEFORE_PREPARE_PLATINA_OUT =
 			"{ call od.PTKB_PLASTIC_AUTO.prepareCashInPlatinaComission(?, ?, ?, ?, ?, ?, ?) }";
 
-	final static private String AFTER_PREPARE_PLATINA_OUT =
+	final static public String AFTER_PREPARE_PLATINA_OUT =
 			"{ call od.PTKB_PLASTIC_AUTO.createOrExistsCashInPlatina(?, ?, ?, ?) }";
 
 

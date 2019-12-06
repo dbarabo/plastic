@@ -152,7 +152,7 @@ open class EntityTable<T: Any>(private val columns: List<ColumnTableModel<T, *>>
     }
 
     private fun entityToString(entity: T): String {
-        return if(model is DefaultTableModel<*>) (model as DefaultTableModel<T>).getEntityByString(entity)
+        return if(model is DefaultTableModel<*>) (model as? DefaultTableModel<T>)?.getEntityByString(entity)?:""
             else entity.toString()
     }
 

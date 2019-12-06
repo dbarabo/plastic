@@ -12,6 +12,9 @@ import java.lang.Exception
 import java.nio.charset.Charset
 import java.sql.Clob
 
+data class UserDepartment(val userName: String?, val departmentName: String?)
+
+
 object AfinaQuery : Query(AfinaConnect) {
 
     @JvmStatic
@@ -21,6 +24,19 @@ object AfinaQuery : Query(AfinaConnect) {
     private const val NEXT_SEQUENCE = "select classified.nextval from dual"
 
     private const val SEL_USER = "select user from dual"
+
+    private const val SEL_CURSOR_USER_DEPARTMENT = "{ ? = call od.ptkb_plastic_auto.getUserAndDepartment }"
+
+    @JvmStatic
+    fun getUserDepartment(): UserDepartment {
+        val data = selectCursor(query = SEL_CURSOR_USER_DEPARTMENT)
+
+        if(data.isEmpty()) throw Exception("Юзер не зареган")
+
+        val row = data[0]
+
+        return UserDepartment(row[0] as? String, row[1] as? String)
+    }
 
     @JvmStatic
     fun getUser(): String = selectValue(query = SEL_USER) as String

@@ -5,9 +5,13 @@ import ru.barabo.db.EditType.*
 import ru.barabo.db.SessionException
 import ru.barabo.db.SessionSetting
 import ru.barabo.db.TemplateQuery
+import ru.barabo.db.annotation.ParamsSelect
+import ru.barabo.db.annotation.QuerySelect
 import java.awt.EventQueue
 
 abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val clazz: Class<T>) {
+
+    // private val logger = Logger.getLogger(StoreService::class.simpleName)!!
 
     private val listenerList = ArrayList<StoreListener<G>>()
 
@@ -57,11 +61,23 @@ abstract class StoreService<T: Any, out G>(protected val orm: TemplateQuery, val
     open fun initData() {
         dataList.removeAll(dataList)
 
-        orm.select(clazz, ::callBackSelectData)
+        // orm.select(clazz, ::callBackSelectData)
+        selectDefault()
 
         afterSelectInit()
 
         sentRefreshAllListener(INIT)
+    }
+
+    private fun selectDefault() {
+
+        val query = if(QuerySelect::class.java.isAssignableFrom(this::class.java))
+            (this as QuerySelect).selectQuery() else orm.getSelect(clazz)
+
+        val params = if(ParamsSelect::class.java.isAssignableFrom(this::class.java))
+            (this as ParamsSelect).selectParams() else orm.selectParams(clazz)
+
+        orm.select(query, params, clazz, ::callBackSelectData)
     }
 
     @Throws(SessionException::class)

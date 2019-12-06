@@ -17,7 +17,7 @@ public class PlatinaCashIn {
 
     private String customer;
 
-    static PlatinaCashIn createFromList(List<Object> data, String customer) {
+    static public PlatinaCashIn createFromList(List<Object> data, String customer) {
         if(data == null || data.isEmpty()) return null;
 
         PlatinaCashIn result = new PlatinaCashIn();

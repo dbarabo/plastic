@@ -2,6 +2,7 @@ package ru.barabo.plastic.main.gui;
 
 import ru.barabo.db.SessionException;
 import ru.barabo.plastic.afina.AfinaQuery;
+import ru.barabo.plastic.afina.UserDepartment;
 import ru.barabo.plastic.afina.VersionChecker;
 import ru.barabo.plastic.main.resources.ResourcesManager;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
@@ -22,8 +23,6 @@ public class Start extends JFrame{
 		if(!ModalConnect.initConnect(this)) {
 			System.exit(0);
 		}
-
-		//VersionChecker.runCheckVersion();
 
         try {
             DBStorePlastic plastic = new DBStorePlastic();
@@ -75,10 +74,11 @@ public class Start extends JFrame{
 	private String title() {
        String db = AfinaQuery.isTestBaseConnect() ? "TEST" : "AFINA";
 
-        String user = AfinaQuery.getUser();
+       UserDepartment userDep = AfinaQuery.getUserDepartment();
+       //String user = AfinaQuery.getUser();
 
-        return String.format(TITLE, db, user);
+        return String.format(TITLE, db, userDep.getUserName(), userDep.getDepartmentName());
     }
 
-    final private static String TITLE = "Пластик выпуск-перевыпуск: [%s] [%s]";
+    final private static String TITLE = "Пластиковые карты: [%s] [%s] [%s]";
 }

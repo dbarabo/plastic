@@ -20,14 +20,16 @@ import java.util.Set;
 public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 	
 	final static transient private Logger logger = Logger.getLogger(DBStorePacket.class.getName());
-	
-	protected static final String PACKET_NOT_SELECTED = "Не выбрана строка пакета!";
 
-	private static final String STATE_NONE_NEW = "Перевыпуск возможен только в состоянии 'НОВЫЙ'";
+	public static final String PACKET_NOT_SELECTED = "Не выбрана строка пакета!";
+
+	public static final String STATE_NONE_NEW = "Перевыпуск возможен только в состоянии 'НОВЫЙ'";
+
+	public static final String ERROR_CHANGE_PRODUCT_STATE = "Для смены продукта пакет может находится только в состоянии 'НОВЫЙ'";
 	
 	private static final String STATE_NONE_DELETE_DRAFT = "Нельзя удалять пакет с 'Черновиками'";
 
-	private static final String STATE_NONE_ISSUE = "Создание файла возможно только в состоянии 'ВЫПУЩЕН'";
+	public static final String STATE_NONE_ISSUE = "Создание файла возможно только в состоянии 'ВЫПУЩЕН'";
 	
 	public static final String ERROR_CREATE_FILE = "Ошибка при формировании тела файла";
 	
@@ -51,33 +53,33 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 	
 	final static private String UPD_RENAME_PACKET = "update od.PTKB_PLASTIC_PACK set NAME = ?, UPDATER = user, UPDATED = sysdate where id = ?";
 	
-	final static private String REISSUE_CARDS = "{ call od.PTKB_PLASTIC_AUTO.reissueCards(?) }";
+	final static public String REISSUE_CARDS = "{ call od.PTKB_PLASTIC_AUTO.reissueCards(?) }";
 	
 	final static private String CREATE_FILE = "{ call od.PTKB_PLASTIC_AUTO.createAppFileData(?, ?, ?) }";
 	
 	final static private String CREATE_BTRT25 = "{ call od.PTKB_PLASTIC_AUTO.createBtrt25FileData(?, ?, ?) }";
 
-	final static private String TO_SMS_STATE = "{ call od.PTKB_PLASTIC_AUTO.returnToState(?, ?, ?) }";
+	final static public String TO_SMS_STATE = "{ call od.PTKB_PLASTIC_AUTO.returnToState(?, ?, ?) }";
 	
-	final static private String TO_CREATE_FILE_STATE = "{ call od.PTKB_PLASTIC_AUTO.returnToCreateFileState(?, ?, ?, ?) }";
+	final static public String TO_CREATE_FILE_STATE = "{ call od.PTKB_PLASTIC_AUTO.returnToCreateFileState(?, ?, ?, ?) }";
 	
 	final static private String UPD_REMOVE_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.removePacket(?) }";
 	
-	final static private String UPD_GO_HOME_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.goHomePacket(?) }";
+	final static public String UPD_GO_HOME_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.goHomePacket(?) }";
 
-	final static private String UPD_TO_DOPIK_PACKET = "{ call od.PTKB_PLASTIC_AUTO.toDopikPacket(?, ?) }";
+	final static public String UPD_TO_DOPIK_PACKET = "{ call od.PTKB_PLASTIC_AUTO.toDopikPacket(?, ?) }";
 
-	final static private String UPD_GET_HOMES_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.getHomesPacket(?) }";
+	final static public String UPD_GET_HOMES_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.getHomesPacket(?) }";
 	
 	final static private String UPD_OUT_CLIENT_PACKET =  "{ call od.PTKB_PLASTIC_AUTO.cardToClient(?) }";
 	
-	final static private String STATE_NONE_SMS_OIA = "Перевод в 'ГО' может быть только из состояния 'SMS-Oтвет-Оk'";
+	final static public String STATE_NONE_SMS_OIA = "Перевод в 'ГО' может быть только из состояния 'SMS-Oтвет-Оk'";
 	
-	final static private String STATE_NONE_GO_HOME = "Перевод в Доп. офисы может быть только из состояния 'Карты в ГО'";
+	final static public String STATE_NONE_GO_HOME = "Перевод в Доп. офисы может быть только из состояния 'Карты в ГО'";
 	
-	final static private String STATE_NONE_TO_DOPIKI = "Перевод в 'Получен в Доп. офисах' может быть только из состояния 'Отправлено в Доп. офисы '";
+	final static public String STATE_NONE_TO_DOPIKI = "Перевод в 'Получен в Доп. офисах' может быть только из состояния 'Отправлено в Доп. офисы '";
 	
-	final static String STATE_NONE_GET_HOMES = "Перевод в 'Выдано клиенту' может быть только из состояния 'Получен в Доп. офисах'";
+	final static public String STATE_NONE_GET_HOMES = "Перевод в 'Выдано клиенту' может быть только из состояния 'Получен в Доп. офисах'";
 
 	final static private String SEL_PACKET_COND = 
 			"select ID, CREATOR, CREATED, NAME, UPDATER, STATE, UPDATED, APP_FILE, LOAD_FILES, TYPE_PACKET "
@@ -99,7 +101,7 @@ public class DBStorePacket extends AbstractFilterStore<PacketRowField> {
 	private final static String SEL_TO_PRODUCTS_NAME =
 			"{ ? = call od.PTKB_PLASTIC_AUTO.getCardProductOutPacket( ?, ? ) }";
 
-	private final static String UPD_CHANGE_PRODUCT = "{ call od.PTKB_PLASTIC_AUTO.changeProductPacket(?, ?, ?) }";
+	public final static String UPD_CHANGE_PRODUCT = "{ call od.PTKB_PLASTIC_AUTO.changeProductPacket(?, ?, ?) }";
 
 	protected DBStorePlastic dbStorePlastic;
 

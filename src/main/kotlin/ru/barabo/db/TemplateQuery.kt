@@ -32,11 +32,11 @@ open class TemplateQuery (private val query :Query) {
 
     fun startLongTransaction(): SessionSetting = query.uniqueSession()
 
-    fun commitLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+    fun commitLongTransaction(sessionSetting: SessionSetting) {
         query.commitFree(sessionSetting)
     }
 
-    fun rollbackLongTransaction(sessionSetting: SessionSetting, isKillSession: Boolean = false) {
+    fun rollbackLongTransaction(sessionSetting: SessionSetting) {
         query.rollbackFree(sessionSetting)
     }
 
@@ -54,7 +54,10 @@ open class TemplateQuery (private val query :Query) {
 
         val propertyByColumn = getPropertyByColumn(row)
 
-        query.select(select, params, SessionSetting(false)) lambda@ {
+        val funSelect: (String, Array<Any?>?, SessionSetting, (isNewRow :Boolean, value :Any?, column :String?)->Unit )->Unit
+                = if(select.isCursorSelect()) query::selectCursor else query::select
+
+        funSelect(select, params, SessionSetting(false)) lambda@ {
             isNewRow :Boolean, value :Any?, column :String? ->
 
             if(isNewRow) {
@@ -81,6 +84,8 @@ open class TemplateQuery (private val query :Query) {
         item?.let { callBack(it) }
     }
 
+    private fun String.isCursorSelect(): Boolean = this.replace("(\\s|\\{)+".toRegex(), "").substring(0..1) == "?="
+
     @Throws(SessionException::class)
     fun <T> select(row :Class<T>, callBack :(row :T)->Unit) {
         val selectQuery =  getSelect(row)
@@ -90,7 +95,7 @@ open class TemplateQuery (private val query :Query) {
         select(selectQuery, params, row, callBack)
     }
 
-    private fun <T> selectParams(row :Class<T>): Array<Any?>? = if(ParamsSelect::class.java.isAssignableFrom(row)) {
+    fun <T> selectParams(row :Class<T>): Array<Any?>? = if(ParamsSelect::class.java.isAssignableFrom(row)) {
         (row.newInstance() as ParamsSelect).selectParams() } else null
 
     @Throws(SessionException::class)
@@ -159,7 +164,7 @@ open class TemplateQuery (private val query :Query) {
     }
 
     @Throws(SessionException::class)
-    private fun getSelect(row :Class<*>) :String = row.kotlin.findAnnotation<SelectQuery>()?.name
+    fun getSelect(row :Class<*>): String = row.kotlin.findAnnotation<SelectQuery>()?.name
             ?: throw SessionException(errorNotFoundAnnotationSelectQuery(row.simpleName))
 
     @Throws(SessionException::class)

@@ -1,6 +1,7 @@
 package ru.barabo.plastic.release.reissue.gui;
 
 import ru.barabo.plastic.release.reissue.data.ReIssueCardRowField;
+import ru.barabo.plastic.schema.gui.selector.SelectorTab;
 import ru.barabo.total.db.FilteredStore;
 import ru.barabo.total.gui.filter.impl.FilterTableSimple;
 import ru.barabo.total.gui.table.TotalRowTable;
@@ -8,14 +9,19 @@ import ru.barabo.total.gui.table.TotalRowTable;
 import javax.swing.*;
 import java.awt.*;
 
-public class PanelReIssueCard extends JPanel {
-	
+import static com.sun.javafx.fxml.expression.Expression.add;
+
+public class PanelReIssueCard extends SelectorTab<Object> /*JPanel*/ {
+
+	final static public String TITLE = "Карты на перевыпуск";
+
 	//final static transient private Logger logger = Logger.getLogger(PanelReIssueCard.class.getName());
 	
 	
 public PanelReIssueCard(FilteredStore<ReIssueCardRowField> store) {
-		
-		setLayout(new BorderLayout());
+	super(TITLE);
+
+	setLayout(new BorderLayout());
 		
 		TotalRowTable<ReIssueCardRowField> tableFocus = new TotalRowTable<>(store);
 		

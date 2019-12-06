@@ -17,7 +17,7 @@ class ToolBarSmsPacket(private val store: DBStore<PacketRowField>, focusComp: JC
         StatePlasticPacket.SENT_OK to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.SENT_ERROR to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.RESPONSE_OK_ALL to ButtonKarkas("wait", "Ждём") { this.waitPc() },
-        StatePlasticPacket.RESPONSE_OK_PART to ButtonKarkas("wait", "Ждём") { this.waitPc() },
+        StatePlasticPacket.UNCLAIMED to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.RESPONSE_ERROR_ALL to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.RESPONSE_ERROR_PART to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.OCI_ALL to ButtonKarkas("wait", "Ждём") { this.waitPc() },

@@ -1,11 +1,21 @@
 import org.apache.log4j.Logger
-import org.junit.Test
-import ru.barabo.db.annotation.SelectQuery
+import ru.barabo.db.annotation.QuerySelect
 import ru.barabo.plastic.afina.VersionChecker
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import java.io.File
 import java.net.InetAddress
+
+
+abstract class A() {
+    fun testAssign(): Boolean {
+        return QuerySelect::class.java.isAssignableFrom(this::class.java)
+    }
+}
+
+class B : A(), QuerySelect {
+    override fun selectQuery(): String = ""
+}
 
 class AnyTest {
 
@@ -23,7 +33,31 @@ and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 w
 order by t.id
 """
 
-    @Test
+    //@Test
+    fun testRegExDigit() {
+        val value = "234 3434 535 *567%5567 "
+
+        // val reg = "[0-9\\%\\*]"
+
+        //logger.info(Pattern.compile("^(?!.*[0-9]).*$").matcher(value).find())
+
+
+        val x = value.replace("[\\d\\s*%]+".toRegex(), "")
+
+
+        logger.info("|$x|")
+
+        //value.replace("\\D+".toRegex(), "")
+    }
+
+    //@Test
+    fun testAssignClass() {
+        val b = B()
+
+        logger.error("b=${b.testAssign()}")
+    }
+
+    //@Test
     fun reqexpTestReplace() {
 
 
@@ -69,6 +103,17 @@ order by t.id
     //    logger.error("address.canonicalHostName=${address.canonicalHostName}")
 
         logger.error("path=${File(VersionChecker::class.java.protectionDomain.codeSource.location.path).absoluteFile}")
+    }
+
+    //@Test
+    fun regExpFindFirst() {
+        val find = "{ ? = call od.PTKB_PLASTIC_AUTO.getAppCardItem( ? ) }"
+
+        val rep = find.replace("(\\s|\\{)+".toRegex(), "")
+
+        //val x = find.matches("([{?=]){3}".toRegex())
+
+        logger.error("rep=$rep")
     }
 
     //@Test

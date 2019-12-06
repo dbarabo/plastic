@@ -103,7 +103,7 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
         StatePlasticPacket.SENT_OK to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.SENT_ERROR to ButtonKarkas("returnNew", "Вернуть на отправку") { this.toCreateFileState() },
         StatePlasticPacket.RESPONSE_OK_ALL to ButtonKarkas("wait", "Ждём") { this.waitPc() },
-        StatePlasticPacket.RESPONSE_OK_PART to ButtonKarkas("wait", "Ждём") { this.waitPc() },
+        StatePlasticPacket.UNCLAIMED to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.RESPONSE_ERROR_ALL to ButtonKarkas("returnNew", "Вернуть на отправку") { this.toCreateFileState() },
         StatePlasticPacket.RESPONSE_ERROR_PART to ButtonKarkas("returnNew", "Вернуть на отправку") { this.toCreateFileState() },
         StatePlasticPacket.OCI_ALL to ButtonKarkas("wait", "Ждём") { this.waitPc() },
@@ -554,26 +554,6 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
 
     }
 
-    private fun getDialogProductTo(toProducts: List<String>): String? {
-
-        val combo = JComboBox<String>()
-        toProducts.forEach(Consumer<String> { combo.addItem(it) })
-
-        val buttons = arrayOf("OK", "Отмена")
-
-        val title = "Выберите Новый продукт"
-        val selection = JOptionPane.showOptionDialog(
-            null, combo, title,
-            JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
-            buttons, buttons[0]
-        )
-
-        return if (selection != 0) {
-            null
-        } else combo.selectedItem as String
-
-    }
-
     private fun dialogChangeProduct(fromProducts: List<String>) {
 
         var fromProduct: String? = if (fromProducts.size == 1) fromProducts[0] else null
@@ -880,4 +860,23 @@ private fun parseLimit(limit: String?): Number? {
     if(limitCheck.isEmpty()) return null
 
     return DecimalFormat("#######.##").parse(limitCheck)
+}
+
+fun getDialogProductTo(toProducts: List<String>): String? {
+
+    val combo = JComboBox<String>()
+    toProducts.forEach(Consumer<String> { combo.addItem(it) })
+
+    val buttons = arrayOf("OK", "Отмена")
+
+        val title = "Выберите Новый продукт"
+    val selection = JOptionPane.showOptionDialog(
+        null, combo, title,
+        JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+        buttons, buttons[0]
+    )
+
+    return if (selection != 0) {
+        null
+    } else combo.selectedItem as String
 }

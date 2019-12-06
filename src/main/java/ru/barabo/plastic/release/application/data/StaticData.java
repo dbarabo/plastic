@@ -97,7 +97,7 @@ public class StaticData {
 		return departmentId;
 	}
 
-	String[] getCardProductLabel() {
+	public String[] getCardProductLabel() {
 		return cardProductLabel;
 	}
 

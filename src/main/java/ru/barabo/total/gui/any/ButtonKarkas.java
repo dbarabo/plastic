@@ -46,8 +46,8 @@ public class ButtonKarkas {
 	void setButton(AbstractButton button) {
 		this.button = button;
 	}
-	
-	String getIco() {
+
+	public String getIco() {
 		return ico;
 	}
 
@@ -58,8 +58,8 @@ public class ButtonKarkas {
 	public String getName() {
 		return name;
 	}
-	
-	Integer getGroupIndex() {
+
+	public Integer getGroupIndex() {
 		return groupIndex;
 	}
 
@@ -92,7 +92,7 @@ public class ButtonKarkas {
 		return button;
 	}
 
-    static private void addGroup(List<ButtonGroup> buttonGroupList, AbstractButton button, int index) {
+    static public void addGroup(List<ButtonGroup> buttonGroupList, AbstractButton button, int index) {
 
         if(buttonGroupList.size() <= index) {
             buttonGroupList.add(new ButtonGroup());
