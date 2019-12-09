@@ -31,7 +31,7 @@ public class DBStoreSmsPacket extends DBStorePacket {
 			+ "and TYPE_PACKET = 1 "
 			+ "order by UPDATED desc";
 	
-	final static private String CREATE_FILE_SMS = "{ call od.PTKB_PLASTIC_AUTO.createSmsFileDataApp(?, ?, ?) }";
+	final static public String CREATE_FILE_SMS = "{ call od.PTKB_PLASTIC_AUTO.createSmsFileDataApp(?, ?, ?) }";
 	
 	final static private String TO_SMS_STATE = "{ call od.PTKB_PLASTIC_AUTO.fromSmsSentToNew(?) }";
 

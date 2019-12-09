@@ -10,6 +10,8 @@ interface CardService {
 
     fun changePin()
 
+    fun smsInfoAddRemove(newPhone: String, isAddSmsInfo: Boolean)
+
     fun reIssueCards()
 
     fun addToRegisterCard()

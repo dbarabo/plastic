@@ -13,7 +13,7 @@ public class DBStoreSmsPacketContent extends DBStorePacketContent {
 	
 	final static transient private Logger logger = Logger.getLogger(DBStoreSmsPacketContent.class.getName());
 	
-	final static private String UPD_PHONE_CARD = "{ call od.PTKB_PLASTIC_AUTO.updatePhoneCard(?, ?) }";
+	final static public String UPD_PHONE_CARD = "{ call od.PTKB_PLASTIC_AUTO.updatePhoneCard(?, ?) }";
 
 	public DBStoreSmsPacketContent(DBStorePlastic dbStorePlastic, DBStore<PacketRowField> packet) {
 		super(dbStorePlastic, packet);

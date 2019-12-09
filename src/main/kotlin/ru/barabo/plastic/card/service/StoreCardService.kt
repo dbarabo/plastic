@@ -15,6 +15,8 @@ import ru.barabo.plastic.release.packet.data.DBStorePacket
 import ru.barabo.plastic.release.packet.data.DBStorePacketContent
 import ru.barabo.plastic.release.packet.data.PlatinaCashIn
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
+import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket.CREATE_FILE_SMS
+import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent.UPD_PHONE_CARD
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import ru.barabo.plastic.unnamed.data.DBStoreInPath
 import ru.barabo.plastic.unnamed.data.sendIvr
@@ -39,6 +41,34 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
         AfinaQuery.execute(DBStorePacketContent.DELETE_APP_CONTENT, arrayOf(selectedEntity()?.id))
 
         delete( selectedEntity()!! )
+    }
+
+    override fun smsInfoAddRemove(newPhone: String, isAddSmsInfo: Boolean) {
+        checkAndSavePhone(newPhone)
+
+        createSmsFile(isAddSmsInfo)
+
+        val plusMinus = if(isAddSmsInfo) "(+)" else "(-)"
+
+        selectedEntity()?.phone = "$plusMinus$newPhone"
+        selectedEntity()?.phonePerson = newPhone
+        sentRefreshAllListener(EditType.EDIT)
+    }
+
+    private fun createSmsFile(isAddSmsInfo: Boolean) {
+
+        val smsType = if(isAddSmsInfo) 1 else 0
+
+        val smsPacket = AfinaQuery.execute(CREATE_SMS, arrayOf(selectedEntity()?.newCardId, smsType),
+            intArrayOf(OracleTypes.NUMBER))?.get(0) as? Number ?: throw Exception(DBStorePacket.STATE_NONE_ISSUE)
+
+        DBStoreInPath.saveFilePacket(smsPacket, CREATE_FILE_SMS)
+    }
+
+    private fun checkAndSavePhone(newPhone: String) {
+        if(newPhone == selectedEntity()?.phonePerson) return
+
+        AfinaQuery.execute(UPD_PHONE_CARD, arrayOf(newPhone, selectedEntity()?.newCardId))
     }
 
     override fun changeProduct(newProductName: String) {
@@ -241,6 +271,8 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
         private const val SELECT_STATE_CONTENT = "select STATE from od.ptkb_plast_pack_content where id = ?"
 
         private const val CREATE_REISSUE = "{ call OD.PTKB_PLASTIC_AUTO.createReissueContent(?) }"
+
+        private const val CREATE_SMS =  "{ call OD.PTKB_PLASTIC_AUTO.createSmsContent(?, ?, ?) }"
 
         private const val ERROR_INCORRECT_CHANGE_PIN ="Некорректные данные при смене пин-кода"
     }

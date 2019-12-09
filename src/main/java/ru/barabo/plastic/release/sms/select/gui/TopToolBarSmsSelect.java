@@ -25,8 +25,8 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 	
 	private final static String DEF_NEW_PACKET_NAME = "SMS-заявления";
 	
-	private final static String SHOW_PHONE = "укажите 10-ти значный номер мобильного телефона (не считая +7 или 8)";
-	private final static String	ERROR_NO_PHONE = "Номер телефона должен быть 10-ти значным";
+	public final static String SHOW_PHONE = "укажите 10-ти значный номер мобильного телефона (не считая +7 или 8)";
+	public final static String	ERROR_NO_PHONE = "Номер телефона должен быть 10-ти значным";
 	
 	private final ButtonKarkas[] buttonSmsTypes = {
 			new ButtonKarkas("smsAdd", "Отбор: SMS на подключение", this::selectSmsAdd, 0),
@@ -70,7 +70,7 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 	}
 		
 	
-	private boolean isDigits10(String phone) {
+	public static boolean isDigits10(String phone) {
 		if(phone == null) return false;
 		
 		int count = 0;

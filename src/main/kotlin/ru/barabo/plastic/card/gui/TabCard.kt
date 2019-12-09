@@ -80,12 +80,13 @@ object TableOutClientCard : EntityTable<Card>(outClientCardColumns, OutClientSto
 
 private val outClientCardColumns = listOf(
     ColumnTableModel("Держатель", 50, Card::personName, false),
-    ColumnTableModel("Выдана", 20, Card::updatedFormat, false),
+    ColumnTableModel("Выдана", 10, Card::updatedFormat, false),
     ColumnTableModel("Номер карты", 40, Card::cardNumberByFormat, false),
-    ColumnTableModel("Карта до", 20, Card::newCardEndFormat, false),
+    ColumnTableModel("Карта до", 10, Card::newCardEndFormat, false),
     ColumnTableModel("Продукт", 50, Card::productName, false),
     ColumnTableModel("Офис", 30, Card::departmentName, false),
-    ColumnTableModel("Выдавший", 20, Card::updater, false)
+    ColumnTableModel("Выдавший", 15, Card::updater, false),
+    ColumnTableModel("SMS-сервис", 20, Card::phone, false)
 )
 
 object TableCloseCard : EntityTable<Card>(closeCardColumns, CloseStoreCardService)

@@ -5,6 +5,9 @@ import ru.barabo.plastic.gui.PlasticGui
 import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.packet.gui.getDialogProductTo
 import ru.barabo.plastic.release.application.data.StaticData
+import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect
+import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect.ERROR_NO_PHONE
+import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect.isDigits10
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.total.gui.any.ButtonKarkas
@@ -92,6 +95,10 @@ private const val CONFIRM_DELETE = "Удалить оформление '%s' ?"
 
 private const val TITLE_DELETE = "Удаление заявления"
 
+private const val MESSAGE_PHONE_ADD_SUCCESS = "Запрос на подключение sms-информирования успешно отправлен"
+
+private const val MESSAGE_PHONE_REMOVE_SUCCESS = "Запрос на отключение sms-информирования успешно отправлен"
+
 class ToolBarCardInPath(store: StoreCardService, table: JTable) : ToolBarCard(store, table)  {
     init {
 
@@ -115,6 +122,12 @@ class ToolBarCardOutClient(store: StoreCardService, table: JTable, leftButtonBar
 
         toolButton("password", "сменить ПИН-код!") { changePin() }
 
+        popupButton("SMS-сервис ➧", "sms") {
+            menuItem("Подключить SMS", "smsAdd") { smsAdd() }
+
+            menuItem("Отлючить SMS", "smsRemove") { smsRemove() }
+        }
+
         findAnyText(store)
     }
 
@@ -124,6 +137,28 @@ class ToolBarCardOutClient(store: StoreCardService, table: JTable, leftButtonBar
 
     private fun changePin() {
         processShowError { store.changePin() }
+    }
+
+    private fun smsAdd() {
+        smsInfoAddRemove(isAddSmsInfo = true)
+    }
+
+    private fun smsRemove() {
+        smsInfoAddRemove(isAddSmsInfo = false)
+    }
+
+    private fun smsInfoAddRemove(isAddSmsInfo: Boolean) {
+        val newPhone = inputDialog(TopToolBarSmsSelect.SHOW_PHONE, store.selectedEntity()?.phonePerson) ?: return
+
+        processShowError {
+            if(!isDigits10(newPhone)) {
+                throw Exception(ERROR_NO_PHONE)
+            }
+
+            store.smsInfoAddRemove(newPhone, isAddSmsInfo)
+
+            showMessage(if(isAddSmsInfo) MESSAGE_PHONE_ADD_SUCCESS else MESSAGE_PHONE_REMOVE_SUCCESS)
+        }
     }
 }
 

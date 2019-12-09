@@ -89,7 +89,10 @@ data class Card(
     var updater: String? = null,
 
     @ColumnName("IS_CLOSE_ACCOUNT")
-    var closeAccount: Int? = null) {
+    var closeAccount: Int? = null,
+
+    @ColumnName("PHONE_PERSON")
+    var phonePerson: String? = null) {
 
     private val cardFormat = CardFormat()
 

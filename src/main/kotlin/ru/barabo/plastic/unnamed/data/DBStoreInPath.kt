@@ -70,11 +70,11 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
     }
 
     companion object {
-        fun saveFilePacket(packetId: Any) {
+        fun saveFilePacket(packetId: Any, execQuery: String = CREATE_FILE) {
 
             val file = File("${hCardOutToday()}/${getApplicationFileName()}")
 
-            val clob = AfinaQuery.execute(CREATE_FILE,
+            val clob = AfinaQuery.execute(execQuery,
                 arrayOf(packetId, file.name), intArrayOf(OracleTypes.CLOB))!![0] as Clob
 
             file.writeText(clob.clobToString(), charset = Charset.forName("cp1251"))

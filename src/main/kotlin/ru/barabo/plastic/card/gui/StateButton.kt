@@ -10,6 +10,7 @@ import ru.barabo.plastic.packet.gui.dialogGetLimit
 import ru.barabo.plastic.release.packet.data.ClassCard
 import ru.barabo.plastic.release.packet.data.PlatinaCashIn
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
+import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import ru.barabo.total.report.rtf.RtfReport
@@ -238,6 +239,18 @@ fun isConfirmMessageYesNo(message: String, title: String = ""): Boolean {
     val reply = JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION)
 
     return (reply == JOptionPane.YES_OPTION)
+}
+
+fun inputDialog(message: String, inputValue: String? = null): String? {
+
+    return JOptionPane.showInputDialog(null,null, message,
+        JOptionPane.QUESTION_MESSAGE, null,null, inputValue) as String
+}
+
+fun showMessage(message: String?): Boolean {
+    JOptionPane.showMessageDialog(null, message, null, JOptionPane.INFORMATION_MESSAGE)
+
+    return true
 }
 
 private const val MSG_TO_SEND_ALL = "Все заявления в состоянии 'ВЫПУЩЕН' отправить в ПЦ одной пачкой?"
