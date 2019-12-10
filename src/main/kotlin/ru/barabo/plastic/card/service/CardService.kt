@@ -4,6 +4,8 @@ import ru.barabo.plastic.release.packet.data.PlatinaCashIn
 
 interface CardService {
 
+    fun contentCount(plasticPack: Long?): Int
+
     fun deleteContent()
 
     fun changeProduct(newProductName: String)
@@ -24,7 +26,7 @@ interface CardService {
 
     fun toSmsState()
 
-    fun goHomeState()
+    fun goHomeState(): Long?
 
     fun toDopikIsSuccess(): Boolean
 
@@ -37,4 +39,11 @@ interface CardService {
     fun beforePreparePlatinaCardOut(): PlatinaCashIn
 
     fun endPreparePlatinaCardOut(platinaCashIn: PlatinaCashIn): Number
+
+    var filterMode: FilterMode
+}
+
+enum class FilterMode(val dbValue: Int?) {
+    None(null),
+    WithTurnOrRest(1)
 }

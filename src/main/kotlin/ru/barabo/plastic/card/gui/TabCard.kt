@@ -36,6 +36,7 @@ private val cardRegisterColumns = listOf(
 object TableInPathCard : EntityTable<Card>(cardInPathColumns, InPathStoreCardService)
 
 private val cardInPathColumns = listOf(
+    // ColumnTableModel("ID", 50, Card::id, false),
     ColumnTableModel("Держатель", 50, Card::personName, false),
     ColumnTableModel("Состояние", 20, Card::stateValue, false),
     ColumnTableModel("Изменен", 20, Card::updatedFormat, false),

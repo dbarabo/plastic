@@ -1,7 +1,9 @@
 package ru.barabo.plastic.card.service
 
 import oracle.jdbc.OracleTypes
+import org.apache.log4j.Logger
 import ru.barabo.db.EditType
+import ru.barabo.db.Query
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.annotation.QuerySelect
 import ru.barabo.db.service.StoreFilterService
@@ -21,6 +23,7 @@ import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import ru.barabo.plastic.unnamed.data.DBStoreInPath
 import ru.barabo.plastic.unnamed.data.sendIvr
 import ru.barabo.plastic.unnamed.general.bySqlLike
+import java.lang.NumberFormatException
 
 abstract class StoreCardService(private val modeService: ModeService) :  StoreFilterService<Card>(AfinaOrm, Card::class.java), ParamsSelect, CardService {
 
@@ -28,6 +31,12 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
 
     init {
         filter.initStoreChecker(this)
+    }
+
+    override var filterMode: FilterMode = FilterMode.None
+    set(value) {
+        field = value
+        initData()
     }
 
     override fun changePin() {
@@ -50,7 +59,7 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
 
         val plusMinus = if(isAddSmsInfo) "(+)" else "(-)"
 
-        selectedEntity()?.phone = "$plusMinus$newPhone"
+        selectedEntity()?.phone = "$newPhone$plusMinus"
         selectedEntity()?.phonePerson = newPhone
         sentRefreshAllListener(EditType.EDIT)
     }
@@ -142,15 +151,25 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
         sentRefreshAllListener(EditType.EDIT)
     }
 
-    override fun goHomeState() {
+    override fun contentCount(plasticPack: Long?): Int {
+        val count = AfinaQuery.selectValue(SELECT_COUNT_CONTENT, arrayOf(plasticPack)) as? Number ?: 0
+
+        return count.toInt()
+    }
+
+    override fun goHomeState(): Long? {
         if(selectedEntity()?.statePlasticPacket != StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA)
             throw Exception(DBStorePacket.STATE_NONE_SMS_OIA)
 
-        AfinaQuery.execute(DBStorePacket.UPD_GO_HOME_PACKET, arrayOf(selectedEntity()?.plasticPack))
+        val plasticPack = selectedEntity()?.plasticPack
+
+        AfinaQuery.execute(DBStorePacket.UPD_GO_HOME_PACKET, arrayOf(plasticPack))
 
         selectedEntity()?.state = StatePlasticPacket.CARD_GO.dbValue
 
         sentRefreshAllListener(EditType.EDIT)
+
+        return plasticPack
     }
 
     override fun toDopikIsSuccess(): Boolean {
@@ -160,14 +179,19 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
         AfinaQuery.execute(DBStorePacket.UPD_TO_DOPIK_PACKET,
             arrayOf(selectedEntity()?.plasticPack, selectedEntity()?.departmentName?.toUpperCase() ) )
 
-        selectedEntity()?.state = (AfinaQuery.selectValue(SELECT_STATE_CONTENT,  arrayOf(
-            selectedEntity()?.id) ) as? Number)?.toInt()
 
-        if(selectedEntity()?.statePlasticPacket == StatePlasticPacket.CARD_SENT_OFFICCES) {
+        val reselect = AfinaQuery.select(SELECT_STATE_CONTENT, arrayOf(selectedEntity()?.id))
+        if(reselect.isNotEmpty()) {
+            selectedEntity()?.state = (reselect[0][0] as? Number)?.toInt()
+            selectedEntity()?.plasticPack = (reselect[0][1] as? Number)?.toLong()
+        }
+
+        val statePlastik = selectedEntity()?.statePlasticPacket
+        if(statePlastik in listOf(StatePlasticPacket.CARD_SENT_OFFICCES, StatePlasticPacket.CARD_HOME_OFFICCES)) {
             sentRefreshAllListener(EditType.EDIT)
         }
 
-        return selectedEntity()?.statePlasticPacket == StatePlasticPacket.CARD_SENT_OFFICCES
+        return statePlastik in listOf(StatePlasticPacket.CARD_SENT_OFFICCES, StatePlasticPacket.CARD_HOME_OFFICCES)
     }
 
     override fun toGetFromOfficeIsSuccess(): Boolean {
@@ -268,13 +292,15 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
     companion object {
         private const val EXEC_ALL_OUT_TO_PACKET = "{ call OD.PTKB_PLASTIC_AUTO.buildAllReliseCard(?) }"
 
-        private const val SELECT_STATE_CONTENT = "select STATE from od.ptkb_plast_pack_content where id = ?"
+        private const val SELECT_STATE_CONTENT = "select STATE, PLASTIC_PACK from od.ptkb_plast_pack_content where id = ?"
 
         private const val CREATE_REISSUE = "{ call OD.PTKB_PLASTIC_AUTO.createReissueContent(?) }"
 
         private const val CREATE_SMS =  "{ call OD.PTKB_PLASTIC_AUTO.createSmsContent(?, ?, ?) }"
 
         private const val ERROR_INCORRECT_CHANGE_PIN ="Некорректные данные при смене пин-кода"
+
+        private const val SELECT_COUNT_CONTENT = "select OD.PTKB_PLASTIC_AUTO.getContentCount(?) from dual"
     }
 
     fun filterReset() {
@@ -328,8 +354,6 @@ object InHomeStoreCardService :  StoreCardService(ModeService.InHome)
 
 object UnclaimedStoreCardService :  StoreCardService(ModeService.Unclaimed)
 
-object OutClientStoreCardService :  StoreCardService(ModeService.OutClient)
-
 object ErrorStoreCardService :  StoreCardService(ModeService.Error)
 
 object CloseStoreCardService : StoreCardService(ModeService.Close), QuerySelect {
@@ -338,4 +362,12 @@ object CloseStoreCardService : StoreCardService(ModeService.Close), QuerySelect 
     override fun selectParams(): Array<Any?>? = filter?.getSqlParams()
         ?.let { arrayOf<Any?>(it[1], it[2]) }
         ?: arrayOf<Any?>("", "")
+}
+
+object OutClientStoreCardService : StoreCardService(ModeService.OutClient), QuerySelect {
+    override fun selectQuery(): String = "{ ? = call OD.PTKB_PLASTIC_AUTO.getCardsOut(?, ?, ?) }"
+
+    override fun selectParams(): Array<Any?>? = filter?.getSqlParams()
+        ?.let { arrayOf<Any?>(filterMode?.dbValue, it[1], it[2]) }
+        ?: arrayOf<Any?>(filterMode?.dbValue, "", "")
 }

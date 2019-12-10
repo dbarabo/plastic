@@ -1,5 +1,6 @@
 package ru.barabo.plastic.afina
 
+import com.sun.org.apache.xml.internal.security.Init.isInitialized
 import oracle.jdbc.OracleTypes.NUMBER
 import oracle.jdbc.OracleTypes.CLOB
 import ru.barabo.db.Query
@@ -27,8 +28,17 @@ object AfinaQuery : Query(AfinaConnect) {
 
     private const val SEL_CURSOR_USER_DEPARTMENT = "{ ? = call od.ptkb_plastic_auto.getUserAndDepartment }"
 
+    private lateinit var userDepartment: UserDepartment
+
     @JvmStatic
     fun getUserDepartment(): UserDepartment {
+        if (!::userDepartment.isInitialized) {
+            userDepartment = initUserDepartment()
+        }
+        return userDepartment
+    }
+
+    private fun initUserDepartment(): UserDepartment {
         val data = selectCursor(query = SEL_CURSOR_USER_DEPARTMENT)
 
         if(data.isEmpty()) throw Exception("Юзер не зареган")

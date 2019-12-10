@@ -1,9 +1,12 @@
 package ru.barabo.plastic.card.gui
 
+import org.apache.log4j.Logger
 import ru.barabo.db.EditType
+import ru.barabo.db.Query
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.rtf.RtfCashIn
 import ru.barabo.plastic.card.entity.Card
+import ru.barabo.plastic.card.service.PacketCardInfoService
 import ru.barabo.plastic.card.service.StoreCardService
 import ru.barabo.plastic.packet.gui.CashInDialog
 import ru.barabo.plastic.packet.gui.dialogGetLimit
@@ -14,6 +17,7 @@ import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import ru.barabo.total.report.rtf.RtfReport
+import java.lang.Exception
 import javax.swing.*
 
 
@@ -74,8 +78,8 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
     private val mapStateButtons = mapOf(
         StatePlasticPacket.NEW to button("mc", "Оформить") { reIssueCards() },
         StatePlasticPacket.OUT to
-                popup("Отправить файл", "newFile") {
-                    menuItem("только одно Текущее", "sendOne") { createFile() }
+                popup("Отправить файл ➧", "newFile") {
+                    menuItem("только Текущее", "sendOne") { createFile() }
                     menuItem("Все выпущенные пачкой", "sendAll") { createFileToAllOut() }
                 }, // button("newFile", "Отправить файл") { createFile() },
 
@@ -155,17 +159,38 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
         if(!isConfirmMessageYesNo(MSG_GO_HOME, TITLE_GO_HOME)) return
 
         processShowError {
-            store.goHomeState()
+            val plasticPack = store.goHomeState()
+
+            showPacketMove(plasticPack, null)
 
             focusComponent.requestFocus()
         }
     }
 
+    private fun showPacketMove(packet: Long?, departmentLabel: String? = null, checkDepartmentByUser: Boolean = false) {
+        if(store.contentCount(packet) <= 1) return
+
+        if(checkDepartmentByUser) {
+            PacketCardInfoService.reSelectByDepartmentUser(packet)
+        } else {
+            PacketCardInfoService.reSelect(packet, departmentLabel)
+        }
+        DialogPacketCardInfo(focusComponent).showDialogResultOk()
+
+        store.initData()
+    }
+
     private fun toDopik() {
         processShowError {
             if(!store.toDopikIsSuccess()) {
-                errorMessage(MSG_NOT_SENT_TO_DOPIK)
+                throw Exception(MSG_NOT_SENT_TO_DOPIK)
             }
+
+            val packet = store.selectedEntity()?.plasticPack
+            val department = store.selectedEntity()?.departmentName
+
+            showPacketMove(packet, department)
+
             focusComponent.requestFocus()
         }
     }
@@ -177,6 +202,11 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
             if(!store.toGetFromOfficeIsSuccess()) {
                 errorMessage(MSG_NOT_GET_TO_DOPIK)
             }
+
+            val packet = store.selectedEntity()?.plasticPack
+            val department = store.selectedEntity()?.departmentName
+            showPacketMove(packet, department)
+
             focusComponent.requestFocus()
         }
     }

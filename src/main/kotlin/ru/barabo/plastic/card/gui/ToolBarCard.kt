@@ -1,5 +1,6 @@
 package ru.barabo.plastic.card.gui
 
+import ru.barabo.plastic.card.service.FilterMode
 import ru.barabo.plastic.card.service.StoreCardService
 import ru.barabo.plastic.gui.PlasticGui
 import ru.barabo.plastic.main.resources.ResourcesManager
@@ -11,12 +12,23 @@ import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect.isDigits10
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.total.gui.any.ButtonKarkas
+import ru.barabo.total.gui.any.ShowMenuListener
 import java.awt.Container
 import java.awt.Dimension
+import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.*
 
 abstract class ToolBarCard(protected val store: StoreCardService, private val table: JTable) : JToolBar() {
+
+    protected val filterMenu = arrayOf(
+        ButtonKarkas(
+            "nofilter", "Фильтр: Все",
+            { store.filterMode = FilterMode.None }, 0),
+        ButtonKarkas(
+            "filter3", "С остатками/оборотами",
+            { store.filterMode = FilterMode.WithTurnOrRest }, 0)
+    )
 
     protected fun defaultEnd() {
         findAnyText(store)
@@ -47,7 +59,7 @@ class ToolBarCardRegister(store: StoreCardService, table: JTable, private val le
 
         toolButton("changeProduct", "Сменить продукт") { changeProduct() }
 
-        popupButton("в Перевыпуск", "select") {
+        popupButton("в Перевыпуск ➧", "select") {
             menuItem("в Действующие карты", "lost") { selectReissueActiveOut() }
 
             menuItem("в карты Закрытые", "time") { selectReissueClosed() }
@@ -125,8 +137,10 @@ class ToolBarCardOutClient(store: StoreCardService, table: JTable, leftButtonBar
         popupButton("SMS-сервис ➧", "sms") {
             menuItem("Подключить SMS", "smsAdd") { smsAdd() }
 
-            menuItem("Отлючить SMS", "smsRemove") { smsRemove() }
+            menuItem("Отключить SMS", "smsRemove") { smsRemove() }
         }
+
+        toolButton(ShowMenuListener(filterMenu).createButtonKarkas(0))
 
         findAnyText(store)
     }
