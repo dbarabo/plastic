@@ -1,6 +1,8 @@
 package ru.barabo.plastic.card.gui
 
 import ru.barabo.db.service.StoreService
+import ru.barabo.plastic.afina.AccessMode
+import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.service.*
 import ru.barabo.plastic.fio.gui.FioChangeTab
 import ru.barabo.plastic.schema.gui.MainSchemaTab
@@ -35,10 +37,14 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
             book.selectedIndex = 1
         }
 
-        toolButton("parovoz", "в Пути", 0, buttonGroupList) {
+        registerCardButton?.isEnabled = isDelbOnlyAccess()
+
+        val inPathButton = toolButton("parovoz", "в Пути", 0, buttonGroupList) {
             InPathStoreCardService.updateWithErrorMessage()
             book.selectedIndex = 2
         }
+        inPathButton?.isEnabled = isDelbOnlyAccess()
+
 
         outClientButton = toolButton("ok", "Выданные", 0, buttonGroupList) {
             OutClientStoreCardService.updateWithErrorMessage()
@@ -49,16 +55,19 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
             CloseStoreCardService.updateWithErrorMessage()
             book.selectedIndex = 6
         }
+        closeCardButton?.isEnabled = isDelbOnlyAccess()
 
-        toolButton("unclaimed", "Невостребованные", 0, buttonGroupList) {
+        val unclaimedButton = toolButton("unclaimed", "Невостребованные", 0, buttonGroupList) {
             UnclaimedStoreCardService.updateWithErrorMessage()
             book.selectedIndex = 4
         }
+        unclaimedButton?.isEnabled = isDelbOnlyAccess()
 
-        toolButton("bug", "с Ошибками", 0, buttonGroupList) {
+        val errorButton = toolButton("bug", "с Ошибками", 0, buttonGroupList) {
             ErrorStoreCardService.updateWithErrorMessage()
             book.selectedIndex = 5
         }
+        errorButton?.isEnabled = isDelbOnlyAccess()
 
         addSeparatorTimeCount(5)
 
@@ -72,13 +81,15 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
 
         addSeparatorTimeCount(6)
 
-        toolButton("pos", TabPosTerminal.TITLE) {
+        val posTerminalButton = toolButton("pos", TabPosTerminal.TITLE) {
             addNewTabIfAbsent(this, TabPosTerminal.TITLE, TabPosTerminal::class.java)
         }
+        posTerminalButton?.isEnabled = isDelbOnlyAccess()
 
-        toolButton("schema", "Схемы транзакций") {
+        val schemaButton = toolButton("schema", "Схемы транзакций") {
             addNewTabIfAbsent(this, MainSchemaTab.TITLE, MainSchemaTab::class.java)
         }
+        schemaButton?.isEnabled = isDelbOnlyAccess()
 
         val max = components.maxBy { it.maximumSize.width } ?: this
         components.forEach {
@@ -90,6 +101,9 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
         (components[0] as? JToggleButton)?.isSelected = true
         InHomeStoreCardService.initData()
     }
+
+    private fun isDelbOnlyAccess(): Boolean =
+        AfinaQuery.getUserDepartment().accessMode in listOf(AccessMode.FullAccess, AccessMode.DelbAccess)
 
     private fun addSeparatorTimeCount(count: Int) {
         for(index in 1..count) {

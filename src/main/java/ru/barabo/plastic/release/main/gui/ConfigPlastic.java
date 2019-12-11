@@ -30,9 +30,6 @@ public class ConfigPlastic extends JPanel {
 		JTabbedPane book = new JTabbedPane(JTabbedPane.TOP);
 		
 		setLayout(new BorderLayout());
-		
-		boolean isDopik = ((DBStorePacket) store.getPacket()).isWorkPlaceDopik();
-
 
 		book.addTab(PanelCards.TITLE, new PanelCards() );
 

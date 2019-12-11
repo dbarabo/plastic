@@ -79,9 +79,6 @@ data class Card(
     @ColumnName("DEPARTMENT")
     var departmentName: String? = null,
 
-    @ColumnName("APP_DOC_NUMBER")
-    var applicationNumber: String? = null,
-
     @ColumnName("CLASS_TYPE")
     var classType: Int? = null,
 

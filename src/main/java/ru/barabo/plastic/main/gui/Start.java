@@ -77,8 +77,8 @@ public class Start extends JFrame{
        UserDepartment userDep = AfinaQuery.getUserDepartment();
        //String user = AfinaQuery.getUser();
 
-        return String.format(TITLE, db, userDep.getUserName(), userDep.getDepartmentName());
+        return String.format(TITLE, db, userDep.getUserName(), userDep.getDepartmentName(), userDep.getWorkPlace());
     }
 
-    final private static String TITLE = "Пластиковые карты: [%s] [%s] [%s]";
+    final private static String TITLE = "Пластиковые карты: [%s] [%s] [%s] [%s]";
 }

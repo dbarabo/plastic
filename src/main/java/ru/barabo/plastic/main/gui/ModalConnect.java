@@ -26,7 +26,7 @@ class ModalConnect extends JDialog {
 
 	static final private String CONNECT_TEXT = "соединение с сервером";
 	
-	static final private String items[] = new String[]{"BARDV", "NEGMA", "LIKEA"};
+	static final private String items[] = new String[]{"BARDV", "NEGMA", "KOLSV"};
 	
 	private static final String SERVER_NAME[] = new String[] {
 			"jdbc:oracle:thin:@192.168.0.43:1521:AFINA",

@@ -15,7 +15,6 @@ import ru.barabo.total.gui.any.ButtonKarkas
 import ru.barabo.total.gui.any.ShowMenuListener
 import java.awt.Container
 import java.awt.Dimension
-import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import javax.swing.*
 
@@ -237,6 +236,7 @@ fun Container.toolButton(icon: String, name: String?, groupIndex: Int? = null,
     button.text = name
     button.toolTipText = name
     button.addActionListener { action() }
+    button.horizontalAlignment = SwingConstants.LEFT
 
     return button.apply { this@toolButton.add(this) }
 
@@ -314,6 +314,7 @@ fun Container.findAnyText(store: StoreCardService): JTextField {
 
         this@findAnyText.add(this)
 
+        toolTipText = "Поиск по ФИО, № карты или продукту, примеры: Иванов* 4755%9469"
         minimumSize = Dimension(140, 32)
         preferredSize = Dimension(140, 32)
         maximumSize = Dimension(140, 32)

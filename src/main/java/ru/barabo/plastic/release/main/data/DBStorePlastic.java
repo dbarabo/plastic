@@ -55,23 +55,23 @@ public class DBStorePlastic {
 
         checkWorkplace();
 
-		reIssueCard = new DBStoreReIssueCard(this);
+		// reIssueCard = new DBStoreReIssueCard(this);
 		
-		packet = new DBStorePacket(this);
+		// packet = new DBStorePacket(this);
 		
-		content = new DBStorePacketContent(this, packet);
+		// content = new DBStorePacketContent(this, packet);
 		
-		smsSelect = new DBStoreSmsSelect(this);
+		// smsSelect = new DBStoreSmsSelect(this);
 		
-		smsPacket = new DBStoreSmsPacket(this);
+		// smsPacket = new DBStoreSmsPacket(this);
 		
-		smsContent = new DBStoreSmsPacketContent(this, smsPacket);
+		// smsContent = new DBStoreSmsPacketContent(this, smsPacket);
 		
 		applicationCard = new DBStoreApplicationCard(this);
 
 		clientFind = new DBStoreClientFind(this, applicationCard);
 
-		allContent = new DBStorePacketAllContent();
+		// allContent = new DBStorePacketAllContent();
 
         unnamedInPath = new DBStoreInPath(this);
 

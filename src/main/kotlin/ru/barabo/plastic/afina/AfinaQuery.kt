@@ -13,7 +13,29 @@ import java.lang.Exception
 import java.nio.charset.Charset
 import java.sql.Clob
 
-data class UserDepartment(val userName: String?, val departmentName: String?)
+data class UserDepartment(val userName: String?, val departmentName: String?,
+                          val workPlace: String?, val accessMode: AccessMode)
+
+enum class AccessMode {
+    None,
+    FullAccess,
+    DelbAccess,
+    CardMoveOutOnly;
+
+    companion object {
+        private const val SUPERVISOR = "СУПЕРВИЗОР"
+
+        private const val DELB = "ДЭЛБ"
+
+        fun byWorkPlace(workPlace: String): AccessMode {
+            return when {
+                workPlace.toUpperCase().indexOf(SUPERVISOR) >= 0 -> FullAccess
+                workPlace.toUpperCase().indexOf(DELB) >= 0 ->  DelbAccess
+                else -> CardMoveOutOnly
+            }
+        }
+    }
+}
 
 
 object AfinaQuery : Query(AfinaConnect) {
@@ -41,12 +63,17 @@ object AfinaQuery : Query(AfinaConnect) {
     private fun initUserDepartment(): UserDepartment {
         val data = selectCursor(query = SEL_CURSOR_USER_DEPARTMENT)
 
-        if(data.isEmpty()) throw Exception("Юзер не зареган")
+        val row = if(data.isEmpty()) throw Exception("Юзер не зареган :(") else data[0]
 
-        val row = data[0]
+        val userName = row[0] as? String
 
-        return UserDepartment(row[0] as? String, row[1] as? String)
+        val departmentName = row[1] as? String
+
+        val workPlace = row[2] as? String ?: throw Exception("Не определено рабочее место :(")
+
+        return UserDepartment(userName, departmentName, workPlace, AccessMode.byWorkPlace(workPlace) )
     }
+
 
     @JvmStatic
     fun getUser(): String = selectValue(query = SEL_USER) as String
