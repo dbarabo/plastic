@@ -165,6 +165,8 @@ public class IvrInfo {
 			return null;
 		}
 
+		this.phone = phone;
+
 		try {
 			AfinaQuery.INSTANCE.execute(Cfg.query().updatePhoneCard(), new Object[] { phone, cardId });
 		} catch (SessionException e) {
