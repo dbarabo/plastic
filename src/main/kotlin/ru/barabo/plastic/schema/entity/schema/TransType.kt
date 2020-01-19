@@ -33,15 +33,38 @@ data class TransType(
     var transactType: String? = null,
 
     @ColumnName("IS_OUT_TYPE")
+    var categoryTransact: Int? = null,
+
+    /*
+    @ColumnName("IS_OUT_TYPE")
     @Converter(BooleanAcquiringTypeConverter::class)
     var isEquaringType: Boolean = false,
-
+*/
     @ColumnName("CONDITION")
     var condition: Long? = null,
 
     @ColumnName("CONDITION_NAME")
     var conditionName: String? = null
 ) : ParamsSelect {
+
+    var isEquaringType: Boolean?
+    get() = (categoryTransact == 2 || categoryTransact == 4)
+    set(value ) {}
+
+    var categoryTransactName: String
+    get() {
+        return when (categoryTransact) {
+            1 -> "Наличка"
+            2-> "Безнал Эквайринг"
+            3 -> "Безнал"
+            4 -> "Возврат Эквайринг"
+            5 -> "Возврат"
+            -1 -> "В архиве"
+            else -> ""
+        }
+    }
+    set(value) {}
+
     override fun selectParams(): Array<Any?>? = arrayOf(HeaderTransactTypeService.selectedEntity()?.headerName?: String::class.java)
 }
 

@@ -23,7 +23,8 @@ private val transTypeColumns = listOf(
     ColumnTableModel("Наименование", 200, TransType::name, false),
     ColumnTableModel("Тип транзакции", 60, TransType::transactType, false),
     ColumnTableModel("Эквайринг?", 30, TransType::isEquaringType, false),
-    ColumnTableModel("Условие", 40, TransType::conditionName, false)
+    ColumnTableModel("Условие", 40, TransType::conditionName, false),
+    ColumnTableModel("Категория", 30, TransType::categoryTransactName, false)
 )
 
 object TableConditionVariant : EntityTable<ConditionVariant>(conditionVariantColumns, ConditionVariantService)

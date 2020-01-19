@@ -114,11 +114,11 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
 
     private fun createUnnamedCards(resultOrder: ResultOrder) {
 
-        val pleaseWait = runPleaseWait()
+        //val pleaseWait = runPleaseWait()
 
         processCreateCards(resultOrder)
 
-        pleaseWait.dispose()
+        //pleaseWait.dispose()
     }
 
     private fun processCreateCards(resultOrder: ResultOrder) {

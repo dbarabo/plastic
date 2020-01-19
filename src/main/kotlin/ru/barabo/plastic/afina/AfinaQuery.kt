@@ -1,15 +1,13 @@
 package ru.barabo.plastic.afina
 
-import com.sun.org.apache.xml.internal.security.Init.isInitialized
-import oracle.jdbc.OracleTypes.NUMBER
 import oracle.jdbc.OracleTypes.CLOB
+import oracle.jdbc.OracleTypes.NUMBER
 import ru.barabo.db.Query
 import ru.barabo.db.SessionException
 import ru.barabo.plastic.release.ivr.xml.IvrInfo
 import ru.barabo.plastic.release.ivr.xml.IvrXml
 import ru.barabo.total.resources.owner.CfgTotal
 import java.io.File
-import java.lang.Exception
 import java.nio.charset.Charset
 import java.sql.Clob
 

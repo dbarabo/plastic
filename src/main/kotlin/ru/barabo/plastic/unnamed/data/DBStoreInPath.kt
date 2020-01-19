@@ -1,6 +1,7 @@
 package ru.barabo.plastic.unnamed.data
 
 import oracle.jdbc.OracleTypes
+import org.apache.log4j.Logger
 import ru.barabo.db.SessionException
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.afina.clobToString
@@ -19,6 +20,8 @@ import java.time.format.DateTimeFormatter
 open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : AbstractFilterStore<RowFieldInPath>(),
     FilteredStoreInPath<RowFieldInPath> {
 
+    private val logger = Logger.getLogger(DBStoreInPath::class.simpleName)
+
     override fun selectApplicationStore() {
 
         val applicationId =  row.getApplicationId()?.toInt() ?: throw SessionException(MSG_ERROR_NO_CONTENT)
@@ -27,7 +30,10 @@ open class DBStoreInPath(protected val dbStorePlastic: DBStorePlastic) : Abstrac
     }
 
     override fun createUnnamedCards(countCards: Int, productCardTypeId: Long) {
+        logger.error("before createUnnamedCards countCards=$countCards productCardTypeId=$productCardTypeId")
         val values = AfinaQuery.execute(CREATE_UNNAMED_CARDS, arrayOf<Any?>(countCards, productCardTypeId), intArrayOf(OracleTypes.NUMBER))
+
+        logger.error("AFTER createUnnamedCards values=$values")
 
         saveFilePacket(values!![0]!!)
 
