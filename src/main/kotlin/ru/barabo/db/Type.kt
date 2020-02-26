@@ -16,11 +16,17 @@ enum class Type(val clazz: Class<*>, val sqlType: Int,
 
     SMALLINT(Short::class.javaObjectType, java.sql.Types.SMALLINT, { (it as Number).toShort() }, { it.toShortOrNull() }, { (it as kotlin.Number).toShort() + 1 } ),
 
+    INTP(Int::class.javaPrimitiveType!!, java.sql.Types.INTEGER, { (it as Number).toInt() },  { it.toIntOrNull() }, { (it as kotlin.Number).toInt() + 1 }  ),
+
     INT(Int::class.javaObjectType, java.sql.Types.INTEGER, { (it as Number).toInt() },  { it.toIntOrNull() }, { (it as kotlin.Number).toInt() + 1 }  ),
 
-    LONG(Long::class.javaObjectType, java.sql.Types.BIGINT, { (it as Number).toLong() }, { it.toLongOrNull() }, { (it as kotlin.Number).toLong() + 1L } ),
+    LONGP(Long::class.javaPrimitiveType!!, java.sql.Types.BIGINT, { (it as Number).toLong() }, { it.toLongOrNull() }, { (it as Number).toLong() + 1L } ),
+
+    LONG(Long::class.javaObjectType, java.sql.Types.BIGINT, { (it as Number).toLong()  }, { it.toLongOrNull() }, { (it as Number).toLong() + 1L } ),
 
     STRING(String::class.javaObjectType, java.sql.Types.VARCHAR, { it.toString() }, { it }, {} ),
+
+    DECIMALP(Double::class.javaPrimitiveType!!, java.sql.Types.DECIMAL, { (it as Number).toDouble()}, {it.toDoubleOrNull() }, { (it as Number).toDouble() + 1.0} ),
 
     DECIMAL(Double::class.javaObjectType, java.sql.Types.DECIMAL, { (it as Number).toDouble()}, {it.toDoubleOrNull() }, { (it as Number).toDouble() + 1.0} ),
 

@@ -1,4 +1,5 @@
 import org.apache.log4j.Logger
+import org.junit.Test
 import ru.barabo.db.annotation.QuerySelect
 import ru.barabo.plastic.afina.VersionChecker
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
@@ -32,6 +33,17 @@ and v.id(+) = s.condition
 and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 where s2.transact_type = t.TRANS_TYPE))
 order by t.id
 """
+
+    //@Test
+    fun testPrimitive() {
+        logger.error(Long::class.javaObjectType)
+
+        // val javaType = Long::class.javaObjectType
+
+        val javaType = 0L.javaClass
+
+        logger.error("valueToJava javaType=${javaType.isPrimitive} ${javaType.typeName}  ${javaType.name}}")
+    }
 
     //@Test
     fun testRegExDigit() {

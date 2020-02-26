@@ -9,29 +9,30 @@ import java.time.format.DateTimeFormatter
 
 @TableName("od.ptkb_poses")
 @SelectQuery("""
-   select p.CLASSIFIED, p.TERMINALID, p.CLIENT, c.LABEL,
-   coalesce(v.account_ext_code, od.accountCode(p.account40)) ACCOUNT_CODE,
-   coalesce(replace(od.PTKB_440P.getBankName(v.ext_bank_id), chr(13)||chr(10), ''), 'НАШ БАНК') BANK_NAME,
-   p.LOCATION, p.VALIDFROM, p.VALIDTO,
-   p.PERCENT_COMMISSION, p.COMPUE_RATE,
-   coalesce(tc.transact_local_oper, tc.transact_pc_oper + 7/24) MAX_OPER,
-   cr.label RATE_NAME,
-   sign(coalesce(p.TERMINAL_OWNER, 0)) TERMINAL_OWNER,
-   p.SRC_COMMISSION
-
-from od.ptkb_poses p
-   , od.client c
-   , od.computerate cr
-   , od.ptkb_transact_account_value v
-   , od.ptkb_transact_ctl_mtl tc
-where c.classified = p.client
-  and p.compue_rate = cr.classified(+)
-  and v.transact_account = 1
-  and p.terminalid = v.terminal_id(+)
-  and p.terminalid = tc.terminal_id(+)
-  and (tc.id is null or tc.id in (select max(c.id) from od.ptkb_transact_ctl_mtl c where c.terminal_id = tc.terminal_id))
-  and (coalesce(p.validto, max_date) > sysdate - 180 or
-       coalesce(tc.transact_pc_oper, min_date) > sysdate - 180)
+WITH ACQ as (
+select qr.terminal_id, max(qr.local_oper) pc_oper
+  from od.ptkb_acq_record qr
+group by qr.terminal_id
+)
+select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
+       coalesce(v.account_ext_code, od.accountCode(p.account40)) ACCOUNT_CODE,
+       case when v.ext_bank_id is null then 'НАШ БАНК'
+       else od.getclienttrmsgattr(v.ext_bank_id, 2, 1)
+       end BANK_NAME,
+       p.LOCATION, p.VALIDFROM, p.VALIDTO,
+       p.PERCENT_COMMISSION, p.COMPUE_RATE,
+       ACQ.pc_oper MAX_OPER,
+       cr.label RATE_NAME,
+       sign(coalesce(p.TERMINAL_OWNER, 0)) TERMINAL_OWNER,
+       p.SRC_COMMISSION
+  from od.ptkb_poses p
+  left join ACQ on ACQ.terminal_id = p.terminalid 
+  join od.client cl on cl.classified = p.client
+  left join od.ptkb_transact_account_value v on v.terminal_id = p.terminalid and v.transact_account = 1
+  left join od.computerate cr on cr.classified = p.compue_rate
+ where ( coalesce(p.validto, max_date) > sysdate - 180 or
+         coalesce(ACQ.pc_oper, min_date) > sysdate - 180 )
+        
 order by p.validfrom desc, p.CLASSIFIED desc
 """)
 data class PosTerminal(
