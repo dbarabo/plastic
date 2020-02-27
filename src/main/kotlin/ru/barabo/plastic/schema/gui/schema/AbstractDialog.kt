@@ -18,7 +18,6 @@ abstract class AbstractDialog(component: Component, title: String) :
     abstract fun okProcess()
 
     init {
-
         layout = GridBagLayout()
     }
 

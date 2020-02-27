@@ -1,9 +1,6 @@
 package ru.barabo.plastic.terminal.entity
 
-import ru.barabo.db.annotation.ColumnName
-import ru.barabo.db.annotation.SelectQuery
-import ru.barabo.db.annotation.SequenceName
-import ru.barabo.db.annotation.TableName
+import ru.barabo.db.annotation.*
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
 import java.time.LocalTime
 
@@ -12,6 +9,7 @@ import java.time.LocalTime
 data class Scheduler(
     @ColumnName("ID")
     @SequenceName(SEQ_CLASSIFIED)
+    @ColumnType(java.sql.Types.BIGINT)
     var id: Long? = null,
 
     @ColumnName("STATE")
@@ -21,7 +19,7 @@ data class Scheduler(
     var terminalId: String = "",
 
     @ColumnName("WAIT_TIME")
-    var waitTime: Long = 0,
+    var waitTime: Long = DEFAULT_WAIT_TIME,
 
     @ColumnName("END_TIME")
     var endTime: Long = 68400

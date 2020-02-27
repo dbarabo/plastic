@@ -49,7 +49,7 @@ data class TransType(
 
     var isEquaringType: Boolean?
     get() = (categoryTransact == 2 || categoryTransact == 4)
-    set(value ) {}
+    set(_ ) {}
 
     var categoryTransactName: String
     get() {
@@ -63,7 +63,7 @@ data class TransType(
             else -> ""
         }
     }
-    set(value) {}
+    set(_) {}
 
     override fun selectParams(): Array<Any?>? = arrayOf(HeaderTransactTypeService.selectedEntity()?.headerName?: String::class.java)
 }

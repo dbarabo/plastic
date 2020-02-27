@@ -4,15 +4,24 @@ import ru.barabo.db.ConverterValue
 import ru.barabo.db.annotation.*
 import ru.barabo.db.converter.BooleanConverter
 import ru.barabo.db.converter.SqliteLocalDate
+import java.text.DecimalFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @TableName("od.ptkb_poses")
 @SelectQuery("""
 WITH ACQ as (
-select qr.terminal_id, max(qr.local_oper) pc_oper
+select qr.terminal_id, max(qr.local_oper) pc_oper, coalesce(max(nullif(qr.merchant_category_code, '5999')), '5999') MERCHANT_CODE
   from od.ptkb_acq_record qr
 group by qr.terminal_id
+),
+TURN as (
+select t.ID_CLIENT, t.MONTH, trunc(t.TURN_EQUIRING/1000) TURN_EQUIRING, t.TURN_REVERSE TURN_REVERSE
+  from od.PTKB_TERMINAL_TURN_MONTH t
+  where t.MONTH in (select max(t2.MONTH)
+                     from od.PTKB_TERMINAL_TURN_MONTH t2
+                    where t2.id_client = t.ID_CLIENT)
+                    
 )
 select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
        coalesce(v.account_ext_code, od.accountCode(p.account40)) ACCOUNT_CODE,
@@ -24,12 +33,17 @@ select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
        ACQ.pc_oper MAX_OPER,
        cr.label RATE_NAME,
        sign(coalesce(p.TERMINAL_OWNER, 0)) TERMINAL_OWNER,
-       p.SRC_COMMISSION
+       p.SRC_COMMISSION,
+       TURN.TURN_EQUIRING,
+       TURN.TURN_REVERSE,
+       TURN.MONTH,
+       ACQ.MERCHANT_CODE
   from od.ptkb_poses p
   left join ACQ on ACQ.terminal_id = p.terminalid 
   join od.client cl on cl.classified = p.client
   left join od.ptkb_transact_account_value v on v.terminal_id = p.terminalid and v.transact_account = 1
   left join od.computerate cr on cr.classified = p.compue_rate
+  left join TURN on TURN.ID_CLIENT = p.client
  where ( coalesce(p.validto, max_date) > sysdate - 180 or
          coalesce(ACQ.pc_oper, min_date) > sysdate - 180 )
         
@@ -110,7 +124,27 @@ data class PosTerminal(
     @ColumnType(java.sql.Types.INTEGER)
     @Converter(SrcCommissionConverter::class)
     @ReadOnly
-    var srcCommission: String = ""
+    var srcCommission: String = "",
+
+    @ColumnName("TURN_EQUIRING")
+    @ColumnType(java.sql.Types.INTEGER)
+    @ReadOnly
+    var turnAmount: Int = 0,
+
+    @ColumnName("TURN_REVERSE")
+    @ColumnType(java.sql.Types.INTEGER)
+    @ReadOnly
+    var turnReverse: Double = 0.0,
+
+    @ColumnName("MONTH")
+    @ColumnType(java.sql.Types.DATE)
+    @Converter(SqliteLocalDate::class)
+    var monthTurn: LocalDate? = null,
+
+    @ColumnName("MERCHANT_CODE")
+    @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
+    var merchantCode: String = ""
    ) {
     var pactStartFormat: String = ""
         get() = pactStart.formatDate()
@@ -120,9 +154,17 @@ data class PosTerminal(
 
     var lastOperFormat: String = ""
         get() = lastOper.formatDate()
+
+    var turnMonthInfo: String
+    get() = monthTurn?.let { "${turnAmount.formated()} за ${it.shortFormatDate()}" } ?:""
+    set(_) {}
 }
 
 private fun LocalDate?.formatDate() = this?.let { DateTimeFormatter.ofPattern("dd.MM.yyyy").format(it) } ?: ""
+
+private fun LocalDate.shortFormatDate() = DateTimeFormatter.ofPattern("dd.MM.yy").format(this)
+
+private fun Number?.formated() = this?.let { DecimalFormat("0,000").format(it) } ?: ""
 
 
 object SrcCommissionConverter : ConverterValue {

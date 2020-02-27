@@ -1,6 +1,5 @@
 package ru.barabo.plastic.terminal.gui
 
-import ru.barabo.plastic.card.gui.DialogPacketCardInfo
 import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.plastic.terminal.gui.scheduler.DialogScheduler
