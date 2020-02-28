@@ -128,7 +128,7 @@ public final class RtfReport {
         return new ResultFile(textFile);
 	}
 
-	static private File getDefaultToDirectory() {
+	static public File getDefaultToDirectory() {
 		return new JFileChooser().getFileSystemView().getDefaultDirectory();
 	}
 

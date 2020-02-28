@@ -66,6 +66,27 @@ open class Query (protected val dbConnection :DbConnection) {
         return tableData
     }
 
+    fun selectWithMetaData(query :String, params :Array<Any?>? = null,
+                           sessionSetting : SessionSetting = SessionSetting(true) ): WithMetaData {
+        logger.info("select=$query")
+
+        val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
+
+        val metaData = try {
+            withMetaData(fetchData(resultSet), resultSet)
+        }catch (e : Exception) {
+            logger.error("query=$query")
+            params?.forEach { logger.error(it?.toString()) }
+            logger.error("fetch", e)
+            closeQueryData(session, TransactType.ROLLBACK, statement, resultSet)
+            throw SessionException(e.message as String)
+        }
+
+        closeQueryData(session, sessionSetting.transactType, statement, resultSet)
+
+        return metaData
+    }
+
     @Throws(SessionException::class)
     fun selectBlobToFile(query :String, params :Array<Any?>?, file: File): File {
 
@@ -112,6 +133,46 @@ open class Query (protected val dbConnection :DbConnection) {
         closeQueryData(session, sessionSetting.transactType, request.statement, request.resultSetCursor)
 
         return tableData
+    }
+
+    fun selectCursorWithMetaData(query :String, params :Array<Any?>? = null,
+                                 sessionSetting : SessionSetting = SessionSetting(true)): WithMetaData {
+        val session = dbConnection.getSession(sessionSetting)
+
+        val request = prepareSelectCursor(session, query, params, sessionSetting)
+
+        val metaData = try {
+            withMetaData(fetchData(request.resultSetCursor!!), request.resultSetCursor!!)
+        }catch (e : Exception) {
+
+            logger.error("query=$query")
+            params?.forEach { logger.error(it?.toString()) }
+            logger.error("fetch", e)
+            closeQueryData(session, TransactType.ROLLBACK, request.statement, request.resultSetCursor)
+
+            throw SessionException(e.message?:"")
+        }
+
+        closeQueryData(session, sessionSetting.transactType, request.statement, request.resultSetCursor)
+
+        return metaData
+    }
+
+    private fun withMetaData(data: List<Array<Any?>>, resultSet: ResultSet): WithMetaData {
+
+        val columns = ArrayList<String>()
+
+        val types = ArrayList<Int>()
+
+        if(resultSet.metaData == null) return WithMetaData(data, columns, types)
+
+        for (index in 1 .. resultSet.metaData.columnCount) {
+            columns += resultSet.metaData.getColumnName(index)?.toUpperCase()!!
+
+            types += resultSet.metaData.getColumnType(index)
+        }
+
+        return WithMetaData(data, columns, types)
     }
 
     @Throws(SessionException::class)
@@ -465,6 +526,6 @@ private class QueryRequest(val query :String,
                         var statement :PreparedStatement?,
                         var resultSetCursor :ResultSet? = null)
 
-
+data class WithMetaData(val data: List<Array<Any?>>, val columns: List<String>, val types: List<Int>)
 
 

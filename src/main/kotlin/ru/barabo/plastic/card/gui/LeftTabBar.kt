@@ -5,6 +5,7 @@ import ru.barabo.plastic.afina.AccessMode
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.service.*
 import ru.barabo.plastic.fio.gui.FioChangeTab
+import ru.barabo.plastic.report.gui.TabReport
 import ru.barabo.plastic.schema.gui.MainSchemaTab
 import ru.barabo.plastic.terminal.gui.TabPosTerminal
 import ru.barabo.plastic.unnamed.gui.PanelUnnamed
@@ -90,6 +91,13 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
             addNewTabIfAbsent(this, MainSchemaTab.TITLE, MainSchemaTab::class.java)
         }
         schemaButton?.isEnabled = isDelbOnlyAccess()
+
+        addSeparatorTimeCount(5)
+
+        val reportButton = toolButton("importXLS", TabReport.TITLE) {
+            addNewTabIfAbsent(this, TabReport.TITLE, TabReport::class.java)
+        }
+        reportButton?.isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
 
         val max = components.maxBy { it.maximumSize.width } ?: this
         components.forEach {
