@@ -139,6 +139,7 @@ data class PosTerminal(
     @ColumnName("MONTH")
     @ColumnType(java.sql.Types.DATE)
     @Converter(SqliteLocalDate::class)
+    @ReadOnly
     var monthTurn: LocalDate? = null,
 
     @ColumnName("MERCHANT_CODE")
