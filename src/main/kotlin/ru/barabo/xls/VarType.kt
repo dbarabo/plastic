@@ -73,8 +73,6 @@ fun Int.toSqlValueNull(): Any {
     }
 }
 
-data class Record(var columns: List<Var> = emptyList())
-
 private class ColumnResult(private val cursor: CursorData, val columnName: String,
                            private var index: Int = UNINITIALIZE_COLUMN_INDEX,
                            private var funIndex: Int = UNINITIALIZE_COLUMN_INDEX): ReturnResult {
@@ -105,6 +103,8 @@ private const val UNINITIALIZE_COLUMN_INDEX = Int.MAX_VALUE
 
 data class QuerySession(val query: Query, val sessionSetting: SessionSetting)
 
+data class Record(val columns: List<Var> = emptyList())
+
 class CursorData(private val querySession: QuerySession, private val querySelect: String,
                  val params: List<ReturnResult> = emptyList() ) {
 
@@ -119,6 +119,18 @@ class CursorData(private val querySession: QuerySession, private val querySelect
     private var isOpen: Boolean = false
 
     private val columnResult = ArrayList<ColumnResult>()
+
+    fun getRecord(): VarResult {
+        if(!isOpen) {
+            isOpen = open()
+        }
+
+        val columnsRecord = ArrayList<Var>()
+        for((index, columnName) in columns.withIndex()) {
+            columnsRecord += Var(columnName, getVarResult(index))
+        }
+        return VarResult(type = VarType.RECORD, value = Record(columnsRecord) )
+    }
 
     fun getColumnResult(columnName: String): ReturnResult {
         return columnResult.firstOrNull { it.columnName == columnName }
@@ -154,7 +166,7 @@ class CursorData(private val querySession: QuerySession, private val querySelect
         return data[row][index] ?: sqlColumnType[index].toSqlValueNull()
     }
 
-    fun getVarResult(index: Int, funIndex: Int): VarResult {
+    fun getVarResult(index: Int, funIndex: Int = UNINITIALIZE_COLUMN_INDEX): VarResult {
         if(!isOpen) {
             isOpen = open()
         }
@@ -302,11 +314,15 @@ data class VarResult(var type: VarType = VarType.UNDEFINED, var value: Any? = nu
         val UNDEFINED = VarResult()
     }
 
-    override fun getVar(): VarResult = this
+    override fun getVar(): VarResult {
+        if(type != VarType.CURSOR) return this
+
+        return (value as CursorData).getRecord()
+    }
 
     override fun setVar(newVar: VarResult) {
         this.type = newVar.type
-        this.value = newVar.value // newVar.type.copyValue(newVar.value)
+        this.value = newVar.value
     }
 
     override fun getSqlValue(): Any {
