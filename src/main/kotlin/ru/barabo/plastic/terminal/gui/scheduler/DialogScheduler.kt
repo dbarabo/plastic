@@ -16,7 +16,7 @@ class DialogScheduler(component: Component) : AbstractDialog(component, "Рас�
 
     init {
 
-        // defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
+        defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
 
         layout = BorderLayout()
 

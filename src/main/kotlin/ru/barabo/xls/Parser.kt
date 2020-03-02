@@ -163,7 +163,7 @@ class Parser(private val query: Query) {
 
         val variable = findVar(varName)
 
-        stackPredikat.push(variable.value)
+        stackPredikat.push(variable.result)
     }
 
     private fun findVar(varName: String): Var {
@@ -179,9 +179,7 @@ class Parser(private val query: Query) {
             return varFind ?: createVar(varMain)
         }
 
-        if(varFind?.value?.type != VarType.RECORD) throw Exception("appender $varAppender may be only VarType.RECORD")
-
-        return (varFind.value.value as Record).columns.firstOrNull { it.name == varAppender } ?: throw Exception("column record not found:$varName")
+        return checkAddRecordColumn(varFind, varAppender, varName)
     }
 
     private fun findMainVar(varName: String): Pair<Var, String>? {
@@ -197,11 +195,30 @@ class Parser(private val query: Query) {
     private fun findVarResult(varName: String, isReturnNull: Boolean = false): ReturnResult? {
         val result = findMainVar(varName) ?: (if(isReturnNull) return null else throw Exception("var not found: $varName"))
 
-        if(result.second.isBlank()) return result.first.value
+        val returnResult = result.first.result
 
-        if(result.first.value.value !is CursorData) throw if(isReturnNull) return null else Exception("var must be cursor only: $varName")
+        return when {
+            result.second.isBlank() -> returnResult
+            returnResult.value is CursorData -> (returnResult.value as CursorData).getColumnResult(result.second)
+            else -> checkAddRecordColumn(result.first, result.second, varName).result
+        }
+    }
 
-        return (result.first.value.value as CursorData).getColumnResult(result.second)
+    private fun checkAddRecordColumn(varFind: Var?, columnRecord: String, varName: String): Var {
+        if(varFind?.result?.type !in listOf(VarType.RECORD, VarType.UNDEFINED) ) {
+            throw Exception("appender $columnRecord may be only VarType.RECORD for var $varName")
+        }
+
+        val result = varFind?.result ?: throw Exception("var must be exists $varName")
+
+        if(result.type == VarType.UNDEFINED) {
+            result.type = VarType.RECORD
+            result.value = Record()
+        }
+        val record = result.value as? Record ?: throw Exception("var value must be Record type var=$varName")
+
+        return record.columns.firstOrNull { it.name == columnRecord }
+            ?: Var(columnRecord, VarResult() ).apply { record.columns.add(this) }
     }
 
     private fun openVar(index: Int): Int {

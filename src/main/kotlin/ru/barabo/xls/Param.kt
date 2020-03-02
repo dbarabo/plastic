@@ -62,9 +62,9 @@ private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
 
     add( JLabel(label), labelConstraint(gridY) )
 
-    val datePicker = JXDatePicker().apply { this.date = varParam.value.value as? Date}
+    val datePicker = JXDatePicker().apply { this.date = varParam.result.value as? Date}
 
-    datePicker.addActionListener{ varResultDateListener(varParam.value, datePicker) }
+    datePicker.addActionListener{ varResultDateListener(varParam.result, datePicker) }
 
     this.add(datePicker, textConstraint(gridY = gridY, gridX = 1) )
 
@@ -76,9 +76,9 @@ private fun Container.checkBox(varParam: Var, gridY: Int): JCheckBox {
 
     add( JLabel(label), labelConstraint(gridY) )
 
-    val checkBox = JCheckBox("", varParam.value.toBoolean() )
+    val checkBox = JCheckBox("", varParam.result.toBoolean() )
 
-    checkBox.addActionListener { varResultCheckOnOff(varParam.value) }
+    checkBox.addActionListener { varResultCheckOnOff(varParam.result) }
 
     this.add(checkBox, textConstraint(gridY = gridY, gridX = 1) )
 
@@ -99,11 +99,11 @@ private fun Container.textFieldAmount(varParam: Var, gridY: Int): JTextField {
 
     val textField = JFormattedTextField( decimalFormat )
 
-    textField.text = (varParam.value.value as? Number)?.toDouble()?.toString() ?: "0"
+    textField.text = (varParam.result.value as? Number)?.toDouble()?.toString() ?: "0"
 
     this.add(textField, textConstraint(gridY = gridY, gridX = 1) )
 
-    textField.addKeyListener(VarKeyLister(varParam.value) )
+    textField.addKeyListener(VarKeyLister(varParam.result) )
 
     return textField
 }
@@ -115,11 +115,11 @@ private fun Container.textFieldInt(varParam: Var, gridY: Int): JTextField {
 
     val textField = JFormattedTextField( IntegerFormat() )
 
-    textField.text = (varParam.value.value as? Number)?.toInt()?.toString() ?: "0"
+    textField.text = (varParam.result.value as? Number)?.toInt()?.toString() ?: "0"
 
     this.add(textField, textConstraint(gridY = gridY, gridX = 1) )
 
-    textField.addKeyListener(VarKeyLister(varParam.value) )
+    textField.addKeyListener(VarKeyLister(varParam.result) )
 
     return textField
 }
@@ -142,11 +142,11 @@ private fun Container.textField(varParam: Var, gridY: Int): JTextField {
 
     add( JLabel(label), labelConstraint(gridY) )
 
-    val textField = JTextField(varParam.value.value?.toString() ?: "")
+    val textField = JTextField(varParam.result.value?.toString() ?: "")
 
     this.add(textField, textConstraint(gridY = gridY, gridX = 1) )
 
-    textField.addKeyListener(VarKeyLister(varParam.value) )
+    textField.addKeyListener(VarKeyLister(varParam.result) )
 
     return textField
 }

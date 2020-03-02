@@ -103,7 +103,16 @@ private const val UNINITIALIZE_COLUMN_INDEX = Int.MAX_VALUE
 
 data class QuerySession(val query: Query, val sessionSetting: SessionSetting)
 
-data class Record(val columns: List<Var> = emptyList())
+data class Record(var columns: MutableList<Var> = ArrayList() ) {
+
+    fun checkExistsColumns(columnsCursor: List<String>, querySelect: String) {
+        for(column in columns) {
+            if(!columnsCursor.contains(column.name) ) throw Exception("Record column <${column.name}> absent in cursor $querySelect")
+        }
+    }
+
+    fun columnByName(columnName: String): Var? = columns.firstOrNull { it.name == columnName }
+}
 
 class CursorData(private val querySession: QuerySession, private val querySelect: String,
                  val params: List<ReturnResult> = emptyList() ) {
@@ -119,18 +128,6 @@ class CursorData(private val querySession: QuerySession, private val querySelect
     private var isOpen: Boolean = false
 
     private val columnResult = ArrayList<ColumnResult>()
-
-    fun getRecord(): VarResult {
-        if(!isOpen) {
-            isOpen = open()
-        }
-
-        val columnsRecord = ArrayList<Var>()
-        for((index, columnName) in columns.withIndex()) {
-            columnsRecord += Var(columnName, getVarResult(index))
-        }
-        return VarResult(type = VarType.RECORD, value = Record(columnsRecord) )
-    }
 
     fun getColumnResult(columnName: String): ReturnResult {
         return columnResult.firstOrNull { it.columnName == columnName }
@@ -172,7 +169,11 @@ class CursorData(private val querySession: QuerySession, private val querySelect
         }
 
         if(index < 0 || funIndex != UNINITIALIZE_COLUMN_INDEX) {
-            return VarResult(type = VarType.NUMBER, value = funCursorValue(index, funIndex))
+            return when (val funResult = funCursorValue(index, funIndex)) {
+                is VarResult -> funResult
+                is Number -> VarResult(type = VarType.NUMBER, value = funResult)
+                else -> throw Exception("funResult type must be NUMBER or VarResult")
+            }
         }
 
         if(row >= data.size) throw Exception("cursor position is end")
@@ -233,6 +234,28 @@ class CursorData(private val querySession: QuerySession, private val querySelect
         return true
     }
 
+    fun setCursorRowToRecord(sourceRecord: VarResult) {
+        val record = sourceRecord.value as? Record ?: throw Exception("$sourceRecord must be Record type")
+
+        if(!isOpen) {
+            isOpen = open()
+        }
+
+        record.checkExistsColumns(columns, querySelect)
+
+        val columnsRecord = ArrayList<Var>()
+        for((index, columnName) in columns.withIndex()) {
+
+            val columnRecord = record.columnByName(columnName)?.apply { result.setVar( getVarResult(index) ) }
+                ?: Var(columnName, getVarResult(index))
+
+            columnsRecord += columnRecord
+        }
+        record.columns = columnsRecord
+    }
+
+    fun emptyRecord(columnIndex: Int): Any = VarResult(VarType.RECORD, Record(columns.map { Var(it, VarResult()) }.toMutableList()))
+
     private fun isCursor() = querySelect[0] == '{'
 
     fun row(columnIndex: Int): Any = row + 1
@@ -257,7 +280,8 @@ enum class CursorFun(val index: Int, val funName: String, val func: CursorData.(
     ISEMPTY(-4, "ISEMPTY", CursorData::isEmptyFun),
     ISNOTEMPTY(-5, "ISNOTEMPTY", CursorData::isNotEmptyFun),
     MIN(-6, "MIN", CursorData::min),
-    MAX(-7, "MAX", CursorData::max);
+    MAX(-7, "MAX", CursorData::max),
+    EMPTYRECORD(-8, "EMPTYRECORD", CursorData::emptyRecord);
 
     companion object {
         fun byIndex(index: Int): CursorFun? = values().firstOrNull { it.index == index }
@@ -266,14 +290,14 @@ enum class CursorFun(val index: Int, val funName: String, val func: CursorData.(
     }
 }
 
-data class Var(var name: String, var value: VarResult) {
+data class Var(var name: String, var result: VarResult) {
 
     private fun toSqlValue(columnName: String? = null): Any =
-            value.value?.let { toSqlValueIt(columnName, it) } ?: value.type.toSqlValueNull()
+            result.value?.let { toSqlValueIt(columnName, it) } ?: result.type.toSqlValueNull()
 
     @Suppress("UNCHECKED_CAST")
     private fun toSqlValueIt(columnName: String?, itValue: Any): Any {
-        return when(value.type) {
+        return when(result.type) {
             VarType.INT -> (itValue as Number).toLong()
             VarType.NUMBER -> itValue
             VarType.VARCHAR -> itValue
@@ -314,11 +338,7 @@ data class VarResult(var type: VarType = VarType.UNDEFINED, var value: Any? = nu
         val UNDEFINED = VarResult()
     }
 
-    override fun getVar(): VarResult {
-        if(type != VarType.CURSOR) return this
-
-        return (value as CursorData).getRecord()
-    }
+    override fun getVar(): VarResult = this
 
     override fun setVar(newVar: VarResult) {
         this.type = newVar.type
@@ -376,7 +396,14 @@ private fun varOper(params: List<VarResult>, info: String): VarResult {
 
 private fun apply(params: List<VarResult>, info: String): VarResult {
 
-    params[0].setVar(params[1].getVar())
+    val result = params[1].getVar()
+
+    if(result.type != VarType.CURSOR) {
+        params[0].setVar(result)
+        return params[0]
+    }
+
+    (result.value as CursorData).setCursorRowToRecord(params[0])
 
     return params[0]
 }

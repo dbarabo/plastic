@@ -2,6 +2,7 @@ package ru.barabo.xls
 
 import jxl.write.*
 import jxl.write.Number
+import org.slf4j.LoggerFactory
 import ru.barabo.db.Query
 import java.awt.Container
 import java.io.File
@@ -11,6 +12,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class ExcelSql(newFile: File, template: File, query: Query) {
+
+    private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
 
     private val newBook: WritableWorkbook = createNewBook(newFile, template)
 
@@ -52,16 +55,26 @@ class ExcelSql(newFile: File, template: File, query: Query) {
 
         for (rowIndex in 0 until sheet.rows) {
 
-            val expression = getExpression(rowIndex)
+            checkErrorByRow(rowIndex) {
+                val expression = getExpression(rowIndex)
 
-            val tag = getTagRow(rowIndex)
+                val tag = getTagRow(rowIndex)
 
-            val columns = getColumns(rowIndex)
+                val columns = getColumns(rowIndex)
 
-            rowData += Row(tag, rowIndex, expression, columns)
+                rowData += Row(tag, rowIndex, expression, columns)
+            }
         }
-
         this.rowData = rowData
+    }
+
+    private fun checkErrorByRow(rowIndex: Int, process: ()->Unit ) {
+        try {
+            process()
+        } catch (e: Exception) {
+            logger.error("rowIndex=$rowIndex", e)
+            throw Exception("ROW ERROR = $rowIndex\n ${e.message}")
+        }
     }
 
     private fun getColumns(rowIndex: Int): List<Col> {
@@ -254,9 +267,9 @@ class ExcelSql(newFile: File, template: File, query: Query) {
 
         val cursor = vars.firstOrNull { it.name == cursorName } ?: throw Exception("for tag LOOP cursor not found: $cursorName")
 
-        if(cursor.value.type != VarType.CURSOR) throw Exception("LOOP var is not cursor: $cursorName")
+        if(cursor.result.type != VarType.CURSOR) throw Exception("LOOP var is not cursor: $cursorName")
 
-        return cursor.value.value as CursorData
+        return cursor.result.value as CursorData
     }
 }
 
