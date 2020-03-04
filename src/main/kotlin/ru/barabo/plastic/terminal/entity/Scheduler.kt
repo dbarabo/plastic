@@ -2,6 +2,7 @@ package ru.barabo.plastic.terminal.entity
 
 import ru.barabo.db.annotation.*
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
+import java.lang.Exception
 import java.time.LocalTime
 
 @SelectQuery("{ ? = call OD.PTKB_PLASTIC_TURN.getSchedulerByTerminal(?) }")
@@ -49,9 +50,17 @@ data class Scheduler(
             }
         }
         set(_) {}
+
+    fun checkEndTime() {
+        if(endTime + waitTime > MAX_SUM_TIME) {
+            throw Exception("Максимальное время окончания рабочей смены не может превышать 22:00")
+        }
+    }
 }
 
 private const val NEW: Long = 0
 private const val EXECUTE: Long = 1
+
+private const val MAX_SUM_TIME = 86000L
 
 private const val DEFAULT_WAIT_TIME: Long = 2*60*60

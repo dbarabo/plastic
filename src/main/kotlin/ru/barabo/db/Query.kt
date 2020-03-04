@@ -15,14 +15,15 @@ open class Query (protected val dbConnection :DbConnection) {
     companion object {
         private val logger = Logger.getLogger(Query::class.simpleName)!!
 
-       // private val logger = LoggerFactory.getLogger(Query::class.java)
-
         private const val ERROR_STATEMENT_NULL = "statement is null"
 
         private const val ERROR_RESULTSET_NULL = "ResultSet is null"
     }
 
     private var uniqueSession : AtomicLong = AtomicLong(1L)
+
+    fun uniqueRollBackOnlySession(): SessionSetting =
+        SessionSetting(false,  TransactType.ROLLBACK, uniqueSession.incrementAndGet())
 
     fun uniqueSession() :SessionSetting =
             SessionSetting(false,  TransactType.NO_ACTION, uniqueSession.incrementAndGet())
@@ -73,8 +74,8 @@ open class Query (protected val dbConnection :DbConnection) {
         val (session, statement, resultSet) = prepareSelect(query, params, sessionSetting)
 
         val metaData = try {
-            withMetaData(fetchData(resultSet), resultSet)
-        }catch (e : Exception) {
+            fetchWithMetaData(resultSet)
+        } catch (e : Exception) {
             logger.error("query=$query")
             params?.forEach { logger.error(it?.toString()) }
             logger.error("fetch", e)
@@ -142,8 +143,8 @@ open class Query (protected val dbConnection :DbConnection) {
         val request = prepareSelectCursor(session, query, params, sessionSetting)
 
         val metaData = try {
-            withMetaData(fetchData(request.resultSetCursor!!), request.resultSetCursor!!)
-        }catch (e : Exception) {
+            fetchWithMetaData(request.resultSetCursor!!)
+        } catch (e : Exception) {
 
             logger.error("query=$query")
             params?.forEach { logger.error(it?.toString()) }
@@ -442,6 +443,24 @@ open class Query (protected val dbConnection :DbConnection) {
         }
 
         return data
+    }
+
+    @Throws(SessionException::class)
+    private fun fetchWithMetaData(resultSet : ResultSet): WithMetaData {
+
+        val data = ArrayList<Array<Any?>>()
+
+        while(resultSet.next()) {
+
+            val row = Array<Any?>(resultSet.metaData.columnCount) {null}
+
+            for (index in 1 .. resultSet.metaData.columnCount) {
+                row[index - 1] = resultSet.getObject(index)
+            }
+            data.add(row)
+        }
+
+        return withMetaData(data, resultSet)
     }
 
     @Throws(SessionException::class)

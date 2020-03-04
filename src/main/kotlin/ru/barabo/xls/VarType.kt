@@ -1,17 +1,14 @@
 package ru.barabo.xls
 
-import ru.barabo.db.Query
-import ru.barabo.db.SessionSetting
-
-enum class VarType(val sqlType: Int) {
-    UNDEFINED(-1),
-    INT(java.sql.Types.BIGINT),
-    NUMBER(java.sql.Types.DOUBLE),
-    VARCHAR(java.sql.Types.VARCHAR),
-    DATE(java.sql.Types.TIMESTAMP),
-    RECORD(-1),
-    CURSOR(-1),
-    SQL_PROC(-1);
+enum class VarType(val sqlType: Int, val isEqualVal: (it1: Any, it2: Any)-> Boolean) {
+    UNDEFINED(-1, {_, _ -> false }),
+    INT(java.sql.Types.BIGINT, {it1, it2 ->  (it1 as Number).toLong() == (it2 as Number).toLong() } ),
+    NUMBER(java.sql.Types.DOUBLE, {it1, it2 ->  (it1 as Number).toDouble() == (it2 as Number).toDouble() } ),
+    VARCHAR(java.sql.Types.VARCHAR, {it1, it2 ->  it1.toString() == it2.toString() }),
+    DATE(java.sql.Types.TIMESTAMP, {it1, it2 -> (it1 as java.util.Date).time == (it2 as java.util.Date).time }),
+    RECORD(-1, {_, _ -> false }),
+    CURSOR(-1, {_, _ -> false }),
+    SQL_PROC(-1, {_, _ -> false });
 
     fun toSqlValueNull(): Any {
         return when(this) {
@@ -70,223 +67,6 @@ fun Int.toSqlValueNull(): Any {
         java.sql.Types.TIMESTAMP ->   java.time.LocalDateTime::class.javaObjectType
 
         else -> throw Exception("undefined type for null value")
-    }
-}
-
-private class ColumnResult(private val cursor: CursorData, val columnName: String,
-                           private var index: Int = UNINITIALIZE_COLUMN_INDEX,
-                           private var funIndex: Int = UNINITIALIZE_COLUMN_INDEX): ReturnResult {
-    override fun getVar(): VarResult {
-        checkInitIndexes()
-
-        return cursor.getVarResult(index, funIndex)
-    }
-
-    override fun setVar(newVar: VarResult) {}
-
-    override fun getSqlValue(): Any {
-        checkInitIndexes()
-
-        return cursor.toSqlValue(index, funIndex)
-    }
-
-    private fun checkInitIndexes() {
-        if(index == UNINITIALIZE_COLUMN_INDEX) {
-            val (newIndex, newFun) =  cursor.getColumnIndex(columnName)
-            index = newIndex
-            funIndex = newFun
-        }
-    }
-}
-
-private const val UNINITIALIZE_COLUMN_INDEX = Int.MAX_VALUE
-
-data class QuerySession(val query: Query, val sessionSetting: SessionSetting)
-
-data class Record(var columns: MutableList<Var> = ArrayList() ) {
-
-    fun checkExistsColumns(columnsCursor: List<String>, querySelect: String) {
-        for(column in columns) {
-            if(!columnsCursor.contains(column.name) ) throw Exception("Record column <${column.name}> absent in cursor $querySelect")
-        }
-    }
-
-    fun columnByName(columnName: String): Var? = columns.firstOrNull { it.name == columnName }
-}
-
-class CursorData(private val querySession: QuerySession, private val querySelect: String,
-                 val params: List<ReturnResult> = emptyList() ) {
-
-    private var data: List<Array<Any?>> = emptyList()
-
-    private var row: Int = 0
-
-    private var columns: List<String> = emptyList()
-
-    private var sqlColumnType: List<Int> = emptyList()
-
-    private var isOpen: Boolean = false
-
-    private val columnResult = ArrayList<ColumnResult>()
-
-    fun getColumnResult(columnName: String): ReturnResult {
-        return columnResult.firstOrNull { it.columnName == columnName }
-                ?: ColumnResult(this, columnName).apply { columnResult += this }
-    }
-
-    fun isNext(): Boolean {
-        return if(row + 1 < data.size) {
-            row++
-
-            true
-        } else false
-    }
-
-    fun isEmpty(): Boolean {
-        if(!isOpen) {
-            isOpen = open()
-        }
-        return data.isEmpty()
-    }
-
-    fun toSqlValue(index: Int, funIndex: Int): Any {
-        if(!isOpen) {
-            isOpen = open()
-        }
-
-        if(index < 0 || funIndex != UNINITIALIZE_COLUMN_INDEX) {
-            return funCursorValue(index, funIndex)
-        }
-
-        if(row >= data.size) throw Exception("cursor position is end")
-
-        return data[row][index] ?: sqlColumnType[index].toSqlValueNull()
-    }
-
-    fun getVarResult(index: Int, funIndex: Int = UNINITIALIZE_COLUMN_INDEX): VarResult {
-        if(!isOpen) {
-            isOpen = open()
-        }
-
-        if(index < 0 || funIndex != UNINITIALIZE_COLUMN_INDEX) {
-            return when (val funResult = funCursorValue(index, funIndex)) {
-                is VarResult -> funResult
-                is Number -> VarResult(type = VarType.NUMBER, value = funResult)
-                else -> throw Exception("funResult type must be NUMBER or VarResult")
-            }
-        }
-
-        if(row >= data.size) throw Exception("cursor position is end")
-
-        val value = data[row][index]
-
-        val type = VarType.varTypeBySqlType(sqlColumnType[index])
-
-        return VarResult(type = type, value = value)
-    }
-
-    private fun funCursorValue(index: Int, funIndex: Int): Any {
-
-        val findIndex = if(index < 0) index else funIndex
-
-        val cursorFun = CursorFun.byIndex(findIndex) ?: throw Exception("cursor fun is not found index=$index")
-
-        return cursorFun.func.invoke(this, index)
-    }
-
-    internal fun getColumnIndex(columnName: String): Pair<Int, Int> {
-        if(!isOpen) {
-            isOpen = open()
-        }
-
-        val column = columnName.substringBefore('.')
-
-        val funColumn = columnName.substringAfter('.', "")
-
-        val columnIndex = columnIndexByName(column)
-
-        val funIndex = if(funColumn.isBlank()) UNINITIALIZE_COLUMN_INDEX else columnIndexByName(funColumn)
-
-        return Pair(columnIndex, funIndex)
-    }
-
-    private fun columnIndexByName(columnName: String): Int {
-        return CursorFun.byColumn(columnName)?.index ?:
-        columns.withIndex().firstOrNull { it.value.equals(columnName, true) }?.index ?:
-        throw Exception("not found column for cursor .$columnName")
-    }
-
-    private fun open(): Boolean {
-
-        val param: Array<Any?>? = if(params.isEmpty()) null else params.map { it.getSqlValue() }.toTypedArray()
-
-        val allData = if(isCursor()) {
-            querySession.query.selectCursorWithMetaData(querySelect, param, querySession.sessionSetting)
-        } else {
-            querySession.query.selectWithMetaData(querySelect, param, querySession.sessionSetting)
-        }
-
-        data = allData.data
-        columns = allData.columns
-        sqlColumnType = allData.types
-        row = 0
-
-        return true
-    }
-
-    fun setCursorRowToRecord(sourceRecord: VarResult) {
-        val record = sourceRecord.value as? Record ?: throw Exception("$sourceRecord must be Record type")
-
-        if(!isOpen) {
-            isOpen = open()
-        }
-
-        record.checkExistsColumns(columns, querySelect)
-
-        val columnsRecord = ArrayList<Var>()
-        for((index, columnName) in columns.withIndex()) {
-
-            val columnRecord = record.columnByName(columnName)?.apply { result.setVar( getVarResult(index) ) }
-                ?: Var(columnName, getVarResult(index))
-
-            columnsRecord += columnRecord
-        }
-        record.columns = columnsRecord
-    }
-
-    fun emptyRecord(columnIndex: Int): Any = VarResult(VarType.RECORD, Record(columns.map { Var(it, VarResult()) }.toMutableList()))
-
-    private fun isCursor() = querySelect[0] == '{'
-
-    fun row(columnIndex: Int): Any = row + 1
-
-    fun sum(columnIndex: Int): Any = data.sumByDouble { (it[columnIndex] as? Number)?.toDouble()?:0.0 }
-
-    fun max(columnIndex: Int): Any = data.map { (it[columnIndex] as? Number)?.toDouble()?:0.0 }.max()?:0.0
-
-    fun min(columnIndex: Int): Any = data.map { (it[columnIndex] as? Number)?.toDouble()?:0.0 }.min()?:0.0
-
-    fun count(columnIndex: Int): Any = data.size
-
-    fun isEmptyFun(columnIndex: Int): Any = if(isEmpty()) 1 else 0
-
-    fun isNotEmptyFun(columnIndex: Int): Any = if(isEmpty()) 0 else 1
-}
-
-enum class CursorFun(val index: Int, val funName: String, val func: CursorData.(columnIndex: Int)->Any ) {
-    ROW(-1, "ROW", CursorData::row),
-    SUM(-2, "SUM", CursorData::sum),
-    COUNT(-3, "COUNT", CursorData::count),
-    ISEMPTY(-4, "ISEMPTY", CursorData::isEmptyFun),
-    ISNOTEMPTY(-5, "ISNOTEMPTY", CursorData::isNotEmptyFun),
-    MIN(-6, "MIN", CursorData::min),
-    MAX(-7, "MAX", CursorData::max),
-    EMPTYRECORD(-8, "EMPTYRECORD", CursorData::emptyRecord);
-
-    companion object {
-        fun byIndex(index: Int): CursorFun? = values().firstOrNull { it.index == index }
-
-        fun byColumn(funName: String): CursorFun? = values().firstOrNull { it.funName == funName.toUpperCase() }
     }
 }
 
@@ -398,12 +178,12 @@ private fun apply(params: List<VarResult>, info: String): VarResult {
 
     val result = params[1].getVar()
 
-    if(result.type != VarType.CURSOR) {
+    if(result.type != VarType.RECORD) {
         params[0].setVar(result)
         return params[0]
     }
 
-    (result.value as CursorData).setCursorRowToRecord(params[0])
+    (params[0].value as Record).setApply(result.value as Record)
 
     return params[0]
 }

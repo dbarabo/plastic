@@ -2,22 +2,20 @@ package ru.barabo.xls
 
 import org.jdesktop.swingx.JXDatePicker
 import org.slf4j.LoggerFactory
+import ru.barabo.plastic.schema.gui.account.processShowError
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
+import java.sql.Timestamp
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.*
-import javax.swing.JCheckBox
-import javax.swing.JFormattedTextField
-import javax.swing.JLabel
-import javax.swing.JTextField
+import javax.swing.*
 import javax.swing.text.NumberFormatter
-
 
 data class Param(val componentType: ComponentType,
                  val varParam: Var,
@@ -35,10 +33,9 @@ enum class ComponentType(val countParam: Int) {
 
 fun paramFunByName(funName: String): ComponentType? = ComponentType.values().firstOrNull { it.name == funName }
 
-
 private val logger = LoggerFactory.getLogger(Param::class.java)
 
-fun buildParams(container: Container, params: List<Param>) {
+fun buildParams(container: Container, params: List<Param>, processOk:()->Unit) {
 
     container.layout = GridBagLayout()
 
@@ -49,11 +46,19 @@ fun buildParams(container: Container, params: List<Param>) {
             ComponentType.TEXTFIELDAMOUNT -> container.textFieldAmount(param.varParam, index)
             ComponentType.DATEPICKER -> container.datePicker(param.varParam, index)
             ComponentType.CHECKBOX -> container.checkBox(param.varParam, index)
-            // ComponentType.COMBOBOX ->
+            ComponentType.COMBOBOX -> container.comboBox(param.varParam, param.cursor!!, index)
             // ComponentType.TABLEBOX ->
             else -> throw Exception("component not found for componentType=${param.componentType}")
         }
     }
+
+    container.add(JButton("Ok").apply { addActionListener { processShowError { processOk() } } }, labelConstraint(params.size) )
+
+    //container.invalidate()
+    //container.repaint()
+
+    container.parent.revalidate()
+    //container.parent.repaint()
 }
 
 private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
@@ -69,6 +74,33 @@ private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
     this.add(datePicker, textConstraint(gridY = gridY, gridX = 1) )
 
     return datePicker
+}
+
+private fun Container.comboBox(varParam: Var, cursor: CursorData, gridY: Int): JComboBox<ComboArray> {
+
+    val comboData = Vector(cursor.data.map { ComboArray(it) }.toMutableList())
+
+    val combo = JComboBox(comboData)
+
+    val label = varParam.name.replace('_', ' ').toLowerCase()
+
+    add( JLabel(label), labelConstraint(gridY) )
+
+    this.add(combo, textConstraint(gridY = gridY, gridX = 1) )
+
+    cursor.findRowByRecord(varParam.result.value as Record)?.let { combo.selectedIndex = it }
+
+    combo.addActionListener {
+        cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
+
+        logger.error("combo set varParam=${varParam.result}")
+    }
+
+    return combo
+}
+
+private class ComboArray(val item: Array<Any?>) {
+    override fun toString(): String = if(item.isEmpty() || item[0] == null)"" else item[0].toString()
 }
 
 private fun Container.checkBox(varParam: Var, gridY: Int): JCheckBox {
@@ -182,7 +214,7 @@ class VarKeyLister(private val varResult: VarResult? = null, private val setter:
 }
 
 private fun varResultDateListener(varResult: VarResult, datePicker: JXDatePicker) {
-    varResult.value = datePicker.date
+    varResult.value = Timestamp(datePicker.date.time)
     logger.error("DATE varResult=$varResult")
 }
 

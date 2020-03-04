@@ -3,29 +3,40 @@ package ru.barabo.plastic.report.gui
 import org.jdesktop.swingx.JXHyperlink
 import org.jdesktop.swingx.JXTaskPane
 import ru.barabo.plastic.afina.AfinaQuery
-import ru.barabo.plastic.terminal.gui.TablePosTerminal
-import ru.barabo.plastic.unnamed.gui.errorMessage
-import ru.barabo.total.report.rtf.RtfReport
+import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.total.report.rtf.RtfReport.getDefaultToDirectory
 import ru.barabo.xls.ExcelSql
 import ru.barabo.xls.Var
 import java.awt.BorderLayout
+import java.awt.Desktop
 import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import javax.swing.BoxLayout
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.JToolBar
+import javax.swing.*
 
 class TabReport : JPanel()  {
 
     init {
         layout = BorderLayout()
 
-        add(ReportPane, BorderLayout.WEST)
+        val paramPanel = JPanel()
 
-        add(JScrollPane(TablePosTerminal), BorderLayout.CENTER)
+        val resultPanel = JPanel()
+
+        val paramResultVertSplit = JSplitPane(JSplitPane.VERTICAL_SPLIT, paramPanel, resultPanel).apply {
+            resizeWeight = 0.4
+        }
+
+        val historyPanel = JPanel()
+
+        val mainHorizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, paramResultVertSplit, historyPanel).apply {
+            resizeWeight = 0.7
+        }
+
+        add(ReportPane(paramPanel), BorderLayout.WEST)
+
+        add(mainHorizontalSplit, BorderLayout.CENTER)
     }
 
     companion object {
@@ -33,7 +44,7 @@ class TabReport : JPanel()  {
     }
 }
 
-private object ReportPane : JToolBar(VERTICAL) {
+private class ReportPane(paramPanel: JPanel) : JToolBar(VERTICAL) {
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
         isFloatable = true
@@ -47,7 +58,7 @@ private object ReportPane : JToolBar(VERTICAL) {
                 add(JXHyperlink().apply {
                     text = "Выдача наличных в банкоматах"
 
-                    addActionListener {  reportByTemplateXls("bankomat-cash-out") }
+                    addActionListener {  reportByTemplateXls("bankomat-cash-out", paramPanel) }
                 })
             })
             add(JXTaskPane("Эмиссия") )
@@ -55,7 +66,7 @@ private object ReportPane : JToolBar(VERTICAL) {
     }
 }
 
-private fun reportByTemplateXls(templateXls: String) {
+private fun reportByTemplateXls(templateXls: String, paramPanel: JPanel) {
 
     val template = xlsFileName(templateXls)
 
@@ -65,13 +76,16 @@ private fun reportByTemplateXls(templateXls: String) {
 
     val excelSql = ExcelSql(newFile, template, AfinaQuery)
 
-    excelSql.initRowData(vars)
+    processShowError {
+        excelSql.initRowData(vars)
 
+        excelSql.requestParam(paramPanel) { file -> processShowError { Desktop.getDesktop().open(file) } }
+    }
 }
 
 private fun newFile(templateXls: String): File = File("${getDefaultToDirectory()}/$templateXls-${dateTimeNow()}.xls")
 
-private fun dateTimeNow(): String = DateTimeFormatter.ofPattern ("yy-MM-dd-HH-mm-ss").format(LocalDateTime.now())
+private fun dateTimeNow(): String = DateTimeFormatter.ofPattern ("MM-dd-HH%mm%ss").format(LocalDateTime.now())
 
 private fun xlsFileName(templateXls: String): File = File("$LIB_FOLDER/$templateXls.xls")
 

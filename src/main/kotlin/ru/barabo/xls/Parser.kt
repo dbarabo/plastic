@@ -19,7 +19,7 @@ class Parser(private val query: Query) {
 
     private val resultExp = ArrayList<OperVar>()
 
-    private val sessionSetting: SessionSetting = query.uniqueSession()
+    private val sessionSetting: SessionSetting = query.uniqueRollBackOnlySession()
 
     private var filling: String = ""
 

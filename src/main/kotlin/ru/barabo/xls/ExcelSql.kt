@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ExcelSql(newFile: File, template: File, query: Query) {
+class ExcelSql(private val newFile: File, template: File, query: Query) {
 
     private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
 
@@ -25,22 +25,25 @@ class ExcelSql(newFile: File, template: File, query: Query) {
 
     private val parser: Parser = Parser(query)
 
-    fun requestParam(container: Container) {
-        if(rowData.isEmpty() || rowData[0].tag !is ParamTag) throw Exception("не найдены параметры")
+    fun requestParam(container: Container, afterProcess: (File)->Unit = {}) {
+        checkErrorByRow(0) {
+            if(rowData.isEmpty() || rowData[0].tag !is ParamTag) throw Exception("не найдены параметры")
 
-        val diffRow = buildRow(rowData[0], 0)
+            buildRow(rowData[0], 0)
 
-        val params =  rowData[0].tag as ParamTag
+            val params = rowData[0].tag as ParamTag
 
+            buildParams(container, params.params) {
+                processData(1)
 
+                afterProcess(newFile)
+            }
+        }
     }
 
-    fun processData() {
+    fun processData(startRowIndex: Int = 0) {
 
-        var diffRow = 0
-        for(row in rowData) {
-            diffRow = buildRow(row, diffRow)
-        }
+        executeData(startRowIndex)
 
         parser.rollbackAfterExec()
 
@@ -68,11 +71,27 @@ class ExcelSql(newFile: File, template: File, query: Query) {
         this.rowData = rowData
     }
 
+    private fun executeData(startRowIndex: Int = 0) {
+        if(startRowIndex >= rowData.size) return
+
+        var diffRow = 0
+
+        for(index in startRowIndex until rowData.size) {
+            checkErrorByRow(index) {
+                val row =  rowData[index]
+                diffRow = buildRow(row, diffRow)
+            }
+        }
+    }
+
     private fun checkErrorByRow(rowIndex: Int, process: ()->Unit ) {
         try {
             process()
         } catch (e: Exception) {
             logger.error("rowIndex=$rowIndex", e)
+
+            parser.rollbackAfterExec()
+
             throw Exception("ROW ERROR = $rowIndex\n ${e.message}")
         }
     }

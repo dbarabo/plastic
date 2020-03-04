@@ -52,5 +52,5 @@ private fun findVarBracket(expr: String, vars: List<Var>, funParam: ComponentTyp
     val varParam = vars.firstOrNull { it.name == varParamName }
         ?: throw Exception("переменная параметра с именем $varParamName не найдена в параметре $expr")
 
-    return Pair(varParam, startIndex + 1)
+    return Pair(varParam, closeVar + 1)
 }
