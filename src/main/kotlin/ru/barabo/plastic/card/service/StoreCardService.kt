@@ -1,9 +1,7 @@
 package ru.barabo.plastic.card.service
 
 import oracle.jdbc.OracleTypes
-import org.apache.log4j.Logger
 import ru.barabo.db.EditType
-import ru.barabo.db.Query
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.annotation.QuerySelect
 import ru.barabo.db.service.StoreFilterService
@@ -23,7 +21,6 @@ import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import ru.barabo.plastic.unnamed.data.DBStoreInPath
 import ru.barabo.plastic.unnamed.data.sendIvr
 import ru.barabo.plastic.unnamed.general.bySqlLike
-import java.lang.NumberFormatException
 
 abstract class StoreCardService(private val modeService: ModeService) :  StoreFilterService<Card>(AfinaOrm, Card::class.java), ParamsSelect, CardService {
 

@@ -50,10 +50,8 @@ private class ReportPane(paramPanel: JPanel) : JToolBar(VERTICAL) {
         isFloatable = true
 
         add( JXTaskPane("Пластик").apply {
-            alignmentX = 0.0f
 
             add(JXTaskPane("Эквайринг").apply {
-                alignmentX = 0.0f
 
                 add(JXHyperlink().apply {
                     text = "Выдача наличных в банкоматах"
