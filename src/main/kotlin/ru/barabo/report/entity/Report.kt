@@ -1,17 +1,20 @@
 package ru.barabo.report.entity
 
 import ru.barabo.db.annotation.*
+import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
+import ru.barabo.total.report.rtf.RtfReport
 import java.io.File
 import java.sql.Timestamp
 import java.util.*
 
-@SelectQuery("""select r.id, r.directory, r.state, r.state, r.name, r.template_name, 
+@SelectQuery("""select r.id, r.directory, r.state, r.name, r.template_name, 
   r.version_id, r.creator, r.created, r.updater, r.updated
 from od.xls_report r
-where r.directory = ?""")
+where r.directory = ?
+order by r.id""")
 @TableName("OD.XLS_REPORT")
-data class Report(
+data class Report (
     @ColumnName("ID")
     @SequenceName(SEQ_CLASSIFIED)
     @ColumnType(java.sql.Types.BIGINT)
@@ -45,8 +48,38 @@ data class Report(
     @ColumnName("UPDATED")
     var updated: Timestamp = Timestamp(Date().time),
 
-    private var templateFile: File? = null,
+    var templateFile: File? = null,
 
-    private var owner: Directory? = null
-)
+    var owner: Directory? = null
+) {
 
+    fun getTemplate(): File {
+        if(id == null || fileName.isBlank()) throw Exception("must be report.id is not null and report.template is not empty")
+
+        val templateFile = File("${defaultTemplateDirectory()}/$fileName")
+
+        return AfinaQuery.selectBlobToFile(SELECT_BLOB_TEMPLATE_REPORT, arrayOf(id), templateFile)
+    }
+
+    fun uploadFile() {
+        if(id == null ||templateFile?.exists() != true) throw Exception("must be exists template file $templateFile")
+
+        AfinaQuery.execute(UPDATE_BLOB_BY_FILE, arrayOf(templateFile, id))
+    }
+}
+
+private const val UPDATE_BLOB_BY_FILE = "update OD.XLS_REPORT r set TEMPLATE = ? where r.id = ?"
+
+private const val SELECT_BLOB_TEMPLATE_REPORT = "select r.TEMPLATE from OD.XLS_REPORT r where r.id = ?"
+
+private fun defaultTemplateDirectory(): File = defaultDirectory("temp")
+
+fun defaultDirectory(dirName: String): File {
+    val directory = File("${RtfReport.getDefaultToDirectory().absolutePath}/$dirName")
+
+    if(!directory.exists()) {
+        directory.mkdirs()
+    }
+
+    return directory
+}

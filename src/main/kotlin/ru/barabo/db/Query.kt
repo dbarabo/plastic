@@ -3,10 +3,7 @@ package ru.barabo.db
 import oracle.jdbc.OracleCallableStatement
 import oracle.jdbc.OracleTypes
 import org.apache.log4j.Logger
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
+import java.io.*
 import java.sql.*
 import java.util.concurrent.atomic.AtomicLong
 
@@ -512,22 +509,23 @@ open class Query (protected val dbConnection :DbConnection) {
 }
 
 @Throws(SQLException::class)
-fun PreparedStatement.setParams(inParams :Array<Any?>? = null, shiftOutParams :Int = 0) :PreparedStatement {
+fun PreparedStatement.setParams(inParams :Array<Any?>? = null, shiftOutParams: Int = 0) :PreparedStatement {
 
     if(inParams == null) {
         return this
     }
 
-    for (index in 0 until inParams.size) {
+    for (index in inParams.indices) {
 
-        if (inParams[index] is Class<*>) {
-
-            this.setNull(index + 1 + shiftOutParams, Type.getSqlTypeByClass(inParams[index] as Class<*>))
-        } else {
-
-            this.setObject(index + 1 + shiftOutParams, inParams[index])
+        when(inParams[index]) {
+            is Class<*> -> setNull(index + 1 + shiftOutParams, Type.getSqlTypeByClass(inParams[index] as Class<*>))
+            is File -> {
+                val inputStream = FileInputStream(inParams[index] as File)
+                setBinaryStream(index + 1 + shiftOutParams, inputStream)
+            }
+            else -> setObject(index + 1 + shiftOutParams, inParams[index])
         }
-    }
+     }
     return this
 }
 

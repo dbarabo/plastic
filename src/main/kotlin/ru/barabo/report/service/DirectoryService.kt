@@ -7,16 +7,26 @@ import ru.barabo.report.entity.GroupDirectory
 
 object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::class.java) {
 
-    private val directories: MutableList<GroupDirectory> = ArrayList()
+    lateinit var directories: MutableList<GroupDirectory>
+    private set
 
     private var parentGroup: GroupDirectory? = null
 
+    var selectedDirectory: GroupDirectory? = null
+
     override fun initData() {
+
+        if(!::directories.isInitialized) {
+            directories = ArrayList()
+        }
+
         directories.clear()
 
         parentGroup = null
 
         super.initData()
+
+        selectedDirectory = if(directories.isEmpty()) null else directories[0]
     }
 
     override fun processInsert(item: Directory) {
@@ -27,10 +37,9 @@ object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::cla
 
         val group = GroupDirectory(directory = item, parent = parent, reports = reports)
 
-        directories.add(group)
-
         if(parent == null) {
             parentGroup = group
+            directories.add(group)
         } else {
             parentGroup?.childDirectories?.add(group)
         }

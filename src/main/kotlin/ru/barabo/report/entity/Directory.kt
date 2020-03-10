@@ -22,7 +22,9 @@ data class Directory(
 
     @ColumnName("ICON")
     var icon: String = ""
-)
+) {
+    override fun toString() = "id=$id, name=$name"
+}
 
 data class GroupDirectory(
     var directory: Directory = Directory(),
@@ -31,7 +33,7 @@ data class GroupDirectory(
 
     val reports: List<Report> = emptyList(),
 
-    val childDirectories: MutableList<GroupDirectory>? = ArrayList()
+    val childDirectories: MutableList<GroupDirectory> = ArrayList()
 )
 
 private const val SEQ_XLS_DIRECTORY = "select OD.SEQ_XLS_DIRECTORY.nextval from dual"

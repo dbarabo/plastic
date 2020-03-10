@@ -18,6 +18,13 @@ open class StoreFilterService<T: Any>(orm: TemplateQuery, clazz: Class<T>) : Sto
 
     fun selectedEntity(): T? = if(selectedRowIndex < 0 || selectedRowIndex >= dataListCount()) null else getEntity(selectedRowIndex)
 
+    fun setSelectedEntity(value: T) {
+        val index = (if(isFiltered) filterdList.withIndex().firstOrNull { it.value == value }
+                          else dataList.withIndex().firstOrNull { it.value == value }) ?: return
+
+        selectedRowIndex = index.index
+    }
+
     private val filterdList = ArrayList<T>()
 
     fun reselectRow() {

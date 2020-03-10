@@ -11,13 +11,15 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ExcelSql(private val newFile: File, template: File, query: Query) {
+class ExcelSql(private val template: File, query: Query, private val generateNewFile:(File)->File) {
 
     private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
 
-    private val newBook: WritableWorkbook = createNewBook(newFile, template)
+    private lateinit var newBook: WritableWorkbook
 
-    private val sheet = newBook.getSheet(0)
+    private var newFile: File? = null
+
+    private lateinit var sheet: WritableSheet
 
     private lateinit var rowData: List<Row>
 
@@ -34,9 +36,14 @@ class ExcelSql(private val newFile: File, template: File, query: Query) {
             val params = rowData[0].tag as ParamTag
 
             buildParams(container, params.params) {
+                if(newFile == null) {
+                    initNewBook()
+                }
+
                 processData(1)
 
-                afterProcess(newFile)
+                afterProcess(newFile!!)
+                newFile = null
             }
         }
     }
@@ -51,7 +58,18 @@ class ExcelSql(private val newFile: File, template: File, query: Query) {
         newBook.save()
     }
 
+
+    private fun initNewBook() {
+        newFile = generateNewFile(template)
+
+        newBook = createNewBook(newFile!!, template)
+
+        sheet = newBook.getSheet(0)
+    }
+
     fun initRowData(vars: MutableList<Var>) {
+        initNewBook()
+
         this.vars =  vars
 
         val rowData = ArrayList<Row>()

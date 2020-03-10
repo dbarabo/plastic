@@ -110,6 +110,7 @@ fun Container.textFieldHorizontal(label: String, gridY: Int): JTextField {
 
     return JTextField().apply {
 
+
         this@textFieldHorizontal.add(this, textConstraint(gridY = gridY, gridX = 1) )
     }
 }
