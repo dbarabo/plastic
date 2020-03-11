@@ -3,6 +3,7 @@ package ru.barabo.plastic.report.gui
 import ru.barabo.plastic.schema.gui.schema.AbstractDialog
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.terminal.gui.buttonHorisontal
+import ru.barabo.report.entity.Report
 import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.ReportService
 import java.awt.Component
@@ -13,7 +14,7 @@ import javax.swing.JFileChooser
 import javax.swing.JTextField
 import javax.swing.filechooser.FileNameExtensionFilter
 
-class DialogCreateReport(component: Component) : AbstractDialog(component, "Создать отчет") {
+class DialogCreateReport(private val report: Report?, component: Component) : AbstractDialog(component, "Создать отчет") {
 
     private var nameReport: JTextField
 
@@ -24,13 +25,19 @@ class DialogCreateReport(component: Component) : AbstractDialog(component, "Со
     init {
         textFieldHorizontal("Папка-владелец", 0).apply {
             isEditable = false
-            text = DirectoryService.selectedDirectory?.directory?.name
+            text = report?.owner?.name ?: DirectoryService.selectedDirectory?.directory?.name
         }
 
-        textFieldHorizontal("Название отчета", 1).apply { nameReport = this }
+        textFieldHorizontal("Название отчета", 1).apply {
+            nameReport = this
+
+            text = report?.name
+        }
 
         buttonHorisontal("xls-шаблон", "...", 2, ::selectXlsTemplateFile).apply {
             selectedXls = this
+
+            text =  if(report?.fileName.isNullOrBlank() ) "..." else report?.fileName
         }
 
         createOkCancelButton(3, 1)
@@ -40,10 +47,14 @@ class DialogCreateReport(component: Component) : AbstractDialog(component, "Со
 
     override fun okProcess() {
 
-
         if(selectedFile == null || nameReport.text.isNullOrBlank()) throw Exception("Название отчета и xls-файл шаблона должны быть заполнены")
 
-        ReportService.createNewReport(nameReport.text, selectedFile!!)
+        if(report?.id == null) {
+            ReportService.createNewReport(nameReport.text, selectedFile!!)
+        } else {
+
+            ReportService.updateReport(report, nameReport.text, selectedFile!!)
+        }
     }
 
     private fun selectXlsTemplateFile() {

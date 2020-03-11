@@ -13,8 +13,6 @@ import kotlin.collections.ArrayList
 
 class ExcelSql(private val template: File, query: Query, private val generateNewFile:(File)->File) {
 
-    private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
-
     private lateinit var newBook: WritableWorkbook
 
     private var newFile: File? = null
@@ -27,7 +25,13 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
     private val parser: Parser = Parser(query)
 
-    fun requestParam(container: Container, afterProcess: (File)->Unit = {}) {
+    fun buildWithrequestParam(vars: MutableList<Var>, paramContainer: ParamContainer) {
+        initRowData(vars)
+
+        requestParam(paramContainer)
+    }
+
+    private fun requestParam(paramContainer: ParamContainer) {
         checkErrorByRow(0) {
             if(rowData.isEmpty() || rowData[0].tag !is ParamTag) throw Exception("не найдены параметры")
 
@@ -35,17 +39,46 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
             val params = rowData[0].tag as ParamTag
 
-            buildParams(container, params.params) {
+            buildParams(paramContainer, params.params) {
                 if(newFile == null) {
-                    initNewBook()
+                    resetAllBuild(params.params)
                 }
 
                 processData(1)
 
-                afterProcess(newFile!!)
+                paramContainer.afterReportCreated(newFile!!)
                 newFile = null
             }
         }
+    }
+
+    private fun resetAllBuild(params: List<Param>) {
+        initNewBook()
+
+        val cursorVars = findCursorParams(params, vars)
+        vars.clear()
+
+        vars.addAll(cursorVars)
+
+        for(param in params) {
+            vars.add(param.varParam)
+        }
+
+        initRowData(vars)
+    }
+
+    private fun findCursorParams(params: List<Param>, vars: MutableList<Var>): List<Var> {
+
+        val cursorVarList: ArrayList<Var> = ArrayList()
+
+        for(param in params) {
+            if(param.cursor == null) continue
+            param.cursor.reInitRow()
+            val cursorVar = vars.firstOrNull { it.result.value === param.cursor } ?: continue
+
+            cursorVarList += cursorVar
+        }
+        return cursorVarList
     }
 
     fun processData(startRowIndex: Int = 0) {
@@ -55,6 +88,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         parser.rollbackAfterExec()
 
         for (columnIndex in 0 until DATA_COLUMN)  sheet.setColumnView(columnIndex, 0)
+        sheet.setRowView(0,0)
         newBook.save()
     }
 
@@ -318,6 +352,8 @@ private const val PARAM_COLUMN = 2
 
 private const val FORMULA_COLUMN = 0
 
+private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
+
 data class Row(val tag: Tag,
                val index: Int,
                val expr: Expression,
@@ -436,4 +472,12 @@ fun WritableSheet.newRowFromSource(srcRowIndex: Int, isClearCopyData: Boolean = 
 
         this.addCell(newCell)
     }
+}
+
+interface ParamContainer {
+    val container: Container
+
+    fun afterParamCreate() {}
+
+    fun afterReportCreated(reportFile: File)
 }

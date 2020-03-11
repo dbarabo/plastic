@@ -23,6 +23,10 @@ class CursorData(private val querySession: QuerySession, private val querySelect
             ?: ColumnResult(this, columnName).apply { columnResult += this }
     }
 
+    fun reInitRow() {
+        row = 0
+    }
+
     fun isNext(): Boolean {
         return if(row + 1 < data.size) {
             row++

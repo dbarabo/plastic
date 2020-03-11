@@ -1,18 +1,24 @@
 package ru.barabo.xls
 
 import org.jdesktop.swingx.JXDatePicker
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator
 import org.slf4j.LoggerFactory
+import ru.barabo.plastic.fio.gui.maxSpaceYConstraint
 import ru.barabo.plastic.schema.gui.account.processShowError
+import ru.barabo.report.gui.DateTimePicker
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.sql.Timestamp
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
+import java.time.ZoneId
 import java.util.*
 import javax.swing.*
 import javax.swing.text.NumberFormatter
@@ -26,8 +32,10 @@ enum class ComponentType(val countParam: Int) {
     TEXTFIELDINT(1),
     TEXTFIELDAMOUNT(1),
     DATEPICKER(1),
+    DATETIMEPICKER(1),
     CHECKBOX(1),
     COMBOBOX(2),
+    COMBOSEARCH(2),
     TABLEBOX(2)
 }
 
@@ -35,7 +43,11 @@ fun paramFunByName(funName: String): ComponentType? = ComponentType.values().fir
 
 private val logger = LoggerFactory.getLogger(Param::class.java)
 
-fun buildParams(container: Container, params: List<Param>, processOk:()->Unit) {
+fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:()->Unit) {
+
+    val container = paramContainer.container
+
+    container.removeAll()
 
     container.layout = GridBagLayout()
 
@@ -45,8 +57,10 @@ fun buildParams(container: Container, params: List<Param>, processOk:()->Unit) {
             ComponentType.TEXTFIELDINT -> container.textFieldInt(param.varParam, index)
             ComponentType.TEXTFIELDAMOUNT -> container.textFieldAmount(param.varParam, index)
             ComponentType.DATEPICKER -> container.datePicker(param.varParam, index)
+            ComponentType.DATETIMEPICKER -> container.dateTimePicker(param.varParam, index)
             ComponentType.CHECKBOX -> container.checkBox(param.varParam, index)
             ComponentType.COMBOBOX -> container.comboBox(param.varParam, param.cursor!!, index)
+            ComponentType.COMBOSEARCH -> container.comboSearch(param.varParam, param.cursor!!, index)
             // ComponentType.TABLEBOX ->
             else -> throw Exception("component not found for componentType=${param.componentType}")
         }
@@ -54,11 +68,11 @@ fun buildParams(container: Container, params: List<Param>, processOk:()->Unit) {
 
     container.add(JButton("Ok").apply { addActionListener { processShowError { processOk() } } }, labelConstraint(params.size) )
 
-    //container.invalidate()
-    //container.repaint()
+    container.maxSpaceYConstraint(params.size + 1)
 
     container.parent.revalidate()
-    //container.parent.repaint()
+
+    paramContainer.afterParamCreate()
 }
 
 private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
@@ -69,11 +83,44 @@ private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
 
     val datePicker = JXDatePicker().apply { this.date = varParam.result.value as? Date}
 
-    datePicker.addActionListener{ varResultDateListener(varParam.result, datePicker) }
+    datePicker.addActionListener { varResultDateListener(varParam.result, datePicker) }
+
+    datePicker.editor.addFocusListener(object : FocusListener {
+        override fun focusLost(e: FocusEvent?) {
+            varResultDateListener(varParam.result, datePicker)
+        }
+
+        override fun focusGained(e: FocusEvent?) {}
+    })
 
     this.add(datePicker, textConstraint(gridY = gridY, gridX = 1) )
 
     return datePicker
+}
+
+private fun Container.dateTimePicker(varParam: Var, gridY: Int): JXDatePicker {
+
+    val label = varParam.name.replace('_', ' ').toLowerCase()
+
+    add( JLabel(label), labelConstraint(gridY) )
+
+    val dateTimePicker = JXDatePicker().apply { this.date = varParam.result.value as? Date}
+
+    dateTimePicker.setFormats("dd.MM.yyyy HH:mm:ss")
+
+    dateTimePicker.addActionListener { varResultDateTimeListener(varParam.result, dateTimePicker) }
+
+    dateTimePicker.editor.addFocusListener(object : FocusListener {
+        override fun focusLost(e: FocusEvent?) {
+            varResultDateTimeListener(varParam.result, dateTimePicker)
+        }
+
+        override fun focusGained(e: FocusEvent?) {}
+    })
+
+    this.add(dateTimePicker, textConstraint(gridY = gridY, gridX = 1) )
+
+    return dateTimePicker
 }
 
 private fun Container.comboBox(varParam: Var, cursor: CursorData, gridY: Int): JComboBox<ComboArray> {
@@ -92,8 +139,36 @@ private fun Container.comboBox(varParam: Var, cursor: CursorData, gridY: Int): J
 
     combo.addActionListener {
         cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
+    }
 
-        logger.error("combo set varParam=${varParam.result}")
+    if(comboData.size > 8) {
+        combo.maximumRowCount = if(comboData.size > 12) 12 else comboData.size
+    }
+
+    return combo
+}
+
+private fun Container.comboSearch(varParam: Var, cursor: CursorData, gridY: Int): JComboBox<ComboArray> {
+    val comboData = Vector(cursor.data.map { ComboArray(it) }.toMutableList())
+
+    val combo = JComboBox(comboData)
+
+    AutoCompleteDecorator.decorate(combo)
+
+    val label = varParam.name.replace('_', ' ').toLowerCase()
+
+    add( JLabel(label), labelConstraint(gridY) )
+
+    this.add(combo, textConstraint(gridY = gridY, gridX = 1) )
+
+    cursor.findRowByRecord(varParam.result.value as Record)?.let { combo.selectedIndex = it }
+
+    combo.addActionListener {
+        cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
+    }
+
+    if(comboData.size > 8) {
+        combo.maximumRowCount = if(comboData.size > 12) 12 else comboData.size
     }
 
     return combo
@@ -137,6 +212,14 @@ private fun Container.textFieldAmount(varParam: Var, gridY: Int): JTextField {
 
     textField.addKeyListener(VarKeyLister(varParam.result) )
 
+    textField.addFocusListener(object : FocusListener {
+        override fun focusLost(e: FocusEvent?) {
+            varResultTextFieldListener(varParam.result, textField)
+        }
+
+        override fun focusGained(e: FocusEvent?) {}
+    })
+
     return textField
 }
 
@@ -152,6 +235,14 @@ private fun Container.textFieldInt(varParam: Var, gridY: Int): JTextField {
     this.add(textField, textConstraint(gridY = gridY, gridX = 1) )
 
     textField.addKeyListener(VarKeyLister(varParam.result) )
+
+    textField.addFocusListener(object : FocusListener {
+        override fun focusLost(e: FocusEvent?) {
+            varResultTextFieldListener(varParam.result, textField)
+        }
+
+        override fun focusGained(e: FocusEvent?) {}
+    })
 
     return textField
 }
@@ -180,6 +271,14 @@ private fun Container.textField(varParam: Var, gridY: Int): JTextField {
 
     textField.addKeyListener(VarKeyLister(varParam.result) )
 
+    textField.addFocusListener(object : FocusListener {
+        override fun focusLost(e: FocusEvent?) {
+            varResultTextFieldListener(varParam.result, textField)
+        }
+
+        override fun focusGained(e: FocusEvent?) {}
+    })
+
     return textField
 }
 
@@ -194,33 +293,44 @@ class VarKeyLister(private val varResult: VarResult? = null, private val setter:
 
         setter(textField.text)
 
-        val type = varResult?.type ?: return
-
-        if(textField.text?.isEmpty() != false) {
-            logger.error("KEY NULL varResult=$varResult")
-            varResult.value = null
-            return
-        }
-
-        when (type) {
-            VarType.INT -> varResult.value = textField.text.trim().toIntOrNull()
-            VarType.NUMBER -> varResult.value = textField.text.trim().toDoubleOrNull()
-            VarType.VARCHAR -> varResult.value = textField.text
-            else -> {}
-        }
-
-        logger.error("KEY varResult=$varResult")
+        varResultTextFieldListener(varResult, textField)
     }
 }
 
+private fun varResultTextFieldListener(varResult: VarResult?, textField: JTextField) {
+    val type = varResult?.type ?: return
+
+    if(textField.text?.isEmpty() != false) {
+        varResult.value = null
+        return
+    }
+
+    when (type) {
+        VarType.INT -> varResult.value = textField.text.trim().toIntOrNull()
+        VarType.NUMBER -> varResult.value = textField.text.trim().toDoubleOrNull()
+        VarType.VARCHAR -> varResult.value = textField.text
+        else -> {}
+    }
+}
+
+private fun varResultDateTimeListener(varResult: VarResult, datePicker: JXDatePicker) {
+
+    datePicker.editor.commitEdit()
+
+    varResult.value = if(datePicker.editor.value is Date)Timestamp((datePicker.editor.value as Date).time) else Timestamp(datePicker.date.time)
+}
+
 private fun varResultDateListener(varResult: VarResult, datePicker: JXDatePicker) {
-    varResult.value = Timestamp(datePicker.date.time)
-    logger.error("DATE varResult=$varResult")
+
+    datePicker.editor.commitEdit()
+
+    val date = datePicker.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+    varResult.value = Timestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
 }
 
 private fun varResultCheckOnOff(varResult: VarResult) {
     varResult.value = if(varResult.toBoolean() ) 0 else 1
-    logger.error("CHECK varResult=$varResult")
 }
 
 internal fun textConstraint(gridY: Int, height: Int = 1, gridX: Int = 0, width: Int = 1) =

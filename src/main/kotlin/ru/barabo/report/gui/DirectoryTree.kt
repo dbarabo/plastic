@@ -2,41 +2,60 @@ package ru.barabo.report.gui
 
 import org.jdesktop.swingx.JXHyperlink
 import org.jdesktop.swingx.JXTaskPane
-import org.slf4j.LoggerFactory
+import ru.barabo.db.EditType
+import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.schema.gui.account.processShowError
+import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
 import ru.barabo.report.entity.Report
 import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.ReportService
+import ru.barabo.xls.ParamContainer
 import java.awt.Container
 import java.awt.Desktop
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import java.io.File
 import javax.swing.BoxLayout
+import javax.swing.JLabel
 import javax.swing.JToolBar
 
-private val logger = LoggerFactory.getLogger(DirectoryTree::class.java)
+class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : JToolBar(VERTICAL) {
 
-class DirectoryTree(private val paramPanel: Container) : JToolBar(VERTICAL) {
+    private val refreshReport = Refresher<Report>(this, title)
+    private val refreshDirectory = Refresher<Directory>(this, title)
 
     init {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
         isFloatable = true
 
-        rebuild()
+        rebuild(title)
+
+        DirectoryService.addListener(refreshDirectory)
+        ReportService.addListener(refreshReport)
     }
 
-    fun rebuild() {
+    internal fun rebuild(title: JLabel?) {
+        this.removeAll()
 
         for(groupDirectory in DirectoryService.directories) {
 
-            add( groupDirectory.buildTree(paramPanel) )
+            add( groupDirectory.buildTree(paramPanel, title) )
         }
     }
 }
 
-private fun GroupDirectory.buildTree(paramPanel: Container): Container {
+private class Refresher<T>(private val tree: DirectoryTree, private val title: JLabel?): StoreListener<List<T>> {
+
+    override fun refreshAll(elemRoot: List<T>, refreshType: EditType) {
+        if(refreshType in listOf(EditType.INSERT, EditType.EDIT, EditType.DELETE, EditType.INIT, EditType.ALL) ) {
+            tree.rebuild(title)
+        }
+    }
+}
+
+private fun GroupDirectory.buildTree(paramPanel: Container, title: JLabel?): Container {
 
     val item = JXTaskPane(directory.name)
 
@@ -48,34 +67,42 @@ private fun GroupDirectory.buildTree(paramPanel: Container): Container {
     )
 
     for(childDirectory in childDirectories) {
-        item.add( childDirectory.buildTree(paramPanel) )
+        item.add( childDirectory.buildTree(paramPanel, title) )
     }
 
     for(report in reports) {
-        item.add( report.buildItem(paramPanel) )
+        item.add( report.buildItem(paramPanel, title) )
     }
 
     return item
 }
 
-private fun Report.buildItem(paramPanel: Container): Container {
+private fun Report.buildItem(paramPanel: Container, title: JLabel?): Container {
     val reportItem = JXHyperlink()
 
     reportItem.text = name
 
-    reportItem.addActionListener { this.clickReport(paramPanel)  }
+    reportItem.addActionListener { this.clickReport(paramPanel, title)  }
 
     return reportItem
 }
 
-private fun Report.clickReport(paramPanel: Container) {
+private fun Report.clickReport(paramPanel: Container, title: JLabel?) {
 
-    processShowError {
+   processShowError {
+       title?.text = name
 
-        val exceSql = ReportService.prepareRun(this)
+       ReportService.prepareRun(this)
+           .buildWithrequestParam(ArrayList(), Params(paramPanel) )
+   }
+}
 
-        exceSql.requestParam(paramPanel) {
-            processShowError { Desktop.getDesktop().open(it) }
+private class Params(override val container: Container): ParamContainer {
+
+    override fun afterReportCreated(reportFile: File) {
+        processShowError {
+            Desktop.getDesktop().open(reportFile)
         }
     }
 }
+

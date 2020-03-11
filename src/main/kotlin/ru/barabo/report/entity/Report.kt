@@ -3,6 +3,7 @@ package ru.barabo.report.entity
 import ru.barabo.db.annotation.*
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
+import ru.barabo.report.service.DirectoryService
 import ru.barabo.total.report.rtf.RtfReport
 import java.io.File
 import java.sql.Timestamp
@@ -56,9 +57,11 @@ data class Report (
     fun getTemplate(): File {
         if(id == null || fileName.isBlank()) throw Exception("must be report.id is not null and report.template is not empty")
 
-        val templateFile = File("${defaultTemplateDirectory()}/$fileName")
+        templateFile = File("${defaultTemplateDirectory()}/$fileName")
 
-        return AfinaQuery.selectBlobToFile(SELECT_BLOB_TEMPLATE_REPORT, arrayOf(id), templateFile)
+        owner = DirectoryService.directoryById(directory)
+
+        return AfinaQuery.selectBlobToFile(SELECT_BLOB_TEMPLATE_REPORT, arrayOf(id), templateFile!!)
     }
 
     fun uploadFile() {

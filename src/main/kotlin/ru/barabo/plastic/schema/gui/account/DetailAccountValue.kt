@@ -342,10 +342,14 @@ class DetailAccountValue : JPanel(), StoreListener<List<AccountValue>> {
     }
 }
 
+private val logger = Logger.getLogger("processShowError")
+
 fun processShowError(process: ()->Unit) {
     try {
         process()
     } catch (e: Exception) {
+        logger.error("processShowError", e)
+
         errorMessage(e.message)
     }
 }

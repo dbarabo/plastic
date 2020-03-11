@@ -44,4 +44,8 @@ object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::cla
             parentGroup?.childDirectories?.add(group)
         }
     }
+
+    fun directoryById(directoryId: Long?): Directory? =
+        if(directoryId == null) null else dataList.firstOrNull { it.id == directoryId }
+
 }

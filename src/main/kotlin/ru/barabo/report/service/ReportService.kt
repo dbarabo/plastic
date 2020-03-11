@@ -6,8 +6,9 @@ import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.report.entity.Report
 import ru.barabo.xls.ExcelSql
-import ru.barabo.xls.Var
 import java.io.File
+import java.sql.Timestamp
+import java.util.*
 
 object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java), ParamsSelect {
 
@@ -39,22 +40,28 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         report.uploadFile()
     }
 
-    fun prepareRun(report: Report): ExcelSql{
+    fun updateReport(report: Report, reportName: String, template: File) {
 
-        HistoryRunService.historyByReport(report)
+        report.name = reportName
+        report.updater = AfinaQuery.getUserDepartment().userName!!
+        report.updated = Timestamp(Date().time)
+        report.templateFile = template
+
+        val saveReport = save(report)
+        saveReport.templateFile = template
+        report.uploadFile()
+    }
+
+    fun prepareRun(report: Report): ExcelSql{
 
         val template = report.getTemplate()
 
-        val vars = ArrayList<Var>()
+        HistoryRunService.historyByReport(report)
 
-        val excelSql = ExcelSql(template, AfinaQuery, ::generateNewFile)
-
-        excelSql.initRowData(vars)
-
-        return excelSql
+        return ExcelSql(template, AfinaQuery, ::generateNewFile)
     }
 
-    fun generateNewFile(template: File): File {
+    private fun generateNewFile(template: File): File {
 
         val report = HistoryRunService.selectedReport ?: throw Exception("selected report is not found")
 
