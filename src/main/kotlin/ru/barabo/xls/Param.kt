@@ -2,10 +2,9 @@ package ru.barabo.xls
 
 import org.jdesktop.swingx.JXDatePicker
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator
-import org.slf4j.LoggerFactory
+import ru.barabo.db.toSqlDate
 import ru.barabo.plastic.fio.gui.maxSpaceYConstraint
 import ru.barabo.plastic.schema.gui.account.processShowError
-import ru.barabo.report.gui.DateTimePicker
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -41,13 +40,16 @@ enum class ComponentType(val countParam: Int) {
 
 fun paramFunByName(funName: String): ComponentType? = ComponentType.values().firstOrNull { it.name == funName }
 
-private val logger = LoggerFactory.getLogger(Param::class.java)
+// private val logger = LoggerFactory.getLogger(Param::class.java)
 
 fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:()->Unit) {
 
     val container = paramContainer.container
 
     container.removeAll()
+    container.revalidate()
+    container.parent.revalidate()
+    container.repaint()
 
     container.layout = GridBagLayout()
 
@@ -70,7 +72,9 @@ fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:(
 
     container.maxSpaceYConstraint(params.size + 1)
 
+    container.revalidate()
     container.parent.revalidate()
+    container.repaint()
 
     paramContainer.afterParamCreate()
 }
@@ -228,7 +232,7 @@ private fun Container.textFieldInt(varParam: Var, gridY: Int): JTextField {
 
     add( JLabel(label), labelConstraint(gridY) )
 
-    val textField = JFormattedTextField( IntegerFormat() )
+    val textField = JFormattedTextField( integerFormat() )
 
     textField.text = (varParam.result.value as? Number)?.toInt()?.toString() ?: "0"
 
@@ -247,7 +251,7 @@ private fun Container.textFieldInt(varParam: Var, gridY: Int): JTextField {
     return textField
 }
 
-private fun IntegerFormat(): NumberFormatter {
+private fun integerFormat(): NumberFormatter {
     val format = NumberFormat.getInstance()
     format.isGroupingUsed = false //Remove comma from number greater than 4 digit
 
@@ -317,7 +321,8 @@ private fun varResultDateTimeListener(varResult: VarResult, datePicker: JXDatePi
 
     datePicker.editor.commitEdit()
 
-    varResult.value = if(datePicker.editor.value is Date)Timestamp((datePicker.editor.value as Date).time) else Timestamp(datePicker.date.time)
+    varResult.value = if(datePicker.editor.value is Date)Timestamp((datePicker.editor.value as Date).time)
+                        else Timestamp(datePicker.date.time)
 }
 
 private fun varResultDateListener(varResult: VarResult, datePicker: JXDatePicker) {
@@ -326,7 +331,7 @@ private fun varResultDateListener(varResult: VarResult, datePicker: JXDatePicker
 
     val date = datePicker.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
-    varResult.value = Timestamp(date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
+    varResult.value = Timestamp(date.toSqlDate().time)
 }
 
 private fun varResultCheckOnOff(varResult: VarResult) {

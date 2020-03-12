@@ -6,7 +6,7 @@ import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.report.entity.HistoryRun
 import ru.barabo.report.entity.Report
-import ru.barabo.report.entity.defaultDirectory
+import ru.barabo.report.entity.defaultReportDirectory
 import java.io.File
 import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
@@ -46,4 +46,3 @@ private fun fileByTemplate(template: File, time: Timestamp)=
 
 private fun Timestamp.formatFile(): String = DateTimeFormatter.ofPattern ("MM-dd-HH%mm%ss").format(this.toLocalDateTime())
 
-private fun defaultReportDirectory(): File = defaultDirectory("xls")

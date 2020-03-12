@@ -233,14 +233,18 @@ open class Query (protected val dbConnection :DbConnection) {
     }
 
     private fun prepareExecute(session :Session, query :String, params :Array<Any?>?,
-                               outParamTypes :IntArray?) :QueryRequest {
+                               outParamTypes :IntArray?): QueryRequest {
 
         return try {
-            if(outParamTypes?.size?:0 == 0)
-                QueryRequest(query, params, session.session.prepareStatement(query)?.setParams(params))
-            else
-                QueryRequest(query, params, session.session.prepareCall(query)?.setParams(outParamTypes as IntArray, params))
+            if(outParamTypes?.size?:0 == 0) {
+                val prepareStatement = session.session.prepareStatement(query)
 
+                val fileStream = prepareStatement?.setParams(params)
+
+                QueryRequest(query, params, prepareStatement, fileInputStream = fileStream)
+            } else {
+                QueryRequest(query, params, session.session.prepareCall(query)?.setParams(outParamTypes as IntArray, params))
+            }
         } catch (e : SQLException) {
             logger.error("QUERY=$query")
             params?.forEach { logger.error(it?.toString()) }
@@ -258,7 +262,7 @@ open class Query (protected val dbConnection :DbConnection) {
         }
     }
 
-    private fun executePrepared(session :Session, queryRequest :QueryRequest, outParamTypes :IntArray?) :List<Any?>? {
+    private fun executePrepared(session :Session, queryRequest: QueryRequest, outParamTypes :IntArray?) :List<Any?>? {
 
         val result = if(outParamTypes?.size?:0 == 0) null else ArrayList<Any?>()
 
@@ -290,7 +294,7 @@ open class Query (protected val dbConnection :DbConnection) {
                 return executePrepared(session, queryRequest, outParamTypes)
             }
 
-            closeQueryData(session, TransactType.ROLLBACK, statement)
+            closeQueryData(session, TransactType.ROLLBACK, statement, fileInputStream = queryRequest.fileInputStream)
             throw SessionException(e.message as String)
         }
 
@@ -324,13 +328,13 @@ open class Query (protected val dbConnection :DbConnection) {
 
         val resultList = executePrepared(session, queryRequest, outParamTypes)
 
-        closeQueryData(session, sessionSetting.transactType, queryRequest.statement)
+        closeQueryData(session, sessionSetting.transactType, queryRequest.statement, fileInputStream = queryRequest.fileInputStream)
 
         return resultList
     }
 
     @Throws(SessionException::class)
-    private fun prepareSelectCursor(session :Session, query :String, params :Array<Any?>?, sessionSetting : SessionSetting) :QueryRequest {
+    private fun prepareSelectCursor(session :Session, query :String, params :Array<Any?>?, sessionSetting : SessionSetting): QueryRequest {
 
         logger.info("query=$query")
 
@@ -376,7 +380,9 @@ open class Query (protected val dbConnection :DbConnection) {
         val session = dbConnection.getSession(sessionSetting)
 
         val statement = try {
-            session.session.prepareStatement(query)?.setParams(params)?: throw SessionException(ERROR_STATEMENT_NULL)
+            session.session.prepareStatement(query).apply {
+                setParams(params)
+            } ?: throw SessionException(ERROR_STATEMENT_NULL)
         } catch (e : SQLException) {
             logger.error("query=$query")
             params?.forEach { logger.error(it?.toString()) }
@@ -474,9 +480,15 @@ open class Query (protected val dbConnection :DbConnection) {
     }
 
 
-    private fun closeQueryData(session :Session, transactType :TransactType = TransactType.ROLLBACK, statement :Statement? = null, resultSet :ResultSet? = null) {
+    private fun closeQueryData(session: Session,
+                               transactType: TransactType = TransactType.ROLLBACK,
+                               statement: Statement? = null,
+                               resultSet: ResultSet? = null,
+                               fileInputStream: InputStream? = null) {
 
         try {
+            try { fileInputStream?.close()  } catch (e: Exception) {}
+
             resultSet?.close()
 
             statement?.close()
@@ -509,39 +521,46 @@ open class Query (protected val dbConnection :DbConnection) {
 }
 
 @Throws(SQLException::class)
-fun PreparedStatement.setParams(inParams :Array<Any?>? = null, shiftOutParams: Int = 0) :PreparedStatement {
+fun PreparedStatement.setParams(inParams :Array<Any?>? = null, shiftOutParams: Int = 0): InputStream? {
 
     if(inParams == null) {
-        return this
+        return null
     }
+
+    var fileInputStream: InputStream? = null
 
     for (index in inParams.indices) {
 
         when(inParams[index]) {
             is Class<*> -> setNull(index + 1 + shiftOutParams, Type.getSqlTypeByClass(inParams[index] as Class<*>))
             is File -> {
-                val inputStream = FileInputStream(inParams[index] as File)
-                setBinaryStream(index + 1 + shiftOutParams, inputStream)
+                fileInputStream = FileInputStream(inParams[index] as File)
+                setBinaryStream(index + 1 + shiftOutParams, fileInputStream)
             }
             else -> setObject(index + 1 + shiftOutParams, inParams[index])
         }
-     }
-    return this
+    }
+
+    return fileInputStream
 }
 
 @Throws(SQLException::class)
-fun CallableStatement.setParams(outParamTypes :IntArray, inParams :Array<Any?>? = null) :CallableStatement {
+fun CallableStatement.setParams(outParamTypes :IntArray, inParams :Array<Any?>? = null): CallableStatement {
 
     for(index in outParamTypes.indices) {
         this.registerOutParameter(index + 1, outParamTypes[index])
     }
-    return setParams(inParams, outParamTypes.size) as CallableStatement
+
+    setParams(inParams, outParamTypes.size)
+
+    return this// setParams(inParams, outParamTypes.size) as CallableStatement
 }
 
 private class QueryRequest(val query :String,
                         val params :Array<Any?>?,
                         var statement :PreparedStatement?,
-                        var resultSetCursor :ResultSet? = null)
+                        var resultSetCursor :ResultSet? = null,
+                        val fileInputStream :InputStream? = null)
 
 data class WithMetaData(val data: List<Array<Any?>>, val columns: List<String>, val types: List<Int>)
 

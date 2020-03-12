@@ -1,14 +1,19 @@
 package ru.barabo.plastic.report.gui
 
+import ru.barabo.plastic.card.gui.showMessage
+import ru.barabo.plastic.schema.gui.account.groupPanel
+import ru.barabo.plastic.schema.gui.account.onlyButton
+import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.schema.AbstractDialog
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.terminal.gui.buttonHorisontal
 import ru.barabo.report.entity.Report
+import ru.barabo.report.entity.defaultReportDirectory
 import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.ReportService
 import java.awt.Component
+import java.awt.Desktop
 import java.io.File
-import java.lang.Exception
 import javax.swing.JButton
 import javax.swing.JFileChooser
 import javax.swing.JTextField
@@ -40,9 +45,39 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
             text =  if(report?.fileName.isNullOrBlank() ) "..." else report?.fileName
         }
 
-        createOkCancelButton(3, 1)
+        groupPanel("Проверка xls-отчета", 3, width = 2).apply {
+            onlyButton("Выгрузить", 0, 0, clickListener = ::downloadReportToRun).apply {
+                isEnabled = report?.id != null
+            }
+
+            onlyButton("Загрузить обратно", 0, 1, clickListener = ::uploadReportToRun).apply {
+                isEnabled = report?.id != null
+            }
+        }
+
+        createOkCancelButton(5, 1)
 
         packWithLocation()
+    }
+
+    private fun downloadReportToRun() {
+
+        processShowError {
+            val template = report?.getTemplate( defaultReportDirectory() )
+
+            Desktop.getDesktop().open(template)
+        }
+    }
+
+    private fun uploadReportToRun() {
+
+        processShowError {
+            report?.uploadFile()
+
+            ReportService.compileReport(report!!)
+
+            showMessage("Отчет проверен успешно\nОшибки возможны только во время исполнения :)")
+        }
     }
 
     override fun okProcess() {

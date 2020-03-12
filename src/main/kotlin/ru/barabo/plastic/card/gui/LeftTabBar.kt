@@ -97,7 +97,7 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
         val reportButton = toolButton("importXLS", TabReport.TITLE) {
             addNewTabIfAbsent(this, TabReport.TITLE, TabReport::class.java)
         }
-        reportButton?.isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
+        // reportButton?.isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
 
         val max = components.maxBy { it.maximumSize.width } ?: this
         components.forEach {

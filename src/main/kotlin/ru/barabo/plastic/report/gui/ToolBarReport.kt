@@ -1,5 +1,7 @@
 package ru.barabo.plastic.report.gui
 
+import ru.barabo.plastic.afina.AccessMode
+import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.gui.menuItem
 import ru.barabo.plastic.card.gui.popupButton
 import ru.barabo.report.service.HistoryRunService
@@ -14,12 +16,16 @@ class ToolBarReport() : JToolBar() {
             menuItem("Дочернюю папку", "subfolder") {  }
 
             menuItem("Отчет", "exportXLS") { DialogCreateReport(null,this).showDialogResultOk() }
+        }.apply {
+            isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
         }
 
         popupButton("Правка ➧", "application") {
             menuItem("Папки", "folder") {  }
 
             menuItem("Отчета", "exportXLS") { DialogCreateReport(HistoryRunService.selectedReport,this).showDialogResultOk() }
+        }.apply {
+            isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
         }
     }
 }

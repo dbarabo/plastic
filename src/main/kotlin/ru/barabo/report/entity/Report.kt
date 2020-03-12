@@ -54,10 +54,10 @@ data class Report (
     var owner: Directory? = null
 ) {
 
-    fun getTemplate(): File {
+    fun getTemplate(saveDirectory: File = defaultTemplateDirectory() ): File {
         if(id == null || fileName.isBlank()) throw Exception("must be report.id is not null and report.template is not empty")
 
-        templateFile = File("${defaultTemplateDirectory()}/$fileName")
+        templateFile = File("$saveDirectory/$fileName")
 
         owner = DirectoryService.directoryById(directory)
 
@@ -75,9 +75,11 @@ private const val UPDATE_BLOB_BY_FILE = "update OD.XLS_REPORT r set TEMPLATE = ?
 
 private const val SELECT_BLOB_TEMPLATE_REPORT = "select r.TEMPLATE from OD.XLS_REPORT r where r.id = ?"
 
-private fun defaultTemplateDirectory(): File = defaultDirectory("temp")
+fun defaultTemplateDirectory(): File = defaultDirectory("temp")
 
-fun defaultDirectory(dirName: String): File {
+fun defaultReportDirectory(): File = defaultDirectory("xls")
+
+private fun defaultDirectory(dirName: String): File {
     val directory = File("${RtfReport.getDefaultToDirectory().absolutePath}/$dirName")
 
     if(!directory.exists()) {
