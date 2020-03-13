@@ -10,7 +10,8 @@ import java.sql.Timestamp
 import java.util.*
 
 @SelectQuery("""select r.id, r.directory, r.state, r.name, r.template_name, 
-  r.version_id, r.creator, r.created, r.updater, r.updated
+  r.version_id, r.creator, r.created, r.updater, r.updated,
+  (select count(*) from od.xls_history_run h where h.report = r.id) COUNT_
 from od.xls_report r
 where r.directory = ?
 order by r.id""")
@@ -49,10 +50,16 @@ data class Report (
     @ColumnName("UPDATED")
     var updated: Timestamp = Timestamp(Date().time),
 
+    @ColumnName("COUNT_")
+    @ReadOnly
+    var count: Long = 0,
+
     var templateFile: File? = null,
 
     var owner: Directory? = null
 ) {
+    val nameWithCount: String
+    get() = "$name ($count)"
 
     fun getTemplate(saveDirectory: File = defaultTemplateDirectory() ): File {
         if(id == null || fileName.isBlank()) throw Exception("must be report.id is not null and report.template is not empty")

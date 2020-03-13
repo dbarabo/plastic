@@ -8,7 +8,7 @@ import java.util.*
 @SelectQuery("""select h.id, h.report, h.state, h.VERSION_ID, h.RUNNER, h.RUNNED, h.ERROR, h.FILE_NAME, h.WORK_PLACE
 from od.XLS_HISTORY_RUN h
 where h.REPORT = ?
-order by h.id""")
+order by h.id desc""")
 @TableName("OD.XLS_HISTORY_RUN")
 data class HistoryRun(
     @ColumnName("ID")
@@ -37,4 +37,10 @@ data class HistoryRun(
 
     @ColumnName("FILE_NAME")
     var fileName: String = ""
-)
+) {
+    var info: String
+    get() = "<html>${dateTimeFormat.format(runned)}<br>$runner<br>${fileName.substringAfterLast('/')}</html>"
+    set(value) {}
+}
+
+private val dateTimeFormat = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss")

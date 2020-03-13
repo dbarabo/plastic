@@ -42,7 +42,7 @@ object HistoryRunService : StoreFilterService<HistoryRun>(AfinaOrm, HistoryRun::
 }
 
 private fun fileByTemplate(template: File, time: Timestamp)=
-    "${defaultReportDirectory()}/${template.name}-${time.formatFile()}.xls"
+    "${defaultReportDirectory()}/${template.nameWithoutExtension}-${time.formatFile()}.xls"
 
 private fun Timestamp.formatFile(): String = DateTimeFormatter.ofPattern ("MM-dd-HH%mm%ss").format(this.toLocalDateTime())
 

@@ -1,12 +1,14 @@
 package ru.barabo.plastic.report.gui
 
+import ru.barabo.gui.swing.table.ColumnTableModel
+import ru.barabo.gui.swing.table.EntityTable
+import ru.barabo.report.entity.HistoryRun
 import ru.barabo.report.gui.DirectoryTree
+import ru.barabo.report.gui.MessageInformer
+import ru.barabo.report.service.HistoryRunService
 import java.awt.BorderLayout
 import java.awt.Color
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JSplitPane
-import javax.swing.SwingConstants
+import javax.swing.*
 
 class TabReport : JPanel()  {
 
@@ -16,7 +18,7 @@ class TabReport : JPanel()  {
         val paramPanel = JPanel()
 
         val titlelReport = JLabel("", SwingConstants.CENTER).apply {
-            setOpaque(true)
+            isOpaque = true
 
             this.foreground = Color.WHITE
             this.background = Color.BLACK
@@ -30,13 +32,16 @@ class TabReport : JPanel()  {
             add(paramPanel, BorderLayout.CENTER)
         }
 
-        val resultPanel = JPanel()
+        val messageInformer = MessageInformer()
 
-        val paramResultVertSplit = JSplitPane(JSplitPane.VERTICAL_SPLIT, titlePanelParam, resultPanel).apply {
+        val paramResultVertSplit = JSplitPane(JSplitPane.VERTICAL_SPLIT, titlePanelParam, messageInformer).apply {
             resizeWeight = 0.4
         }
 
-        val historyPanel = JPanel()
+        val historyPanel = JPanel().apply {
+            layout = BorderLayout()
+            add(JScrollPane( TableHistory(this) ), BorderLayout.CENTER)
+        }
 
         val mainHorizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, paramResultVertSplit, historyPanel).apply {
             resizeWeight = 0.7
@@ -53,3 +58,15 @@ class TabReport : JPanel()  {
         const val TITLE = "Отчеты"
     }
 }
+
+class TableHistory(parent: JPanel) : EntityTable<HistoryRun>(historyRunColumns, HistoryRunService) {
+    init {
+        rowHeight = 60
+
+        background = parent.background
+    }
+}
+
+private val historyRunColumns = listOf(
+    ColumnTableModel("История", 200, HistoryRun::info, false)
+)

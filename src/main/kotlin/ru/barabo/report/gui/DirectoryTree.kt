@@ -80,7 +80,7 @@ private fun GroupDirectory.buildTree(paramPanel: Container, title: JLabel?): Con
 private fun Report.buildItem(paramPanel: Container, title: JLabel?): Container {
     val reportItem = JXHyperlink()
 
-    reportItem.text = name
+    reportItem.text = nameWithCount // name
 
     reportItem.addActionListener { this.clickReport(paramPanel, title)  }
 
