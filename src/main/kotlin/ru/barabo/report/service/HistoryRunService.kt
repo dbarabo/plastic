@@ -17,7 +17,7 @@ import java.util.*
 object HistoryRunService : StoreFilterService<HistoryRun>(AfinaOrm, HistoryRun::class.java),
     ParamsSelect, StoreListener<List<Report>> {
 
-    override fun selectParams(): Array<Any?>? = arrayOf(ReportService?.selectedReport)
+    override fun selectParams(): Array<Any?>? = arrayOf(ReportService?.selectedReport?.id ?: Long::class.javaObjectType)
 
     init {
         ReportService.addListener(this)
