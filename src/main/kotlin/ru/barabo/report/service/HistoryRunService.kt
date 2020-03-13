@@ -1,7 +1,9 @@
 package ru.barabo.report.service
 
+import ru.barabo.db.EditType
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
+import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.report.entity.HistoryRun
@@ -12,19 +14,17 @@ import java.sql.Timestamp
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-object HistoryRunService : StoreFilterService<HistoryRun>(AfinaOrm, HistoryRun::class.java), ParamsSelect {
+object HistoryRunService : StoreFilterService<HistoryRun>(AfinaOrm, HistoryRun::class.java),
+    ParamsSelect, StoreListener<List<Report>> {
 
-    var selectedReport: Report? = null
-    private set
+    override fun selectParams(): Array<Any?>? = arrayOf(ReportService?.selectedReport)
 
-    override fun selectParams(): Array<Any?>? = arrayOf(selectedReport?.id)
+    init {
+        ReportService.addListener(this)
+    }
 
-    fun historyByReport(report: Report): List<HistoryRun> {
-        selectedReport = report
-
+    override fun refreshAll(elemRoot: List<Report>, refreshType: EditType) {
         initData()
-
-        return dataList.toList()
     }
 
     fun createHistoryRun(report: Report): HistoryRun {

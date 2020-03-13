@@ -1,5 +1,6 @@
 package ru.barabo.report.service
 
+import ru.barabo.db.EditType
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.afina.AfinaOrm
@@ -15,6 +16,9 @@ import kotlin.collections.ArrayList
 object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java), ParamsSelect {
 
     private var directoryId: Long? = null
+
+    var selectedReport: Report? = null
+    private set
 
     override fun selectParams(): Array<Any?>? = arrayOf(directoryId)
 
@@ -54,11 +58,12 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         report.uploadFile()
     }
 
-    fun prepareRun(report: Report): ExcelSql{
+    fun prepareRun(report: Report): ExcelSql {
+        selectedReport = report
 
         val template = report.getTemplate()
 
-        HistoryRunService.historyByReport(report)
+        sentRefreshAllListener(EditType.CHANGE_CURSOR)
 
         return ExcelSql(template, AfinaQuery, ::generateNewFile)
     }
@@ -79,7 +84,7 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
 
     private fun generateNewFile(template: File): File {
 
-        val report = HistoryRunService.selectedReport ?: throw Exception("selected report is not found")
+        val report = selectedReport ?: throw Exception("selected report is not found")
 
         val historyRunNew = HistoryRunService.createHistoryRun(report)
 

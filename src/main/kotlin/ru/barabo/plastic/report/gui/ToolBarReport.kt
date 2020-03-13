@@ -4,7 +4,7 @@ import ru.barabo.plastic.afina.AccessMode
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.gui.menuItem
 import ru.barabo.plastic.card.gui.popupButton
-import ru.barabo.report.service.HistoryRunService
+import ru.barabo.report.service.ReportService
 import javax.swing.JToolBar
 
 class ToolBarReport() : JToolBar() {
@@ -23,7 +23,7 @@ class ToolBarReport() : JToolBar() {
         popupButton("Правка ➧", "application") {
             menuItem("Папки", "folder") {  }
 
-            menuItem("Отчета", "exportXLS") { DialogCreateReport(HistoryRunService.selectedReport,this).showDialogResultOk() }
+            menuItem("Отчета", "exportXLS") { DialogCreateReport(ReportService.selectedReport,this).showDialogResultOk() }
         }.apply {
             isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
         }
