@@ -10,6 +10,7 @@ import ru.barabo.plastic.terminal.entity.Scheduler
 import ru.barabo.plastic.terminal.service.StoreSchedulerService
 import java.awt.BorderLayout
 import java.awt.Component
+import java.lang.Exception
 import javax.swing.*
 
 class DialogScheduler(component: Component) : AbstractDialog(component, "Расписание отправки транзакций") {
@@ -20,9 +21,11 @@ class DialogScheduler(component: Component) : AbstractDialog(component, "Рас�
 
         layout = BorderLayout()
 
-        add( ToolBarScheduler { dispose() }, BorderLayout.NORTH)
-
         add(JScrollPane(TableScheduler), BorderLayout.CENTER)
+
+        add( ToolBarScheduler {
+            dispose()
+        }, BorderLayout.NORTH)
 
         packWithLocation()
     }
@@ -40,8 +43,17 @@ private val schedulerColumns = listOf(
 
 class ToolBarScheduler(disposeDialog: ()->Unit) : JToolBar() {
     init {
-        toolButton("endFilter", "Закрыть") { processShowError {
-            if(StoreSchedulerService.isCanClose()) disposeDialog() }
+        toolButton("endFilter", "Закрыть") {
+            processShowError {
+                try {
+                    TableScheduler.cellEditor.stopCellEditing()
+                } catch (e: Exception) {}
+
+
+                if(StoreSchedulerService.isCanClose()) {
+                    disposeDialog()
+                }
+            }
         }
 
         toolButton("insertDB", "Новая запись") { processShowError { StoreSchedulerService.newRecord() } }

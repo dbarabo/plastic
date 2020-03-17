@@ -5,6 +5,7 @@ import java.net.InetAddress
 import javax.swing.JOptionPane
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
+import kotlin.system.exitProcess
 
 object VersionChecker {
 
@@ -12,7 +13,7 @@ object VersionChecker {
 
     private const val PROGRAM_NAME = "PLASTIC.JAR"
 
-    private const val VERSION_JAR = 39
+    private const val VERSION_JAR = 40
 
     private const val STATE_RUN = 0
 
@@ -65,7 +66,7 @@ object VersionChecker {
 
         updateActualVersion(STATE_EXIT)
 
-        System.exit(0)
+        exitProcess(0)
     }
 
     private fun showMessageTerminate() {

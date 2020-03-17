@@ -686,7 +686,8 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
         UIManager.put("OptionPane.noButtonText", "Нет")
         val reply = JOptionPane.showConfirmDialog(
             null,
-            MSG_GO_HOME, TITLE_GO_HOME, JOptionPane.YES_NO_OPTION
+            MSG_GO_HOME,
+            TITLE_GO_HOME, JOptionPane.YES_NO_OPTION
         )
 
         if (reply != JOptionPane.YES_OPTION) return
@@ -851,8 +852,11 @@ internal enum class FilterWork {
 }
 
 fun dialogGetLimit(): Number? = parseLimit(
-    JOptionPane.showInputDialog(null, "Заполните одобренный макс. лимит кредитной карты",
-        "Лимит кредита", QUESTION_MESSAGE))
+    JOptionPane.showInputDialog(
+        null, "Заполните одобренный макс. лимит кредитной карты",
+        "Лимит кредита", QUESTION_MESSAGE
+    )
+)
 
 private fun parseLimit(limit: String?): Number? {
     val limitCheck = limit?.trim()?.replace(",", ".")?.replace(" ", "") ?: return null

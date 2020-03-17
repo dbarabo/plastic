@@ -139,7 +139,11 @@ private fun Container.comboBox(varParam: Var, cursor: CursorData, gridY: Int): J
 
     this.add(combo, textConstraint(gridY = gridY, gridX = 1) )
 
-    cursor.findRowByRecord(varParam.result.value as Record)?.let { combo.selectedIndex = it }
+    cursor.findRowByRecord(varParam.result.value as Record)?.let {
+        combo.selectedIndex = it
+
+        cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
+    }
 
     combo.addActionListener {
         cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
@@ -165,7 +169,11 @@ private fun Container.comboSearch(varParam: Var, cursor: CursorData, gridY: Int)
 
     this.add(combo, textConstraint(gridY = gridY, gridX = 1) )
 
-    cursor.findRowByRecord(varParam.result.value as Record)?.let { combo.selectedIndex = it }
+    cursor.findRowByRecord(varParam.result.value as Record)?.let {
+        combo.selectedIndex = it
+
+        cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)
+    }
 
     combo.addActionListener {
         cursor.setRecordByRow(varParam.result.value as Record, combo.selectedIndex)

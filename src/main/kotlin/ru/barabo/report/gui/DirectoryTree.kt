@@ -9,6 +9,7 @@ import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
 import ru.barabo.report.entity.Report
 import ru.barabo.report.service.DirectoryService
+import ru.barabo.report.service.HistoryRunService
 import ru.barabo.report.service.ReportService
 import ru.barabo.xls.ParamContainer
 import java.awt.Container
@@ -22,7 +23,7 @@ import javax.swing.JToolBar
 
 class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : JToolBar(VERTICAL) {
 
-    private val refreshReport = Refresher<Report>(this, title)
+    // private val refreshReport = Refresher<Report>(this, title)
     private val refreshDirectory = Refresher<Directory>(this, title)
 
     init {
@@ -33,7 +34,7 @@ class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : 
         rebuild(title)
 
         DirectoryService.addListener(refreshDirectory)
-        ReportService.addListener(refreshReport)
+        // ReportService.addListener(refreshReport)
     }
 
     internal fun rebuild(title: JLabel?) {
@@ -101,8 +102,14 @@ private class Params(override val container: Container): ParamContainer {
 
     override fun afterReportCreated(reportFile: File) {
         processShowError {
+            HistoryRunService.addHistoryByFile(reportFile)
+
             Desktop.getDesktop().open(reportFile)
         }
+    }
+
+    override fun reportError(error: String, reportFile: File?) {
+        HistoryRunService.addErrorHistory(error, reportFile)
     }
 }
 

@@ -5,7 +5,7 @@ import ru.barabo.plastic.afina.AccessMode
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.service.*
 import ru.barabo.plastic.fio.gui.FioChangeTab
-import ru.barabo.plastic.report.gui.TabReport
+import ru.barabo.report.gui.TabReport
 import ru.barabo.plastic.schema.gui.MainSchemaTab
 import ru.barabo.plastic.terminal.gui.TabPosTerminal
 import ru.barabo.plastic.unnamed.gui.PanelUnnamed

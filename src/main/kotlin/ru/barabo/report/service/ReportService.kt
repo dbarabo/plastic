@@ -44,6 +44,7 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         report.templateFile = template
 
         report.uploadFile()
+        DirectoryService.initData()
     }
 
     fun updateReport(report: Report, reportName: String, template: File) {
@@ -56,6 +57,7 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         val saveReport = save(report)
         saveReport.templateFile = template
         report.uploadFile()
+        DirectoryService.initData()
     }
 
     fun prepareRun(report: Report): ExcelSql {

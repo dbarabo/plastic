@@ -146,6 +146,11 @@ open class Query (protected val dbConnection :DbConnection) {
             logger.error("query=$query")
             params?.forEach { logger.error(it?.toString()) }
             logger.error("fetch", e)
+
+            if(dbConnection.isRestartSessionException(session, sessionSetting.isReadTransact, e.message?:"")) {
+                return selectCursorWithMetaData(query, params, sessionSetting)
+            }
+
             closeQueryData(session, TransactType.ROLLBACK, request.statement, request.resultSetCursor)
 
             throw SessionException(e.message?:"")

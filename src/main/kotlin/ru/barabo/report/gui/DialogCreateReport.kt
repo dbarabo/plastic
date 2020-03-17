@@ -1,4 +1,4 @@
-package ru.barabo.plastic.report.gui
+package ru.barabo.report.gui
 
 import ru.barabo.plastic.card.gui.showMessage
 import ru.barabo.plastic.schema.gui.account.groupPanel

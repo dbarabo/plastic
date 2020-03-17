@@ -18,7 +18,8 @@ import javax.swing.SwingConstants
 private const val TITLE = "ПКО комиссия за выдачу карты Visa Platina"
 
 class CashInDialog(parentWindow: Component, private val platinaCashIn: PlatinaCashIn, processOk: (PlatinaCashIn)->Unit) :
-    JDialog(ru.barabo.plastic.unnamed.gui.dialog.parentWindow(parentWindow), TITLE, true) {
+    JDialog(ru.barabo.plastic.unnamed.gui.dialog.parentWindow(parentWindow),
+        TITLE, true) {
 
     private val descriptionArea: JTextArea
 

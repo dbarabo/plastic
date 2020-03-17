@@ -5,10 +5,14 @@ import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
 import java.sql.Timestamp
 import java.util.*
 
-@SelectQuery("""select h.id, h.report, h.state, h.VERSION_ID, h.RUNNER, h.RUNNED, h.ERROR, h.FILE_NAME, h.WORK_PLACE
+@SelectQuery("""select h.id, h.report, h.state, h.VERSION_ID, h.RUNNER, h.RUNNED, h.ERROR, h.FILE_NAME, h.WORK_PLACE,
+coalesce(u.pseudoname, h.RUNNER) NAME_RUNNER, w.label WORKPLACE_NAME
 from od.XLS_HISTORY_RUN h
+left join od.users u on u.userid = h.RUNNER
+left join od.WorkPlace w on w.classified = h.WORK_PLACE
 where h.REPORT = ?
-order by h.id desc""")
+  and (h.RUNNER = user or 1000005945 = ?) 
+order by h.RUNNED desc""")
 @TableName("OD.XLS_HISTORY_RUN")
 data class HistoryRun(
     @ColumnName("ID")
@@ -36,10 +40,21 @@ data class HistoryRun(
     var error: String = "",
 
     @ColumnName("FILE_NAME")
-    var fileName: String = ""
+    var fileName: String = "",
+
+    @ColumnName("WORK_PLACE")
+    var workPlaceId: Long = 0L,
+
+    @ColumnName("NAME_RUNNER")
+    @ReadOnly
+    var runnerName: String = "",
+
+    @ColumnName("WORKPLACE_NAME")
+    @ReadOnly
+    var workPlaceName: String = ""
 ) {
     var info: String
-    get() = "<html>${dateTimeFormat.format(runned)}<br>$runner<br>${fileName.substringAfterLast('/')}</html>"
+    get() = "<html>${dateTimeFormat.format(runned)}<br>$runnerName<br>$workPlaceName<br>${fileName.substringAfterLast('/')}</html>"
     set(value) {}
 }
 

@@ -44,8 +44,15 @@ open class DbConnection(protected val dbSetting: DbSetting) {
         deathList.forEach { closeSession(it) }
     }
 
+    private fun checkAndCloseDeathSession(session :Session) {
+        if(!session.checkConnect(dbSetting.selectCheck) ) {
+            closeSession(session)
+        }
+    }
+
     private fun isDeathSession(session :Session) :Boolean {
         closeDeathSessions()
+        checkAndCloseDeathSession(session)
 
         synchronized(pool){
             return !pool.contains(session)
@@ -78,7 +85,8 @@ open class DbConnection(protected val dbSetting: DbSetting) {
         return false
     }
 
-    private fun isPacketConnectError(exceptionMessage: String)  = exceptionMessage.indexOf("ORA-04061") >= 0
+    private fun isPacketConnectError(exceptionMessage: String)  =
+            exceptionMessage.indexOf("ORA-04061") >= 0 || exceptionMessage.indexOf("ORA-00942") >= 0
 
     @Throws(SessionException::class)
     private fun getTrySession(tryCount :Int, isRead :Boolean, transactType :TransactType, idSession :Long?) :Session {
@@ -173,8 +181,8 @@ open class DbConnection(protected val dbSetting: DbSetting) {
         synchronized(pool) {
             val session = pool.firstOrNull {it.idSession == idSessionFind}
 
-            return session?.let { it } ?:
-                    getFreeSession(isReadTransact)?.apply { synchronized(this) {this.idSession = idSessionFind}}
+            return session ?:
+                    getFreeSession(isReadTransact)?.apply { synchronized(this) {this.idSession = idSessionFind} }
         }
     }
 }

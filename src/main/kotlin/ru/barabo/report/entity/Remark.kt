@@ -37,5 +37,16 @@ data class Remark (
     var isHide: Long = 0,
 
     @ColumnName("REMARK")
-    var remark: String = ""
-)
+    var remark: String = "",
+
+    @ColumnName("NAME_REMARKER")
+    @ReadOnly
+    var remarkerName: String = ""
+) {
+
+    fun remarkInfo(): String = "$remarkerName ${isViewOnlyMe()} ${dateFormat.format(created)}\n $remark"
+
+    private fun isViewOnlyMe(): String = if(isHide == 0L) "" else " (Видна только мне) "
+}
+
+private val dateFormat = java.text.SimpleDateFormat("dd.MM.yy")

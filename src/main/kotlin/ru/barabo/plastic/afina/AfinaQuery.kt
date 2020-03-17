@@ -12,7 +12,8 @@ import java.nio.charset.Charset
 import java.sql.Clob
 
 data class UserDepartment(val userName: String?, val departmentName: String?,
-                          val workPlace: String?, val accessMode: AccessMode)
+                          val workPlace: String?, val accessMode: AccessMode,
+                          val userId: String, val workPlaceId: Long)
 
 enum class AccessMode {
     None,
@@ -69,7 +70,11 @@ object AfinaQuery : Query(AfinaConnect) {
 
         val workPlace = row[2] as? String ?: throw Exception("Не определено рабочее место :(")
 
-        return UserDepartment(userName, departmentName, workPlace, AccessMode.byWorkPlace(workPlace) )
+        val userId = row[3] as? String ?: throw Exception("Где юзер? Что это вообще такое???")
+
+        val workPlaceId =  (row[4] as? Number)?.toLong() ?: throw Exception("workPlaceId куда-то деляся :(")
+
+        return UserDepartment(userName, departmentName, workPlace, AccessMode.byWorkPlace(workPlace), userId, workPlaceId)
     }
 
 

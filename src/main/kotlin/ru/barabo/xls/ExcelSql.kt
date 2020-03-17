@@ -32,7 +32,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
     }
 
     private fun requestParam(paramContainer: ParamContainer) {
-        checkErrorByRow(0) {
+        checkErrorByRow(0, paramContainer) {
             if(rowData.isEmpty() || rowData[0].tag !is ParamTag) throw Exception("не найдены параметры")
 
             buildRow(rowData[0], 0)
@@ -81,7 +81,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         return cursorVarList
     }
 
-    fun processData(startRowIndex: Int = 0) {
+    private fun processData(startRowIndex: Int = 0, paramContainer: ParamContainer? = null) {
 
         executeData(startRowIndex)
 
@@ -99,6 +99,10 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         newBook = createNewBook(newFile!!, template)
 
         sheet = newBook.getSheet(0)
+
+        //sheet.setPageSetup(PageOrientation.PORTRAIT, PaperSize.A4, 0.0, 0.0)
+        val scale = sheet.settings.scaleFactor
+        sheet.settings.scaleFactor = scale
     }
 
     fun initRowData(vars: MutableList<Var>) {
@@ -123,20 +127,20 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         this.rowData = rowData
     }
 
-    private fun executeData(startRowIndex: Int = 0) {
+    private fun executeData(startRowIndex: Int = 0, paramContainer: ParamContainer? = null) {
         if(startRowIndex >= rowData.size) return
 
         var diffRow = 0
 
         for(index in startRowIndex until rowData.size) {
-            checkErrorByRow(index) {
+            checkErrorByRow(index, paramContainer) {
                 val row =  rowData[index]
                 diffRow = buildRow(row, diffRow)
             }
         }
     }
 
-    private fun checkErrorByRow(rowIndex: Int, process: ()->Unit ) {
+    private fun checkErrorByRow(rowIndex: Int, paramContainer: ParamContainer? = null, process: ()->Unit ) {
         try {
             process()
         } catch (e: Exception) {
@@ -144,7 +148,11 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
             parser.rollbackAfterExec()
 
-            throw Exception("ROW ERROR = $rowIndex\n ${e.message}")
+            val error = "Ошибка в строке = ${rowIndex + 1}\n ${e.message}"
+
+            paramContainer?.reportError(error, newFile)
+
+            throw Exception(error)
         }
     }
 
@@ -480,4 +488,6 @@ interface ParamContainer {
     fun afterParamCreate() {}
 
     fun afterReportCreated(reportFile: File)
+
+    fun reportError(error: String, reportFile: File?) {}
 }

@@ -245,7 +245,11 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
             val platinaCashIn = store.beforePreparePlatinaCardOut()
             if(platinaCashIn.label == null) return@processShowError
 
-            CashInDialog(toolBarParent, platinaCashIn, ::endOkPreparePlatina).isVisible = true
+            CashInDialog(
+                toolBarParent,
+                platinaCashIn,
+                ::endOkPreparePlatina
+            ).isVisible = true
         }
     }
 
