@@ -36,7 +36,7 @@ fun WritableWorkbook.save() {
 
     close()
 }
-
+/*
 fun WritableSheet.addRow(rowIndex: Int) {
 
     this.insertRow(rowIndex)
@@ -59,4 +59,4 @@ fun WritableSheet.copyRow(srcRowIndex: Int, destRowIndex: Int) {
         this.addCell(newCell)
     }
 }
-
+*/

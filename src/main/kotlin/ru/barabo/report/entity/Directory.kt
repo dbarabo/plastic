@@ -2,7 +2,7 @@ package ru.barabo.report.entity
 
 import ru.barabo.db.annotation.*
 
-@SelectQuery("select d.* from od.xls_directory d order by (coalesce(d.parent, 0)*1000000 + d.id)")
+@SelectQuery("select d.* from od.xls_directory d order by case when d.parent is null then 1000000*d.id else 1000000*d.parent + d.id end")
 @TableName("OD.XLS_DIRECTORY")
 data class Directory(
     @ColumnName("ID")
@@ -23,8 +23,10 @@ data class Directory(
     @ColumnName("ICON")
     var icon: String = ""
 ) {
-    override fun toString() = "id=$id, name=$name"
+    override fun toString() = name
 }
+
+val NULL_DIRECTORY = Directory(name = "НЕТ")
 
 data class GroupDirectory(
     var directory: Directory = Directory(),

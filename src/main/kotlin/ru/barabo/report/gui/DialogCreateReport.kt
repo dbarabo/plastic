@@ -19,7 +19,7 @@ import javax.swing.JFileChooser
 import javax.swing.JTextField
 import javax.swing.filechooser.FileNameExtensionFilter
 
-class DialogCreateReport(private val report: Report?, component: Component) : AbstractDialog(component, "Создать отчет") {
+class DialogCreateReport(private val report: Report?, component: Component) : AbstractDialog(component, "Создание отчета") {
 
     private var nameReport: JTextField
 
@@ -28,6 +28,8 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
     private var selectedFile: File? = null
 
     init {
+        title = report?.id?.let { "Правка отчета" } ?: "Создание отчета"
+
         textFieldHorizontal("Папка-владелец", 0).apply {
             isEditable = false
             text = report?.owner?.name ?: DirectoryService.selectedDirectory?.directory?.name

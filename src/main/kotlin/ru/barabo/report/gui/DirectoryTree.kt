@@ -4,6 +4,7 @@ import org.jdesktop.swingx.JXHyperlink
 import org.jdesktop.swingx.JXTaskPane
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
+import ru.barabo.plastic.fio.gui.maxSpaceYConstraint
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
@@ -12,8 +13,7 @@ import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.HistoryRunService
 import ru.barabo.report.service.ReportService
 import ru.barabo.xls.ParamContainer
-import java.awt.Container
-import java.awt.Desktop
+import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
@@ -27,9 +27,9 @@ class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : 
     private val refreshDirectory = Refresher<Directory>(this, title)
 
     init {
-        layout = BoxLayout(this, BoxLayout.Y_AXIS)
+        layout = GridBagLayout() //BoxLayout(this, BoxLayout.Y_AXIS)
 
-        isFloatable = true
+        isFloatable = false
 
         rebuild(title)
 
@@ -42,9 +42,22 @@ class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : 
 
         for(groupDirectory in DirectoryService.directories) {
 
-            add( groupDirectory.buildTree(paramPanel, title) )
+            add( groupDirectory.buildTree(paramPanel, title),  gbc )
         }
+
+        this.maxSpaceYConstraint(100)
+
+        this.revalidate()
+        this.repaint()
     }
+}
+
+private val gbc = GridBagConstraints().apply {
+    weightx = 1.0
+
+    fill = GridBagConstraints.HORIZONTAL
+
+    gridwidth = GridBagConstraints.REMAINDER
 }
 
 private class Refresher<T>(private val tree: DirectoryTree, private val title: JLabel?): StoreListener<List<T>> {
@@ -59,6 +72,9 @@ private class Refresher<T>(private val tree: DirectoryTree, private val title: J
 private fun GroupDirectory.buildTree(paramPanel: Container, title: JLabel?): Container {
 
     val item = JXTaskPane(directory.name)
+
+    item.alignmentX = Component.CENTER_ALIGNMENT
+
 
     item.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(me: MouseEvent) {

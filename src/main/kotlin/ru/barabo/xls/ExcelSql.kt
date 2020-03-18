@@ -1,5 +1,6 @@
 package ru.barabo.xls
 
+import jxl.format.CellFormat
 import jxl.write.*
 import jxl.write.Number
 import org.slf4j.LoggerFactory
@@ -90,6 +91,8 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         for (columnIndex in 0 until DATA_COLUMN)  sheet.setColumnView(columnIndex, 0)
         sheet.setRowView(0,0)
         newBook.save()
+
+        logger.error("stackFormat.size=${stackFormat.size}")
     }
 
 
@@ -109,6 +112,8 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         initNewBook()
 
         this.vars =  vars
+
+        stackFormat.clear()
 
         val rowData = ArrayList<Row>()
 
@@ -156,6 +161,8 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         }
     }
 
+    private val emptyWritableFormat = WritableCellFormat()
+
     private fun getColumns(rowIndex: Int): List<Col> {
         val columns = ArrayList<Col>()
 
@@ -163,7 +170,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
             val cell = sheet.getCell(colIndex, rowIndex)
 
-            val format = cell.cellFormat?.let { WritableCellFormat(it) } ?: WritableCellFormat()
+            val format = cell.cellFormat?.let { getAddWriteFormat(it) /*WritableCellFormat(it)*/ } ?: emptyWritableFormat
 
             val columnContent = parseColumnContent(cell?.contents)
 
@@ -362,6 +369,83 @@ private const val FORMULA_COLUMN = 0
 
 private val logger = LoggerFactory.getLogger(ExcelSql::class.java)
 
+private val stackFormat: ArrayList<WritableCellFormat> = ArrayList()
+
+private fun getAddWriteFormat(cellFormat: CellFormat): WritableCellFormat =
+    stackFormat.firstOrNull { cellFormat.isEqualCellFormat(it) }
+        ?:  WritableCellFormat(cellFormat).apply { stackFormat += this }
+
+private fun CellFormat.isEqualCellFormat(cellFormat: CellFormat): Boolean {
+
+    return format?.formatString == cellFormat.format?.formatString &&
+           font.isEqual(cellFormat.font) &&
+           wrap == cellFormat.wrap &&
+           alignment?.value == cellFormat.alignment?.value && alignment?.description == cellFormat.alignment?.description &&
+           verticalAlignment?.value == cellFormat.verticalAlignment?.value && verticalAlignment?.description == cellFormat.verticalAlignment?.description &&
+           orientation?.value == cellFormat.orientation?.value && orientation?.description == cellFormat.orientation?.description &&
+           hasBorders()  == cellFormat.hasBorders() &&
+           (!hasBorders() || (isEqualColorBorder(cellFormat) &&  isEqualBorder(cellFormat) && isEqualgetBorderLine(cellFormat) ) ) &&
+           backgroundColour.isEqual(cellFormat.backgroundColour) &&
+           pattern?.value == cellFormat.pattern?.value && pattern?.description == cellFormat.pattern?.description &&
+           indentation  == cellFormat.indentation &&
+           isShrinkToFit == cellFormat.isShrinkToFit &&
+           isLocked == cellFormat.isLocked
+}
+
+private fun CellFormat.isEqualBorder(cellFormat: CellFormat): Boolean {
+    return getBorder(jxl.format.Border.LEFT).isEqual(cellFormat.getBorder(jxl.format.Border.LEFT) ) &&
+            getBorder(jxl.format.Border.TOP).isEqual(cellFormat.getBorder(jxl.format.Border.TOP) ) &&
+            getBorder(jxl.format.Border.RIGHT).isEqual(cellFormat.getBorder(jxl.format.Border.RIGHT) ) &&
+            getBorder(jxl.format.Border.BOTTOM).isEqual(cellFormat.getBorder(jxl.format.Border.BOTTOM) )
+}
+
+private fun CellFormat.isEqualgetBorderLine(cellFormat: CellFormat): Boolean {
+    return getBorderLine(jxl.format.Border.LEFT).isEqual(cellFormat.getBorderLine(jxl.format.Border.LEFT) ) &&
+            getBorderLine(jxl.format.Border.TOP).isEqual(cellFormat.getBorderLine(jxl.format.Border.TOP) ) &&
+            getBorderLine(jxl.format.Border.RIGHT).isEqual(cellFormat.getBorderLine(jxl.format.Border.RIGHT) ) &&
+            getBorderLine(jxl.format.Border.BOTTOM).isEqual(cellFormat.getBorderLine(jxl.format.Border.BOTTOM) )
+}
+
+private fun jxl.format.BorderLineStyle?.isEqual(border: jxl.format.BorderLineStyle?): Boolean {
+    if(this === border) return true
+
+    if(this == null || border == null) return false
+
+    return value == border.value && description == border.description
+}
+
+private fun CellFormat.isEqualColorBorder(cellFormat: CellFormat): Boolean {
+    return getBorderColour(jxl.format.Border.LEFT).isEqual(cellFormat.getBorderColour(jxl.format.Border.LEFT) ) &&
+            getBorderColour(jxl.format.Border.TOP).isEqual(cellFormat.getBorderColour(jxl.format.Border.TOP) ) &&
+            getBorderColour(jxl.format.Border.RIGHT).isEqual(cellFormat.getBorderColour(jxl.format.Border.RIGHT) ) &&
+            getBorderColour(jxl.format.Border.BOTTOM).isEqual(cellFormat.getBorderColour(jxl.format.Border.BOTTOM) )
+}
+
+
+private fun jxl.format.Colour?.isEqual(color: jxl.format.Colour?): Boolean {
+    if(this === color) return true
+
+    if(this == null || color == null) return false
+
+    return value == color.value && defaultRGB?.red == color.defaultRGB?.red &&
+            defaultRGB?.green == color.defaultRGB?.green && defaultRGB?.blue == color.defaultRGB?.blue
+}
+
+private fun jxl.format.Font?.isEqual(font: jxl.format.Font?): Boolean {
+    if(this === font) return true
+
+    if(this == null || font == null) return false
+
+    return name == font.name &&
+           pointSize == font.pointSize &&
+           boldWeight ==  font.boldWeight &&
+           isItalic == font.isItalic &&
+           isStruckout == font.isStruckout &&
+           underlineStyle?.value == font.underlineStyle?.value &&
+           colour.isEqual(font.colour) &&
+           scriptStyle?.value == font.scriptStyle?.value && scriptStyle?.description == font.scriptStyle?.description
+}
+
 data class Row(val tag: Tag,
                val index: Int,
                val expr: Expression,
@@ -456,7 +540,7 @@ data class ComplexContent(val varList: List<ReturnResult>) : ColumnContent()
  * поэтому с нижней строки (там были осходные данные копируем их наверх
  * если нужно потом в нижней строке зачищаем данные
  */
-fun WritableSheet.newRowFromSource(srcRowIndex: Int, isClearCopyData: Boolean = false) {
+private fun WritableSheet.newRowFromSource(srcRowIndex: Int, isClearCopyData: Boolean = false) {
 
     this.insertRow(srcRowIndex)
 
@@ -469,7 +553,7 @@ fun WritableSheet.newRowFromSource(srcRowIndex: Int, isClearCopyData: Boolean = 
 
         readCell.cellFormat?.let {
 
-            newCell.cellFormat = WritableCellFormat(it)
+            newCell.cellFormat = getAddWriteFormat(it) // WritableCellFormat(it)
         }
 
         if(isClearCopyData) {

@@ -32,7 +32,9 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
 
     fun createNewReport(reportName: String, template: File) {
 
-        val directory = DirectoryService.selectedDirectory?.directory
+        val selectedDirectory = DirectoryService.selectedDirectory
+
+        val directory = selectedDirectory?.directory
 
         val newReport = Report(directory = directory?.id, name = reportName, fileName = template.name,
             creator = AfinaQuery.getUserDepartment().userName!!,
@@ -45,10 +47,12 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
 
         report.uploadFile()
         DirectoryService.initData()
+        DirectoryService.selectedDirectory = selectedDirectory
     }
 
     fun updateReport(report: Report, reportName: String, template: File) {
 
+        val selectedDirectory = DirectoryService.selectedDirectory
         report.name = reportName
         report.updater = AfinaQuery.getUserDepartment().userName!!
         report.updated = Timestamp(Date().time)
@@ -58,6 +62,7 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         saveReport.templateFile = template
         report.uploadFile()
         DirectoryService.initData()
+        DirectoryService.selectedDirectory = selectedDirectory
     }
 
     fun prepareRun(report: Report): ExcelSql {

@@ -4,6 +4,8 @@ import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
+import ru.barabo.report.entity.NULL_DIRECTORY
+import java.lang.Exception
 
 object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::class.java) {
 
@@ -48,4 +50,40 @@ object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::cla
     fun directoryById(directoryId: Long?): Directory? =
         if(directoryId == null) null else dataList.firstOrNull { it.id == directoryId }
 
+    fun parentDirectories(): List<Directory> {
+        val directories = ArrayList<Directory>()
+
+        directories += NULL_DIRECTORY
+
+        val dirs = dataList.filter { it.parent == null }
+
+        directories.addAll(dirs)
+
+        return directories
+    }
+
+    fun createDirectory(name: String?, parent: Directory?) {
+        if(name.isNullOrBlank()) throw Exception("Название папки не может быть пустым")
+
+        val directory = Directory(parent = parent?.id, name = name)
+
+        parentGroup = parent?.id?.let { findGroupByDirectoryId(it) }
+
+        val newDirectory = save(directory)
+
+        selectedDirectory = findGroupByDirectoryId(newDirectory.id!!)
+    }
+
+    fun updateDirectory(directory: Directory, name: String?, parent: Directory?) {
+        if(name.isNullOrBlank()) throw Exception("Название папки не может быть пустым")
+
+        directory.name = name
+        directory.parent = parent?.id
+        parentGroup = null
+        save(directory)
+        initData()
+        selectedDirectory = findGroupByDirectoryId(directory.id!!)
+    }
+
+    private fun findGroupByDirectoryId(id: Long): GroupDirectory?  = directories.firstOrNull { it.directory.id == id }
 }

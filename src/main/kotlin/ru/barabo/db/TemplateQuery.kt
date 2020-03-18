@@ -123,8 +123,6 @@ open class TemplateQuery (private val query :Query) {
 
         val idField = getFieldData(item, idColumn)
 
-        logger.error("idField.second=${idField.second}")
-
         return if(idField.second is Class<*>) {
 
             val id = setSequenceValue(item, sessionSetting)
@@ -258,12 +256,7 @@ open class TemplateQuery (private val query :Query) {
         for (member in item::class.declaredMemberProperties) {
             val annotationName = member.findAnnotation<ColumnName>()
 
-            logger.error("annotationName=$annotationName")
-            logger.error("findColumn=$findColumn")
-
             if(annotationName?.name != null && (findColumn.equals(annotationName.name, true))) {
-
-                logger.error("findIdn=${annotationName.name}")
 
                 val annotationType = member.findAnnotation<ColumnType>()
 
@@ -312,17 +305,13 @@ open class TemplateQuery (private val query :Query) {
     @Throws(SessionException::class)
     private fun valueToSql(value :Any?, type :Int?, converterClazz : KClass<*>?) :Any {
 
-        logger.error("value=$value")
-        logger.error("type=$type")
-        logger.error("converterClazz=$converterClazz")
-
         if(value != null && type == null) {
             return value
         }
 
         if(value == null && type != null) {
 
-            return Type.getClassBySqlType(type).apply { logger.error("return=$this") }
+            return Type.getClassBySqlType(type)
         }
 
         if(value == null || type == null) {
@@ -332,9 +321,7 @@ open class TemplateQuery (private val query :Query) {
         if(converterClazz != null) {
             val instance = converterClazz.objectInstance ?: converterClazz.java.newInstance()
 
-            return (instance as ConverterValue).convertToBase(value).apply {
-                logger.error("Converter return=$this")
-            }
+            return (instance as ConverterValue).convertToBase(value)
         }
 
         if((value is Number) && Type.isNumberType(type)) {
