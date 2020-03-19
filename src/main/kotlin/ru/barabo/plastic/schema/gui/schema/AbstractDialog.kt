@@ -37,9 +37,11 @@ abstract class AbstractDialog(component: Component, title: String) :
     private fun ok() {
         resultOk = true
 
-        processShowError { okProcess() }
+        processShowError {
+            okProcess()
 
-        dispose()
+            dispose()
+        }
     }
 
     protected fun cancel() {

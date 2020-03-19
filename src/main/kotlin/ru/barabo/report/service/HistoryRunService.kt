@@ -25,7 +25,7 @@ object HistoryRunService : StoreFilterService<HistoryRun>(AfinaOrm, HistoryRun::
 
     override fun selectParams(): Array<Any?>? = arrayOf(
         ReportService?.selectedReport?.id ?: Long::class.javaObjectType,
-        AfinaQuery.getUserDepartment().workPlaceId ?: 0L
+        AfinaQuery.getUserDepartment().workPlaceId
     )
 
     init {

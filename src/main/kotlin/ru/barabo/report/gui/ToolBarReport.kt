@@ -4,8 +4,11 @@ import ru.barabo.plastic.afina.AccessMode
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.gui.menuItem
 import ru.barabo.plastic.card.gui.popupButton
+import ru.barabo.plastic.card.gui.toolButton
+import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.ReportService
+import java.lang.Exception
 import javax.swing.JToolBar
 
 class ToolBarReport() : JToolBar() {
@@ -33,6 +36,18 @@ class ToolBarReport() : JToolBar() {
             }
         }.apply {
             isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
+        }
+
+        val access = toolButton("readonly", "Доступы") { showAccess() }
+
+        access?.isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
+    }
+
+    private fun showAccess() {
+        processShowError {
+            if(ReportService.selectedReport?.id == null) throw Exception("Сначала выберите отчет для установки для него доступов")
+
+            DialogAccessReport(this).showDialogResultOk()
         }
     }
 }

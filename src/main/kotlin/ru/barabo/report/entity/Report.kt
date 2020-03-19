@@ -3,7 +3,6 @@ package ru.barabo.report.entity
 import ru.barabo.db.annotation.*
 import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.schema.entity.account.SEQ_CLASSIFIED
-import ru.barabo.report.service.DirectoryService
 import ru.barabo.total.report.rtf.RtfReport
 import java.io.File
 import java.sql.Timestamp
@@ -11,9 +10,21 @@ import java.util.*
 
 @SelectQuery("""select r.id, r.directory, r.state, r.name, r.template_name, 
   r.version_id, r.creator, r.created, r.updater, r.updated,
-  (select count(*) from od.xls_history_run h where h.report = r.id) COUNT_
+  (select count(*) from od.xls_history_run h where h.report = r.id) COUNT_,
+(select count(*) 
+  from dual where (1000005945 = ?)
+  or exists (select *
+from od.workplaceaccess wa
+join od.accessgrouptowp aw on aw.workplace = wa.workplace
+join od.xls_report_access ra on ra.access_group = aw.accessgroup
+where wa.userid = user
+  and wa.VALIDFROMDATE < sysdate and sysdate < wa.VALIDTODATE
+  and ra.report = r.id )
+) IS_ACCESS
+
 from od.xls_report r
 where r.directory = ?
+  and (r.state = 1 or 1000005945 = ?)
 order by r.id""")
 @TableName("OD.XLS_REPORT")
 data class Report (
@@ -54,10 +65,15 @@ data class Report (
     @ReadOnly
     var count: Long = 0,
 
-    var templateFile: File? = null,
+    @ColumnName("IS_ACCESS")
+    @ReadOnly
+    var accessed: Long = 0L,
 
-    var owner: Directory? = null
+    var templateFile: File? = null
 ) {
+    val isAccess: Boolean
+    get() = (accessed != 0L)
+
     val nameWithCount: String
     get() = "$name ($count)"
 
@@ -66,8 +82,6 @@ data class Report (
 
         templateFile = File("$saveDirectory/$fileName")
 
-        owner = DirectoryService.directoryById(directory)
-
         return AfinaQuery.selectBlobToFile(SELECT_BLOB_TEMPLATE_REPORT, arrayOf(id), templateFile!!)
     }
 
@@ -75,6 +89,23 @@ data class Report (
         if(id == null ||templateFile?.exists() != true) throw Exception("must be exists template file $templateFile")
 
         AfinaQuery.execute(UPDATE_BLOB_BY_FILE, arrayOf(templateFile, id))
+    }
+
+    fun change(nameReport: String?, directory: Directory, state: StateReport, uploadFile: File? = null) {
+
+        this.name = nameReport ?: throw Exception("Наименование отчета должно быть заполнено")
+
+        uploadFile?.let {
+            if(!it.exists()) throw Exception("не найден файл шаблона $it")
+
+            templateFile = it
+            fileName = it.name
+
+            uploadFile()
+        }
+
+        this.directory = directory.id
+        this.state = state.dbValue
     }
 }
 
@@ -94,4 +125,16 @@ private fun defaultDirectory(dirName: String): File {
     }
 
     return directory
+}
+
+enum class StateReport(val label: String, val dbValue: Long) {
+    NEW("В Разработке", 0),
+    WORK("Действующий", 1),
+    OLD("Устарел", 2);
+
+    override fun toString(): String = label
+
+    companion object {
+        fun findByDbValue(dbValue: Long): StateReport? = values().firstOrNull { it.dbValue == dbValue }
+    }
 }

@@ -10,14 +10,14 @@ import java.awt.Component
 import javax.swing.JComboBox
 import javax.swing.JTextField
 
-class DialogCreateDirectory(private val directory: Directory?, component: Component) : AbstractDialog(component, "Создать папку") {
+class DialogCreateDirectory(private val directory: Directory?, component: Component) : AbstractDialog(component, "Создание папки") {
 
     private val comboParent: JComboBox<Directory>
 
     private val nameField: JTextField
 
     init {
-        title = directory?.id?.let { "Правка папки" } ?: "Создание папку"
+        title = directory?.id?.let { "Правка папки" } ?: "Создание папки"
 
         comboBox("Родительская папка", 0, DirectoryService.parentDirectories()).apply {
 

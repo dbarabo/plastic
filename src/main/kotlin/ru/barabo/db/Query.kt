@@ -404,7 +404,10 @@ open class Query (protected val dbConnection :DbConnection) {
         val resultSet = try {
             statement.executeQuery() ?: throw SessionException(ERROR_RESULTSET_NULL)
         } catch (e : SQLException) {
+            logger.error("query=$query")
+            params?.forEach { logger.error(it?.toString()) }
             logger.error("executeQuery", e)
+
 
             if(dbConnection.isRestartSessionException(session, sessionSetting.isReadTransact, e.message?:"")) {
                 return prepareSelect(query, params, sessionSetting)

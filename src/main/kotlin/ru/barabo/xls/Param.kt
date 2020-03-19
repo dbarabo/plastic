@@ -68,7 +68,15 @@ fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:(
         }
     }
 
-    container.add(JButton("Ok").apply { addActionListener { processShowError { processOk() } } }, labelConstraint(params.size) )
+    container.add(JButton("Ok").apply {
+        addActionListener {
+            processShowError {
+                paramContainer.checkRunReport()
+
+                processOk()
+            }
+        }
+    }, labelConstraint(params.size) )
 
     container.maxSpaceYConstraint(params.size + 1)
 

@@ -2,6 +2,7 @@ package ru.barabo.report.gui
 
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
+import ru.barabo.plastic.schema.gui.account.labelConstraint
 import ru.barabo.plastic.schema.gui.account.onlyButton
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.account.textConstraint
@@ -25,18 +26,18 @@ class MessageInformer : JPanel(), StoreListener<List<Remark>> {
     }
 
     private val editor: JTextArea = JTextArea().apply {
-        rows = 3
+        rows = 5
         border = BorderFactory.createBevelBorder(BevelBorder.LOWERED) //  BorderFactory.createLineBorder(Color.black)
-        wrapStyleWord = true
-        lineWrap = true
+        //wrapStyleWord = true
+        //lineWrap = true
     }
 
     private val isPrivate: JCheckBox
 
     private val toolbar = JPanel().apply {
-        layout = BorderLayout()
+        layout = GridBagLayout()
 
-        add(editor, BorderLayout.CENTER)
+        add(editor, textConstraint(0, 6, 0, 5) )
 
         add(JPanel().apply {
 
@@ -50,11 +51,14 @@ class MessageInformer : JPanel(), StoreListener<List<Remark>> {
                 processShowError {
                     if(ReportService.selectedReport == null) throw Exception("Сначала выберите отчет")
 
+                    if(ReportService.selectedReport?.isAccess != true)
+                        throw Exception("Так как у Вас нет прав на этот отчет,\nто информацию по нему Вы добавлять не можете :(")
+
                     RemarkService.addInfo(editor.text?.trim(), isPrivate.isSelected)
                     editor.text = ""
                 }
             }
-        }, BorderLayout.EAST)
+        }, labelConstraint(0, 6))
     }
 
     init {

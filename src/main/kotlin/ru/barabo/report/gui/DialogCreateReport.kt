@@ -5,9 +5,12 @@ import ru.barabo.plastic.schema.gui.account.groupPanel
 import ru.barabo.plastic.schema.gui.account.onlyButton
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.schema.AbstractDialog
+import ru.barabo.plastic.schema.gui.schema.comboBox
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.terminal.gui.buttonHorisontal
+import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.Report
+import ru.barabo.report.entity.StateReport
 import ru.barabo.report.entity.defaultReportDirectory
 import ru.barabo.report.service.DirectoryService
 import ru.barabo.report.service.ReportService
@@ -15,24 +18,30 @@ import java.awt.Component
 import java.awt.Desktop
 import java.io.File
 import javax.swing.JButton
+import javax.swing.JComboBox
 import javax.swing.JFileChooser
 import javax.swing.JTextField
 import javax.swing.filechooser.FileNameExtensionFilter
 
 class DialogCreateReport(private val report: Report?, component: Component) : AbstractDialog(component, "Создание отчета") {
 
-    private var nameReport: JTextField
+    private val nameReport: JTextField
 
-    private var selectedXls: JButton
+    private val selectedXls: JButton
 
     private var selectedFile: File? = null
+
+    private val directoryCombo: JComboBox<Directory>
+
+    private val stateCombo: JComboBox<StateReport>
 
     init {
         title = report?.id?.let { "Правка отчета" } ?: "Создание отчета"
 
-        textFieldHorizontal("Папка-владелец", 0).apply {
-            isEditable = false
-            text = report?.owner?.name ?: DirectoryService.selectedDirectory?.directory?.name
+        comboBox("Папка-владелец", 0, DirectoryService.directoryList() ).apply {
+            directoryCombo = this
+
+            selectedItem = report?.directory?.let { DirectoryService.directoryById(it) }
         }
 
         textFieldHorizontal("Название отчета", 1).apply {
@@ -47,7 +56,13 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
             text =  if(report?.fileName.isNullOrBlank() ) "..." else report?.fileName
         }
 
-        groupPanel("Проверка xls-отчета", 3, width = 2).apply {
+        comboBox("Состояние отчета", 3, StateReport.values().toList() ).apply {
+            stateCombo = this
+
+            selectedItem = report?.state?.let { StateReport.findByDbValue(it) }
+        }
+
+        groupPanel("Проверка xls-отчета", 4, width = 2).apply {
             onlyButton("Выгрузить", 0, 0, clickListener = ::downloadReportToRun).apply {
                 isEnabled = report?.id != null
             }
@@ -57,7 +72,7 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
             }
         }
 
-        createOkCancelButton(5, 1)
+        createOkCancelButton(6, 1)
 
         packWithLocation()
     }
@@ -84,15 +99,26 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
 
     override fun okProcess() {
 
-        if(selectedFile == null || nameReport.text.isNullOrBlank()) throw Exception("Название отчета и xls-файл шаблона должны быть заполнены")
+        if(nameReport.text.isNullOrBlank()) throw Exception("Название отчета должно быть заполнено")
+
+        if(directoryCombo.selectedItem == null) throw Exception("Папка-владелец должна быть указана")
+
+        if(stateCombo.selectedItem == null) throw Exception("Состояние отчета должно быть выбрано")
+
+        val directory = directoryCombo.selectedItem as Directory
+
+        val state = stateCombo.selectedItem as StateReport
 
         if(report?.id == null) {
-            ReportService.createNewReport(nameReport.text, selectedFile!!)
-        } else {
+            if(selectedFile?.exists() != true) throw Exception("xls-файл шаблона должен быть заполнен")
 
-            ReportService.updateReport(report, nameReport.text, selectedFile!!)
+            ReportService.createNewReport(nameReport.text, directory, state, selectedFile!!)
+        } else {
+            report.change(nameReport.text, directory, state, selectedFile)
+            ReportService.updateReport(report)
         }
     }
+
 
     private fun selectXlsTemplateFile() {
 
@@ -111,3 +137,4 @@ class DialogCreateReport(private val report: Report?, component: Component) : Ab
         selectedXls.text = "...${selectedFile?.name}"
     }
 }
+

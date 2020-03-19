@@ -17,13 +17,13 @@ import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
+import java.lang.Exception
 import javax.swing.BoxLayout
 import javax.swing.JLabel
 import javax.swing.JToolBar
 
 class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : JToolBar(VERTICAL) {
 
-    // private val refreshReport = Refresher<Report>(this, title)
     private val refreshDirectory = Refresher<Directory>(this, title)
 
     init {
@@ -34,7 +34,6 @@ class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : 
         rebuild(title)
 
         DirectoryService.addListener(refreshDirectory)
-        // ReportService.addListener(refreshReport)
     }
 
     internal fun rebuild(title: JLabel?) {
@@ -97,7 +96,12 @@ private fun GroupDirectory.buildTree(paramPanel: Container, title: JLabel?): Con
 private fun Report.buildItem(paramPanel: Container, title: JLabel?): Container {
     val reportItem = JXHyperlink()
 
-    reportItem.text = nameWithCount // name
+    reportItem.text = if(isAccess) nameWithCount else "<html><strike><u>$nameWithCount</u></strike></html>"
+
+    if(!isAccess) {
+        reportItem.unclickedColor = Color.GRAY
+        reportItem.clickedColor = Color.GRAY
+    }
 
     reportItem.addActionListener { this.clickReport(paramPanel, title)  }
 
@@ -126,6 +130,12 @@ private class Params(override val container: Container): ParamContainer {
 
     override fun reportError(error: String, reportFile: File?) {
         HistoryRunService.addErrorHistory(error, reportFile)
+    }
+
+    override fun checkRunReport() {
+        if(ReportService.selectedReport?.isAccess == true) return
+
+        throw Exception("У Вас нет прав запускать этот отчет :( ")
     }
 }
 

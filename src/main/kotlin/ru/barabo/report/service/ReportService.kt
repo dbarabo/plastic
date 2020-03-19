@@ -5,8 +5,11 @@ import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.Report
+import ru.barabo.report.entity.StateReport
 import ru.barabo.report.entity.defaultTemplateDirectory
+import ru.barabo.report.service.DirectoryService.findGroupByDirectoryId
 import ru.barabo.xls.ExcelSql
 import java.io.File
 import java.sql.Timestamp
@@ -20,7 +23,8 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
     var selectedReport: Report? = null
     private set
 
-    override fun selectParams(): Array<Any?>? = arrayOf(directoryId)
+    override fun selectParams(): Array<Any?>? =
+        arrayOf(AfinaQuery.getUserDepartment().workPlaceId, directoryId, AfinaQuery.getUserDepartment().workPlaceId)
 
     fun reportsByDirectory(directoryId: Long?): List<Report> {
         this.directoryId = directoryId
@@ -30,37 +34,33 @@ object ReportService : StoreFilterService<Report>(AfinaOrm, Report::class.java),
         return dataList.toList()
     }
 
-    fun createNewReport(reportName: String, template: File) {
+    fun createNewReport(nameReport: String?, directory: Directory, state: StateReport, templateFile: File) {
 
-        val selectedDirectory = DirectoryService.selectedDirectory
+        val newReport = Report(directory = directory.id,
+            name = nameReport!!,
+            fileName = templateFile.name,
+            creator = AfinaQuery.getUserDepartment().userId,
+            updater = AfinaQuery.getUserDepartment().userId,
+            templateFile = templateFile)
 
-        val directory = selectedDirectory?.directory
+        save(newReport)
+        newReport.change(nameReport, directory, state, templateFile)
 
-        val newReport = Report(directory = directory?.id, name = reportName, fileName = template.name,
-            creator = AfinaQuery.getUserDepartment().userName!!,
-            updater = AfinaQuery.getUserDepartment().userName!!,
-            templateFile = template, owner = directory)
-
-        val report = save(newReport)
-
-        report.templateFile = template
-
-        report.uploadFile()
         DirectoryService.initData()
-        DirectoryService.selectedDirectory = selectedDirectory
+        DirectoryService.selectedDirectory = findGroupByDirectoryId(directory.id!!)
     }
 
-    fun updateReport(report: Report, reportName: String, template: File) {
+    fun updateReport(report: Report) {
 
         val selectedDirectory = DirectoryService.selectedDirectory
-        report.name = reportName
-        report.updater = AfinaQuery.getUserDepartment().userName!!
+        report.updater = AfinaQuery.getUserDepartment().userId
         report.updated = Timestamp(Date().time)
-        report.templateFile = template
 
-        val saveReport = save(report)
-        saveReport.templateFile = template
-        report.uploadFile()
+        if(report.creator.isBlank()) {
+            report.creator = AfinaQuery.getUserDepartment().userId
+        }
+
+        save(report)
         DirectoryService.initData()
         DirectoryService.selectedDirectory = selectedDirectory
     }

@@ -1,18 +1,24 @@
 package ru.barabo.report.service
 
+import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.afina.AfinaOrm
+import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
 import ru.barabo.report.entity.NULL_DIRECTORY
 import java.lang.Exception
 
-object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::class.java) {
+object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::class.java), ParamsSelect {
 
     lateinit var directories: MutableList<GroupDirectory>
     private set
 
     private var parentGroup: GroupDirectory? = null
+
+    override fun selectParams(): Array<Any?>? = arrayOf(AfinaQuery.getUserDepartment().workPlaceId)
+
+    fun directoryList() = dataList.toList()
 
     var selectedDirectory: GroupDirectory? = null
 
@@ -85,5 +91,5 @@ object DirectoryService : StoreFilterService<Directory>(AfinaOrm, Directory::cla
         selectedDirectory = findGroupByDirectoryId(directory.id!!)
     }
 
-    private fun findGroupByDirectoryId(id: Long): GroupDirectory?  = directories.firstOrNull { it.directory.id == id }
+    fun findGroupByDirectoryId(id: Long): GroupDirectory?  = directories.firstOrNull { it.directory.id == id }
 }

@@ -574,4 +574,6 @@ interface ParamContainer {
     fun afterReportCreated(reportFile: File)
 
     fun reportError(error: String, reportFile: File?) {}
+
+    fun checkRunReport() {}
 }
