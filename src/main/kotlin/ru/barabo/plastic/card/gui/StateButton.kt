@@ -51,9 +51,13 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
         stateButton = getStateButton(state)?.apply {
             isEnabled = true
             toolBarParent.add(this)
+            toolBarParent.revalidate()
+            toolBarParent.repaint()
         }
 
         if(isRemove || stateButton != null) {
+
+            toolBarParent.revalidate()
             toolBarParent.repaint()
         }
     }
@@ -62,6 +66,8 @@ class StateButton (private val store: StoreCardService, private val toolBarParen
         return if (stateButton != null && realState != state) {
             stateButton?.isEnabled = false
             toolBarParent.remove(stateButton)
+            toolBarParent.revalidate()
+            toolBarParent.repaint()
             state = null
             stateButton = null
 
