@@ -129,7 +129,7 @@ data class VarResult(var type: VarType = VarType.UNDEFINED, var value: Any? = nu
     }
 
     override fun getSqlValue(): Any {
-        return value?.let { it } ?: type.toSqlValueNull()
+        return value ?: type.toSqlValueNull()
     }
 }
 

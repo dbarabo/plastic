@@ -151,3 +151,13 @@ internal fun Container.maxSpaceYConstraint(gridY: Int) =
                 Insets(0, 0, 0, 0), 0, 0)
             )
     }
+
+fun Container.maxSpaceXConstraint(gridX: Int, gridY: Int = 0): JLabel {
+    return JLabel("").apply {
+        this@maxSpaceXConstraint.add(this,
+            GridBagConstraints(gridX, 0, 1, 1, 1.0, 10.0,
+                GridBagConstraints.PAGE_END, GridBagConstraints.HORIZONTAL,
+                Insets(0, 0, 0, 0), 0, 0)
+        )
+    }
+}

@@ -13,7 +13,7 @@ object VersionChecker {
 
     private const val PROGRAM_NAME = "PLASTIC.JAR"
 
-    private const val VERSION_JAR = 44
+    private const val VERSION_JAR = 45
 
     private const val STATE_RUN = 0
 

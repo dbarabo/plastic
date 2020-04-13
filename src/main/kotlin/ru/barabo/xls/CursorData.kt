@@ -2,21 +2,85 @@ package ru.barabo.xls
 
 import ru.barabo.db.Query
 import ru.barabo.db.SessionSetting
+import kotlin.concurrent.thread
 
 class CursorData(private val querySession: QuerySession, private val querySelect: String,
                  val params: List<ReturnResult> = emptyList() ) {
 
     var data: List<Array<Any?>> = emptyList()
 
-    private var row: Int = 0
+    var row: Int = 0
+        private set
 
-    private var columns: List<String> = emptyList()
+    var columns: List<String> = emptyList()
+        private set
 
-    private var sqlColumnType: List<Int> = emptyList()
+    var sqlColumnType: List<Int> = emptyList()
+        private set
 
-    private var isOpen: Boolean = false
+    var isOpen: Boolean = false
+        private set
 
     private val columnResult = ArrayList<ColumnResult>()
+
+    private var listeners: MutableList<CursorDateListener>? = null
+
+    private var lastParam: Array<Any?>? = null
+
+    @Volatile var isBusy: Boolean = false
+        private set
+
+    @Volatile private var isMustUpdate: Boolean = false
+
+    fun setRowIndex(index: Int): Int? {
+        if(index < 0 || index >= data.size) return null
+
+        row = index
+
+        return row
+    }
+
+    fun addListener(listener: CursorDateListener) {
+        val listenerList = listeners ?: ArrayList<CursorDateListener>().apply { listeners = this }
+
+        listenerList.add(listener)
+    }
+
+    fun invalidate() {
+
+        val priorParam = lastParam
+
+        val newParams: Array<Any?>? = if(params.isEmpty()) null else params.map { it.getSqlValue() }.toTypedArray()
+
+        if(priorParam.isEqualParam(newParams)) return
+
+        if(isBusy) {
+            isMustUpdate = true
+            return
+        }
+
+        isBusy = true
+        thread {
+            run {
+                open()
+            }
+        }
+    }
+
+    private fun sendListenerInvalidate() {
+        val listenerList = listeners ?: return
+
+        for(listener in listenerList) {
+            listener.changeData()
+        }
+
+        isBusy = false
+
+        if(isMustUpdate) {
+            isMustUpdate = false
+            invalidate()
+        }
+    }
 
     fun getColumnResult(columnName: String): ReturnResult {
         return columnResult.firstOrNull { it.columnName == columnName }
@@ -107,18 +171,20 @@ class CursorData(private val querySession: QuerySession, private val querySelect
 
     private fun open(): Boolean {
 
-        val param: Array<Any?>? = if(params.isEmpty()) null else params.map { it.getSqlValue() }.toTypedArray()
+        lastParam = if(params.isEmpty()) null else params.map { it.getSqlValue() }.toTypedArray()
 
         val allData = if(isCursor()) {
-            querySession.query.selectCursorWithMetaData(querySelect, param, querySession.sessionSetting)
+            querySession.query.selectCursorWithMetaData(querySelect, lastParam, querySession.sessionSetting)
         } else {
-            querySession.query.selectWithMetaData(querySelect, param, querySession.sessionSetting)
+            querySession.query.selectWithMetaData(querySelect, lastParam, querySession.sessionSetting)
         }
 
         data = allData.data
         columns = allData.columns
         sqlColumnType = allData.types
         row = 0
+
+        sendListenerInvalidate()
 
         return true
     }
@@ -164,6 +230,9 @@ class CursorData(private val querySession: QuerySession, private val querySelect
 
     private fun isCursor() = querySelect[0] == '{'
 
+    fun next(columnIndex: Int) = if(row + 1 >= data.size) VarResult(VarType.UNDEFINED)
+        else VarResult(VarType.varTypeBySqlType(sqlColumnType[columnIndex]), data[row + 1][columnIndex])
+
     fun row(columnIndex: Int) = VarResult(VarType.INT, row + 1)
 
     fun sum(columnIndex: Int) = VarResult(VarType.NUMBER, data.sumByDouble { (it[columnIndex] as? Number)?.toDouble()?:0.0 })
@@ -179,6 +248,10 @@ class CursorData(private val querySession: QuerySession, private val querySelect
     fun isNotEmptyFun(columnIndex: Int) = VarResult(VarType.INT, if(isEmpty()) 0 else 1)
 }
 
+interface CursorDateListener {
+    fun changeData()
+}
+
 private enum class CursorFun(val index: Int, val funName: String, val func: CursorData.(columnIndex: Int) -> VarResult ) {
     ROW(-1, "ROW", CursorData::row),
     SUM(-2, "SUM", CursorData::sum),
@@ -188,7 +261,8 @@ private enum class CursorFun(val index: Int, val funName: String, val func: Curs
     MIN(-6, "MIN", CursorData::min),
     MAX(-7, "MAX", CursorData::max),
     EMPTYRECORD(-8, "EMPTYRECORD", CursorData::emptyRecord),
-    RECORD(-9, "RECORD", CursorData::record);
+    RECORD(-9, "RECORD", CursorData::record),
+    NEXT(-10, "NEXT", CursorData::next);
 
     companion object {
         fun byIndex(index: Int): CursorFun? = values().firstOrNull { it.index == index }
@@ -257,6 +331,19 @@ private class ColumnResult(private val cursor: CursorData, val columnName: Strin
             funIndex = newFun
         }
     }
+}
+
+fun Array<Any?>?.isEqualParam(param: Array<Any?>?): Boolean {
+    if(this === param) return true
+
+    if(param == null || this == null) return false
+
+    if(param.size != this.size) return false
+
+    for( (index, value) in withIndex() ) {
+        if(value != param[index]) return false
+    }
+    return true
 }
 
 private const val UNINITIALIZE_COLUMN_INDEX = Int.MAX_VALUE

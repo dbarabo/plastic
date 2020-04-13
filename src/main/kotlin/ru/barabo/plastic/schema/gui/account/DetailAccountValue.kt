@@ -354,13 +354,21 @@ fun processShowError(process: ()->Unit) {
     }
 }
 
+fun intoSwingThread(process: ()-> Unit) {
+    if(SwingUtilities.isEventDispatchThread() ) {
+        process()
+    } else {
+        SwingUtilities.invokeLater { process() }
+    }
+}
+
 fun Container.comboBox(label: String, gridY: Int, list: List<String>? = null): JComboBox<String> {
 
     add( JLabel(label), labelConstraint(gridY) )
 
-    val items = list?.let { Vector<String>(it) }
+    val items = list?.let { Vector(it) }
 
-    val combo = items?.let { JComboBox<String>(it) } ?: JComboBox()
+    val combo = items?.let { JComboBox(it) } ?: JComboBox()
 
     add(combo, textConstraint(gridY + 1) )
 

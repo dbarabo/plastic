@@ -6,6 +6,7 @@ import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
 import ru.barabo.plastic.fio.gui.maxSpaceYConstraint
 import ru.barabo.plastic.schema.gui.account.processShowError
+import ru.barabo.plastic.unnamed.gui.mainBook
 import ru.barabo.report.entity.Directory
 import ru.barabo.report.entity.GroupDirectory
 import ru.barabo.report.entity.Report
@@ -17,9 +18,8 @@ import java.awt.*
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.io.File
-import java.lang.Exception
-import javax.swing.BoxLayout
 import javax.swing.JLabel
+import javax.swing.JTabbedPane
 import javax.swing.JToolBar
 
 class DirectoryTree(private val paramPanel: Container, title: JLabel? = null) : JToolBar(VERTICAL) {
@@ -119,6 +119,8 @@ private fun Report.clickReport(paramPanel: Container, title: JLabel?) {
 }
 
 private class Params(override val container: Container): ParamContainer {
+
+    override val bookForTableBox: JTabbedPane? = container.mainBook()
 
     override fun afterReportCreated(reportFile: File) {
         processShowError {

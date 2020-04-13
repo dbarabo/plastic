@@ -3,8 +3,10 @@ package ru.barabo.xls
 import org.jdesktop.swingx.JXDatePicker
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator
 import ru.barabo.db.toSqlDate
+import ru.barabo.plastic.fio.gui.maxSpaceXConstraint
 import ru.barabo.plastic.fio.gui.maxSpaceYConstraint
 import ru.barabo.plastic.schema.gui.account.processShowError
+import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import java.awt.Container
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -42,7 +44,7 @@ fun paramFunByName(funName: String): ComponentType? = ComponentType.values().fir
 
 // private val logger = LoggerFactory.getLogger(Param::class.java)
 
-fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:()->Unit) {
+fun buildParams(paramContainer: ParamContainer, params: List<Param>, vars: List<Var>, processOk:()->Unit) {
 
     val container = paramContainer.container
 
@@ -54,8 +56,11 @@ fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:(
     container.layout = GridBagLayout()
 
     for( (index, param) in params.withIndex()) {
+
+        val cursorRefs = param.getRefCursorParam(params, vars)
+
         when(param.componentType) {
-            ComponentType.TEXTFIELD -> container.textField(param.varParam, index)
+            ComponentType.TEXTFIELD -> container.textField(param.varParam, index, keyTextFilterListener(cursorRefs) )
             ComponentType.TEXTFIELDINT -> container.textFieldInt(param.varParam, index)
             ComponentType.TEXTFIELDAMOUNT -> container.textFieldAmount(param.varParam, index)
             ComponentType.DATEPICKER -> container.datePicker(param.varParam, index)
@@ -63,8 +68,7 @@ fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:(
             ComponentType.CHECKBOX -> container.checkBox(param.varParam, index)
             ComponentType.COMBOBOX -> container.comboBox(param.varParam, param.cursor!!, index)
             ComponentType.COMBOSEARCH -> container.comboSearch(param.varParam, param.cursor!!, index)
-            // ComponentType.TABLEBOX ->
-            else -> throw Exception("component not found for componentType=${param.componentType}")
+            ComponentType.TABLEBOX -> container.tableBox(param.varParam, param.cursor!!, index, vars, paramContainer)
         }
     }
 
@@ -85,6 +89,32 @@ fun buildParams(paramContainer: ParamContainer, params: List<Param>, processOk:(
     container.repaint()
 
     paramContainer.afterParamCreate()
+}
+
+private fun keyTextFilterListener(cursorList: List<CursorData>): (VarResult?, String?)->Unit {
+    return if(cursorList.isEmpty()) ::varResultTextFieldListener
+           else { result, field ->
+                val text = field?.replace('*', '%')
+
+                varResultTextFieldListener(result, text)
+
+                cursorList.forEach {  it.invalidate() }
+    }
+}
+
+private fun Param.getRefCursorParam(params: List<Param>, vars: List<Var>): List<CursorData> {
+
+    val cursorList = ArrayList<CursorData>()
+
+    for(param in params) {
+        val varParams = param.cursor?.paramsByVars(vars) ?: continue
+
+        if(!varParams.contains(this.varParam)) continue
+
+        cursorList += param.cursor
+    }
+
+    return cursorList
 }
 
 private fun Container.datePicker(varParam: Var, gridY: Int): JXDatePicker {
@@ -234,7 +264,9 @@ private fun Container.textFieldAmount(varParam: Var, gridY: Int): JTextField {
 
     textField.addFocusListener(object : FocusListener {
         override fun focusLost(e: FocusEvent?) {
-            varResultTextFieldListener(varParam.result, textField)
+            val field = (e?.source as? JTextField) ?: return
+
+            varResultTextFieldListener(varParam.result, field.text)
         }
 
         override fun focusGained(e: FocusEvent?) {}
@@ -258,7 +290,9 @@ private fun Container.textFieldInt(varParam: Var, gridY: Int): JTextField {
 
     textField.addFocusListener(object : FocusListener {
         override fun focusLost(e: FocusEvent?) {
-            varResultTextFieldListener(varParam.result, textField)
+            val field = (e?.source as? JTextField) ?: return
+
+            varResultTextFieldListener(varParam.result, field.text)
         }
 
         override fun focusGained(e: FocusEvent?) {}
@@ -280,26 +314,56 @@ private fun integerFormat(): NumberFormatter {
     }
 }
 
-private fun Container.textField(varParam: Var, gridY: Int): JTextField {
+fun varResultTextFieldListener(varResult: VarResult?, text: String?) {
+    val type = varResult?.type ?: return
+
+    if(text?.isEmpty() != false) {
+        varResult.value = null
+        return
+    }
+
+    when (type) {
+        VarType.INT -> varResult.value = text.trim().toIntOrNull()
+        VarType.NUMBER -> varResult.value = text.trim().toDoubleOrNull()
+        VarType.VARCHAR -> varResult.value = text
+        else -> {}
+    }
+}
+
+fun Container.textField(varParam: Var, gridY: Int, keyListener: (VarResult?, String?)->Unit = ::varResultTextFieldListener ): JTextField {
     val label = varParam.name.replace('_', ' ').toLowerCase()
 
-    add( JLabel(label), labelConstraint(gridY) )
+    val textField = textFieldHorizontal(label, gridY).apply {
+        text = varParam.result.value?.toString() ?: ""
+    }
 
-    val textField = JTextField(varParam.result.value?.toString() ?: "")
+    maxSpaceXConstraint(2, gridY)
 
-    this.add(textField, textConstraint(gridY = gridY, gridX = 1) )
-
-    textField.addKeyListener(VarKeyLister(varParam.result) )
+    textField.addKeyListener( TextVarKeyLister(keyListener, varParam.result) )
 
     textField.addFocusListener(object : FocusListener {
         override fun focusLost(e: FocusEvent?) {
-            varResultTextFieldListener(varParam.result, textField)
+            keyListener(varParam.result, textField.text)
         }
 
         override fun focusGained(e: FocusEvent?) {}
     })
 
     return textField
+}
+
+class TextVarKeyLister(private val processListener: (VarResult?, String?)->Unit, private val varResult: VarResult) : KeyListener {
+
+    override fun keyTyped(e: KeyEvent?) {}
+
+    override fun keyPressed(e: KeyEvent?) {}
+
+    override fun keyReleased(e: KeyEvent?) {
+
+        val textField = (e?.source as? JTextField) ?: return
+
+        processListener(varResult, textField.text)
+    }
 }
 
 class VarKeyLister(private val varResult: VarResult? = null, private val setter: (String?)->Unit = {}) : KeyListener {
@@ -313,23 +377,7 @@ class VarKeyLister(private val varResult: VarResult? = null, private val setter:
 
         setter(textField.text)
 
-        varResultTextFieldListener(varResult, textField)
-    }
-}
-
-private fun varResultTextFieldListener(varResult: VarResult?, textField: JTextField) {
-    val type = varResult?.type ?: return
-
-    if(textField.text?.isEmpty() != false) {
-        varResult.value = null
-        return
-    }
-
-    when (type) {
-        VarType.INT -> varResult.value = textField.text.trim().toIntOrNull()
-        VarType.NUMBER -> varResult.value = textField.text.trim().toDoubleOrNull()
-        VarType.VARCHAR -> varResult.value = textField.text
-        else -> {}
+        varResultTextFieldListener(varResult, textField.text)
     }
 }
 

@@ -10,6 +10,7 @@ import java.io.File
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.swing.JTabbedPane
 import kotlin.collections.ArrayList
 
 class ExcelSql(private val template: File, query: Query, private val generateNewFile:(File)->File) {
@@ -40,7 +41,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
             val params = rowData[0].tag as ParamTag
 
-            buildParams(paramContainer, params.params) {
+            buildParams(paramContainer, params.params, vars) {
                 if(newFile == null) {
                     resetAllBuild(params.params)
                 }
@@ -91,10 +92,7 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         for (columnIndex in 0 until DATA_COLUMN)  sheet.setColumnView(columnIndex, 0)
         sheet.setRowView(0,0)
         newBook.save()
-
-        logger.error("stackFormat.size=${stackFormat.size}")
     }
-
 
     private fun initNewBook() {
         newFile = generateNewFile(template)
@@ -103,7 +101,6 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
         sheet = newBook.getSheet(0)
 
-        //sheet.setPageSetup(PageOrientation.PORTRAIT, PaperSize.A4, 0.0, 0.0)
         val scale = sheet.settings.scaleFactor
         sheet.settings.scaleFactor = scale
     }
@@ -117,6 +114,10 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
         val rowData = ArrayList<Row>()
 
+        logger.error("sheet.rows=${sheet.rows}")
+
+        var tagLoop : LoopTag? = null
+
         for (rowIndex in 0 until sheet.rows) {
 
             checkErrorByRow(rowIndex) {
@@ -126,7 +127,18 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
                 val columns = getColumns(rowIndex)
 
-                rowData += Row(tag, rowIndex, expression, columns)
+                val row = Row(tag, rowIndex, expression, columns)
+
+                when(tag) {
+                    is LoopTag -> {
+                        tagLoop = tag
+                        rowData += row
+                    }
+                    is SubLoopIfTag -> {
+                        tagLoop!!.addSubIf(row)
+                    }
+                    else -> { rowData += row }
+                }
             }
         }
         this.rowData = rowData
@@ -247,27 +259,44 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
             cellContentTag.string = ""
         }
 
-        return getTagByName(content, rowIndex)
+        return if(content.isBlank() ) {
+            val cellContentSubTag = sheet.getCell(SUBTAG_COLUMN, rowIndex)
+            val subContent = cellContentSubTag.contents?.trim() ?: ""
+
+            getTagByName(subContent, rowIndex, subContent.isNotBlank())
+        } else {
+            getTagByName(content, rowIndex)
+        }
     }
 
     private fun buildRow(row: Row, diffRow: Int): Int {
         return  when(row.tag) {
             EmptyTag -> buildEmpty(row, diffRow)
             is LoopTag -> buildLoop(row.tag, row, diffRow)
-            is IfTag -> buildIf(row.tag, row, diffRow)
+            is IfTag -> buildIf(row.tag.exprIf, row, diffRow)
             is ParamTag -> buildEmpty(row, diffRow)
+            is SubLoopIfTag -> buildIf(row.tag.exprIf, row, diffRow)
         }
     }
 
     private fun buildLoop(loopTag: LoopTag, row: Row, diffRow: Int): Int {
 
-        if(loopTag.cursor.isEmpty()) return removeRowIf(row, diffRow)
+        if(loopTag.cursor.isEmpty()) {
+            return removeRowIf(row, diffRow).apply { removeSubIf(loopTag.subIfRows, this) }
+        }
 
         var rowIndex = row.index + diffRow
 
         parser.execExpression(row.expr, false)
+
+        var isFirst = true
+        var priorRowIndex = rowIndex
         do {
             buildDefaultRow(row, rowIndex)
+
+            priorRowIndex = rowIndex
+            rowIndex = buildSubIfLoop(loopTag.subIfRows, rowIndex, isFirst)
+            isFirst = false
 
             val isNext = loopTag.cursor.isNext()
             if(isNext) {
@@ -278,12 +307,46 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
             }
         } while( isNext )
 
+        if(priorRowIndex < rowIndex) {
+            rowIndex--
+        }
+
         return rowIndex - row.index
     }
 
-    private fun buildIf(ifTag: IfTag, row: Row, diffRow: Int): Int {
+    private fun removeSubIf(subIfRows: List<Row>, rowIndex: Int) {
+        for(ifRow in subIfRows) {
+            sheet.removeRow(rowIndex)
+        }
+    }
 
-        val isExec = parser.execExpression(ifTag.exprIf, false).toBoolean()
+    private fun buildSubIfLoop(subIfRows: List<Row>, rowIndex: Int, isFirstRun: Boolean): Int {
+        if(subIfRows.isEmpty()) return rowIndex
+
+        var selectedIndex = rowIndex + 1
+        for(ifRow in subIfRows) {
+            val exprIf = (ifRow.tag as SubLoopIfTag).exprIf
+            val isExec = parser.execExpression(exprIf, false).toBoolean()
+            if(!isExec) {
+                if(isFirstRun) removeRow(selectedIndex)
+
+                continue
+            }
+
+            if(!isFirstRun) {
+                sheet.newRowFromSource(selectedIndex - 1)
+            }
+
+            parser.execExpression(ifRow.expr, false)
+            buildDefaultRow(ifRow, selectedIndex)
+            selectedIndex++
+        }
+        return selectedIndex - 1
+    }
+
+    private fun buildIf(exprIf: Expression, row: Row, diffRow: Int): Int {
+
+        val isExec = parser.execExpression(exprIf, false).toBoolean()
 
         if(!isExec) return removeRowIf(row, diffRow)
 
@@ -296,6 +359,10 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         sheet.removeRow(row.index + diffRow)
 
         return diffRow - 1
+    }
+
+    private fun removeRow(indexRow: Int) {
+        sheet.removeRow(indexRow)
     }
 
     private fun buildEmpty(row: Row, diffRow: Int): Int {
@@ -316,14 +383,14 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         }
     }
 
-    private fun getTagByName(name: String, rowIndex: Int): Tag {
+    private fun getTagByName(name: String, rowIndex: Int, isSubTag: Boolean = false): Tag {
         val tagName = name.substringBefore(' ').trim().toUpperCase()
 
         if(tagName.isBlank() || tagName == EmptyTag.nameTag) return EmptyTag
 
         return when(tagName) {
             LOOP -> LoopTag(findCursor(name) )
-            IF -> IfTag(parseExpr(name))
+            IF -> if(isSubTag) SubLoopIfTag(parseExpr(name)) else IfTag(parseExpr(name))
             PARAM -> ParamTag( fillParams(rowIndex) )
             else -> throw Exception("TAG not found $name")
         }
@@ -362,6 +429,8 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 private const val DATA_COLUMN = 3
 
 private const val TAG_COLUMN = 1
+
+private const val SUBTAG_COLUMN = 2
 
 private const val PARAM_COLUMN = 2
 
@@ -458,7 +527,7 @@ data class Col(val index: Int,
     override fun contentValue(rowIndex: Int): WritableCell {
         return when(value) {
             EmptyContent -> Blank(index, rowIndex, format)
-            is StringContent -> Label(index, rowIndex, value.content, format)
+            is StringContent -> if(value.content.isEmpty() )Blank(index, rowIndex, format) else Label(index, rowIndex, value.content, format)
             is NumberContent -> Number(index, rowIndex, value.number, format)
             is VarContent -> varByType(value.varResult, rowIndex)
             is ComplexContent -> complexType(value.varList, rowIndex)
@@ -485,16 +554,6 @@ data class Col(val index: Int,
             else -> Blank(index, rowIndex, format)
         }
     }
-
-    private fun byFormatDate(date: Date): String {
-        Int
-
-        val localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
-
-        val pattern = if(localDateTime.hour == 0 && localDateTime.minute == 0) PATTERN_DATE else PATTERN_DATE_TIME
-
-        return pattern.format(localDateTime)
-    }
 }
 
 private val PATTERN_DATE_TIME = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
@@ -505,9 +564,19 @@ sealed class Tag(val nameTag: String)
 
 object EmptyTag : Tag(EMPTY)
 
-data class LoopTag(val cursor: CursorData) : Tag(LOOP)
+data class LoopTag(val cursor: CursorData, var subIfRows: List<Row> = emptyList()) : Tag(LOOP) {
+
+    fun addSubIf(subIfRow: Row) {
+        if(subIfRows.isEmpty()) {
+            subIfRows = ArrayList()
+        }
+        subIfRows += subIfRow
+    }
+}
 
 data class IfTag(val exprIf: Expression) : Tag(IF)
+
+data class SubLoopIfTag(val exprIf: Expression) : Tag(SUB_IF)
 
 data class ParamTag(val params: List<Param>) : Tag(PARAM)
 
@@ -516,6 +585,8 @@ private const val EMPTY = "EMPTY"
 private const val LOOP = "LOOP"
 
 private const val IF = "IF"
+
+private const val SUB_IF = "SUBIF"
 
 private const val PARAM = "PARAM"
 
@@ -569,6 +640,8 @@ private fun WritableSheet.newRowFromSource(srcRowIndex: Int, isClearCopyData: Bo
 interface ParamContainer {
     val container: Container
 
+    val bookForTableBox: JTabbedPane?
+
     fun afterParamCreate() {}
 
     fun afterReportCreated(reportFile: File)
@@ -576,4 +649,13 @@ interface ParamContainer {
     fun reportError(error: String, reportFile: File?) {}
 
     fun checkRunReport() {}
+}
+
+fun byFormatDate(date: Date): String {
+
+    val localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+
+    val pattern = if(localDateTime.hour == 0 && localDateTime.minute == 0) PATTERN_DATE else PATTERN_DATE_TIME
+
+    return pattern.format(localDateTime)
 }

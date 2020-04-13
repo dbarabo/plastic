@@ -33,7 +33,7 @@ private fun parseParam(expr: String, vars: List<Var>): Param? {
 
     if(funParam.countParam == 1) return Param(funParam, varParam)
 
-    val (cursorVar, next) = findVarBracket(expr, vars, funParam, nextIndex)
+    val (cursorVar, _) = findVarBracket(expr, vars, funParam, nextIndex)
 
     val cursorData = cursorVar.result.value as? CursorData
         ?: throw Exception("переменная $cursorVar должна быть курсором в параметре $expr")
