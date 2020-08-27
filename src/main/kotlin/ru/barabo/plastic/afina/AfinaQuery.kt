@@ -26,10 +26,16 @@ enum class AccessMode {
 
         private const val DELB = "ДЭЛБ"
 
+        private const val MENTOR = "ПРЕДСЕДАТЕЛЬ"
+
+        private const val MAIN_DOC = "НАЧАЛЬНИК ДОК"
+
         fun byWorkPlace(workPlace: String): AccessMode {
             return when {
                 workPlace.toUpperCase().indexOf(SUPERVISOR) >= 0 -> FullAccess
-                workPlace.toUpperCase().indexOf(DELB) >= 0 ->  DelbAccess
+                (workPlace.toUpperCase().indexOf(DELB) >= 0 ||
+                        workPlace.toUpperCase().indexOf(MENTOR) >= 0 ||
+                        workPlace.toUpperCase().indexOf(MAIN_DOC) >= 0) ->  DelbAccess
                 else -> CardMoveOutOnly
             }
         }

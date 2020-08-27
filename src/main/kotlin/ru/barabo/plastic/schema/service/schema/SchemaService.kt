@@ -47,7 +47,7 @@ object SchemaService : StoreFilterService<Schema>(AfinaOrm, Schema::class.java),
 
     private fun addCondition(condVariant: CondVariant) {
 
-        val params = arrayOf(condVariant.conditionId, condVariant.variant, selectedEntity()?.transType)
+        val params = arrayOf<Any?>(condVariant.conditionId, condVariant.variant, selectedEntity()?.transType)
 
         AfinaQuery.execute(EXEC_ADD_CONDITION, params)
 

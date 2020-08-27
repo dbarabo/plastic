@@ -17,7 +17,8 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
 
     private lateinit var newBook: WritableWorkbook
 
-    private var newFile: File? = null
+    var newFile: File? = null
+    private set
 
     private lateinit var sheet: WritableSheet
 
@@ -26,6 +27,12 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
     private lateinit var vars: MutableList<Var>
 
     private val parser: Parser = Parser(query)
+
+    fun buildWithOutParam(vars: MutableList<Var>) {
+        initRowData(vars)
+
+        processData()
+    }
 
     fun buildWithrequestParam(vars: MutableList<Var>, paramContainer: ParamContainer) {
         initRowData(vars)
@@ -113,8 +120,6 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         stackFormat.clear()
 
         val rowData = ArrayList<Row>()
-
-        logger.error("sheet.rows=${sheet.rows}")
 
         var tagLoop : LoopTag? = null
 
@@ -290,28 +295,29 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         parser.execExpression(row.expr, false)
 
         var isFirst = true
-        var priorRowIndex = rowIndex
         do {
-            buildDefaultRow(row, rowIndex)
+            val isDrawMainLoop = loopTag.exprIf?.let {
+                if(it.isNotEmpty() ) parser.execExpression(it, false).toBoolean() else true
+            } ?: true
 
-            priorRowIndex = rowIndex
+            if(isDrawMainLoop) {
+                if(!isFirst) {
+                    sheet.newRowFromSource(rowIndex)
+                    rowIndex++
+                }
+            buildDefaultRow(row, rowIndex)
+            }
+
             rowIndex = buildSubIfLoop(loopTag.subIfRows, rowIndex, isFirst)
             isFirst = false
 
             val isNext = loopTag.cursor.isNext()
             if(isNext) {
-                sheet.newRowFromSource(rowIndex)
-                rowIndex++
-
                 parser.execExpression(row.expr, false)
             }
         } while( isNext )
 
-        if(priorRowIndex < rowIndex) {
-            rowIndex--
-        }
-
-        return rowIndex - row.index
+        return rowIndex - row.index - loopTag.subIfRows.size
     }
 
     private fun removeSubIf(subIfRows: List<Row>, rowIndex: Int) {
@@ -324,12 +330,17 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         if(subIfRows.isEmpty()) return rowIndex
 
         var selectedIndex = rowIndex + 1
+
         for(ifRow in subIfRows) {
+
+            parser.execExpression(ifRow.expr, false)
+
             val exprIf = (ifRow.tag as SubLoopIfTag).exprIf
             val isExec = parser.execExpression(exprIf, false).toBoolean()
             if(!isExec) {
-                if(isFirstRun) removeRow(selectedIndex)
-
+                if(isFirstRun) {
+                    removeRow(selectedIndex)
+                }
                 continue
             }
 
@@ -337,10 +348,10 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
                 sheet.newRowFromSource(selectedIndex - 1)
             }
 
-            parser.execExpression(ifRow.expr, false)
             buildDefaultRow(ifRow, selectedIndex)
             selectedIndex++
         }
+
         return selectedIndex - 1
     }
 
@@ -389,11 +400,21 @@ class ExcelSql(private val template: File, query: Query, private val generateNew
         if(tagName.isBlank() || tagName == EmptyTag.nameTag) return EmptyTag
 
         return when(tagName) {
-            LOOP -> LoopTag(findCursor(name) )
+            LOOP -> LoopTag(findCursor(name), exprIf = loopIfExpr(rowIndex) )
             IF -> if(isSubTag) SubLoopIfTag(parseExpr(name)) else IfTag(parseExpr(name))
             PARAM -> ParamTag( fillParams(rowIndex) )
             else -> throw Exception("TAG not found $name")
         }
+    }
+
+    private fun loopIfExpr(rowIndex: Int): Expression? {
+        val cellIfExpr = sheet.getCell(SUBTAG_COLUMN, rowIndex)
+
+        val ifExpr = cellIfExpr.contents?.trim() ?: return null
+
+        if(ifExpr.isBlank()) return null
+
+        return parseExpr(ifExpr)
     }
 
     private fun fillParams(rowIndex: Int): List<Param> {
@@ -564,7 +585,7 @@ sealed class Tag(val nameTag: String)
 
 object EmptyTag : Tag(EMPTY)
 
-data class LoopTag(val cursor: CursorData, var subIfRows: List<Row> = emptyList()) : Tag(LOOP) {
+data class LoopTag(val cursor: CursorData, var subIfRows: List<Row> = emptyList(), val exprIf: Expression?) : Tag(LOOP) {
 
     fun addSubIf(subIfRow: Row) {
         if(subIfRows.isEmpty()) {

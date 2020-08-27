@@ -1,7 +1,6 @@
 package ru.barabo.plastic.fio.service
 
 import oracle.jdbc.OracleTypes
-import ru.barabo.db.SessionSetting
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.afina.AfinaQuery
@@ -34,7 +33,7 @@ private fun createBtrt30File(query: String,
                              phone: String): File {
     val file = unicFileName("")
 
-    val params = arrayOf(clientId, file.name, codeWord, phone)
+    val params: Array<Any?> = arrayOf(clientId, file.name, codeWord, phone)
 
     val clob = AfinaQuery.execute(query, params, intArrayOf(OracleTypes.CLOB))!![0] as Clob
 

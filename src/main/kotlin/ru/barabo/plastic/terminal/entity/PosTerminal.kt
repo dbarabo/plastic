@@ -159,6 +159,10 @@ data class PosTerminal(
     var turnMonthInfo: String
     get() = monthTurn?.let { "${turnAmount.formated()} за ${it.shortFormatDate()}" } ?:""
     set(_) {}
+
+    var typeTerminal: String
+    get() = if(terminal.indexOf("J") == 0)"Карты" else "weechat"
+    set(_) {}
 }
 
 private fun LocalDate?.formatDate() = this?.let { DateTimeFormatter.ofPattern("dd.MM.yyyy").format(it) } ?: ""
