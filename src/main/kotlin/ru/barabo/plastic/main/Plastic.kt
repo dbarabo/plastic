@@ -9,7 +9,7 @@ object Plastic {
     }
 }
 
-fun main(args:Array<String>) {
+fun main() {
 
     Plastic.runApplication()
 }

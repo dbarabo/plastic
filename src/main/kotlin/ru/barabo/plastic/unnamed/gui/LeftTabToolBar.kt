@@ -50,7 +50,7 @@ class LeftTabToolBar(private val book: JTabbedPane, dbStorePlastic: DBStorePlast
 
         buttons.forEach { it.dbStore.updateAllData() }
 
-        val max = components.maxBy { it.maximumSize.width } ?: this
+        val max = components.maxByOrNull { it.maximumSize.width } ?: this
 
         components.forEach {
             it.maximumSize = max.maximumSize

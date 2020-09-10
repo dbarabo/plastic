@@ -99,7 +99,7 @@ class LeftTabBar (private val book: JTabbedPane) : JToolBar(VERTICAL) {
         }
         // reportButton?.isEnabled = AfinaQuery.getUserDepartment().accessMode == AccessMode.FullAccess
 
-        val max = components.maxBy { it.maximumSize.width } ?: this
+        val max = components.maxByOrNull { it.maximumSize.width } ?: this
         components.forEach {
             it.maximumSize = max.maximumSize
             it.minimumSize = max.maximumSize
