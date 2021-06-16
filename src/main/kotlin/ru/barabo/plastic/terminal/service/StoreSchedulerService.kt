@@ -15,6 +15,10 @@ object StoreSchedulerService :  StoreFilterService<Scheduler>(AfinaOrm, Schedule
 
         item.checkEndTime()
 
+        if(item.waitTime != 0L && (28_200L > item.endTime + item.waitTime )) {
+            item.waitTime = 28_200L - item.endTime
+        }
+
         item.id?.let {
             item.state = if(item.endTime.toInt() - LocalTime.now().toSecondOfDay() > HOUR_2) 0L else 1L
         }

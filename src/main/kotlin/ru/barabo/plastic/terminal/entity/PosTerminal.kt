@@ -22,6 +22,15 @@ select t.ID_CLIENT, t.MONTH, trunc(t.TURN_EQUIRING/1000) TURN_EQUIRING, t.TURN_R
                      from od.PTKB_TERMINAL_TURN_MONTH t2
                     where t2.id_client = t.ID_CLIENT)
                     
+),
+TURN_POS as (
+  select sum(t.turn_equiring) last_sum, t.terminal_id
+    from od.ptkb_pos_turn_month_byterminal t
+where t.month = (
+   select max(month) 
+     from od.ptkb_pos_turn_month_byterminal tt
+    where tt.terminal_id = t.terminal_id )
+group by t.terminal_id
 )
 select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
        coalesce(v.account_ext_code, od.accountCode(p.account40)) ACCOUNT_CODE,
@@ -37,13 +46,15 @@ select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
        TURN.TURN_EQUIRING,
        TURN.TURN_REVERSE,
        TURN.MONTH,
-       ACQ.MERCHANT_CODE
+       ACQ.MERCHANT_CODE,
+       TURN_POS.LAST_SUM
   from od.ptkb_poses p
   left join ACQ on ACQ.terminal_id = p.terminalid 
   join od.client cl on cl.classified = p.client
   left join od.ptkb_transact_account_value v on v.terminal_id = p.terminalid and v.transact_account = 1
   left join od.computerate cr on cr.classified = p.compue_rate
   left join TURN on TURN.ID_CLIENT = p.client
+  left join TURN_POS on TURN_POS.terminal_id = p.terminalid
  where ( coalesce(p.validto, max_date) > sysdate - 180 or
          coalesce(ACQ.pc_oper, min_date) > sysdate - 180 )
         
@@ -145,7 +156,12 @@ data class PosTerminal(
     @ColumnName("MERCHANT_CODE")
     @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
-    var merchantCode: String = ""
+    var merchantCode: String = "",
+
+    @ColumnName("LAST_SUM")
+    @ColumnType(java.sql.Types.INTEGER)
+    @ReadOnly
+    var turnTerminal: Int = 0
    ) {
     var pactStartFormat: String = ""
         get() = pactStart.formatDate()
@@ -162,6 +178,10 @@ data class PosTerminal(
 
     var typeTerminal: String
     get() = if(terminal.indexOf("J") == 0)"Карты" else "weechat"
+    set(_) {}
+
+    var turnTerminalInfo: String
+    get() = turnTerminal.formated()
     set(_) {}
 }
 

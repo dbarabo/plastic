@@ -23,5 +23,6 @@ private val columns = listOf(
     ColumnTableModel("Адрес терминала", 80, PosTerminal::addressTerminal),
     ColumnTableModel("Комиссия", 15, PosTerminal::srcCommission),
     ColumnTableModel("Выкуплен", 10, PosTerminal::isOwnerTerminal),
-    ColumnTableModel("Тип", 10, PosTerminal::typeTerminal)
+    ColumnTableModel("Оборот терминала", 10, PosTerminal::turnTerminalInfo)
+    //ColumnTableModel("Тип", 10, PosTerminal::typeTerminal)
     )

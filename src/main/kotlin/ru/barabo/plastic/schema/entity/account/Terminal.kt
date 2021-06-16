@@ -10,7 +10,7 @@ select p.terminalid, cl.label, 1 is_pos
   from od.ptkb_poses p
      , client cl
 where cl.classified = p.client
- and coalesce(p.validto, sysdate + 1) > sysdate
+ and coalesce(p.validto, sysdate + 1) >= trunc(sysdate)
 
  union
 
