@@ -34,7 +34,7 @@ and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 w
 order by t.id
 """
 
-    //@Test
+    @Test
     fun testPrimitive() {
         logger.error(Long::class.javaObjectType)
 
