@@ -33,7 +33,7 @@ where t.month = (
 group by t.terminal_id
 )
 select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
-       coalesce(v.account_ext_code, od.accountCode(p.account40)) ACCOUNT_CODE,
+       coalesce(v.account_ext_code, od.accountCode(v.ACCOUNT_VALUE)) ACCOUNT_CODE,
        case when v.ext_bank_id is null then 'НАШ БАНК'
        else od.getclienttrmsgattr(v.ext_bank_id, 2, 1)
        end BANK_NAME,
