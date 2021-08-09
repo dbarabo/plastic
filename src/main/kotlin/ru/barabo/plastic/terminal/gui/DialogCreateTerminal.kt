@@ -9,6 +9,7 @@ import ru.barabo.plastic.schema.gui.selector.SelectAccountTab
 import ru.barabo.plastic.schema.gui.selector.SelectClientTab
 import ru.barabo.plastic.schema.gui.selector.textFieldHorizontal
 import ru.barabo.plastic.terminal.entity.PercentRateTerminal
+import ru.barabo.plastic.terminal.entity.PosTerminal
 import ru.barabo.plastic.terminal.service.PercentRateTerminalService
 import ru.barabo.plastic.terminal.service.PosTerminalService
 import java.awt.Component
@@ -18,7 +19,8 @@ import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JTextField
 
-class DialogCreateTerminal(private val component: Component) : AbstractDialog(component, "Создать POS-Терминал") {
+class DialogCreateTerminal(private val component: Component, private val editEntity: PosTerminal? = null)
+    : AbstractDialog(component, "Создать POS-Терминал") {
 
     private val terminal: JTextField
 
@@ -47,11 +49,17 @@ class DialogCreateTerminal(private val component: Component) : AbstractDialog(co
     init {
         groupPanel("Выберите счет и задайте имя терминала и %% ставку", 0, 4, 0).apply {
 
-            textFieldHorizontal("ID Терминала (J999999)", 0).apply { terminal = this }
+            textFieldHorizontal("ID Терминала (J999999)", 0).apply {
+                terminal = this
+
+                this.text = editEntity?.terminal
+            }
 
             groupPanel("Счет в НАШЕМ банке", 1, 2, 0, 2).apply {
                 buttonHorisontal("Расчетный счет клиента", defaultSelectAccountLabel(),0, ::selectAccount).apply {
                     accountCode = this
+
+                    accountCode.text = editEntity?.accountCode
                 }
 
                 textFieldHorizontal("Наименование счета", 1).apply {
@@ -70,7 +78,10 @@ class DialogCreateTerminal(private val component: Component) : AbstractDialog(co
                 button("", DetailAccountValue.SELECT_CLIENT, 2, 2, ::selectClient).apply { extClient = this }
             }
 
-            comboBox("%% Ставка", 6, PercentRateTerminalService.elemRoot()).apply { rateList = this }
+            comboBox("%% Ставка", 6, PercentRateTerminalService.elemRoot()).apply {
+
+                rateList = this
+            }
 
             datePickerHorisontal("Дата начала", 7).apply {datePicker = this }
 
@@ -90,8 +101,15 @@ class DialogCreateTerminal(private val component: Component) : AbstractDialog(co
     }
 
     private fun createInternalTerminal(selectAccount: SelectAccount) {
-        PosTerminalService.createTerminal(terminal.text, selectAccount, rateList.selectedItem as? PercentRateTerminal,
-            datePicker.date, address.text)
+
+        if(editEntity != null) {
+
+            PosTerminalService.editAccountTerminal(editEntity.terminal, selectAccount)
+
+        } else {
+            PosTerminalService.createTerminal(terminal.text, selectAccount, rateList.selectedItem as? PercentRateTerminal,
+                datePicker.date, address.text)
+        }
     }
 
     private fun createExternalTerminal() {

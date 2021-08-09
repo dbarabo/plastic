@@ -29,6 +29,11 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
         ButtonKarkas("deleteDB", "Закрыть договор") {
             DialogClosePact(this).showDialog(PosTerminalService.selectedEntity()?.pactEnd)
         },
+
+        ButtonKarkas("account", "Сменить р/с клиента") {
+            DialogCreateTerminal(this, PosTerminalService.selectedEntity() ).showDialogResultOk()
+        },
+
         ButtonKarkas("tudasuda", "Источник комиссии") {  },
 
         ButtonKarkas("scheduler", "Расписание") { schedulerView() },
@@ -49,7 +54,7 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
         add(findAny)
         add(JLabel(ResourcesManager.getIcon("find")) )
 
-        buttons[5].button?.isEnabled = false
+        buttons[6].button?.isEnabled = false
     }
 
     private fun refreshData() {

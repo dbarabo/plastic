@@ -36,6 +36,15 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
         save(entity)
     }
 
+    fun editAccountTerminal(terminalId: String, selectAccount: SelectAccount?) {
+
+        val accountId = selectAccount?.id ?: throw Exception("Не выбран расчетный счет")
+
+        orm.executeQuery(UPDATE_ACCOUNT_TERMINAL, arrayOf(terminalId.toUpperCase(), accountId) )
+
+        initData()
+    }
+
     fun createTerminal(terminalId: String?, selectAccount: SelectAccount?, rate: PercentRateTerminal?,
                        pactStart: java.util.Date?, address: String?) {
 
@@ -95,6 +104,8 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
     private const val CREATE_EXTERNAL_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createExternalTerminal(?, ?, ?, ?, ?, ?) }"
 
     private const val CREATE_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createPosTerminal(?, ?, ?, ?, ?) }"
+
+    private const val UPDATE_ACCOUNT_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.updateAccountTerminal(?, ?) }"
 
     private fun createAllFieldCriteria(entity: PosTerminal, filterUpper: String): Boolean {
         if(entity.terminal.toUpperCase().indexOf(filterUpper) >= 0) return true
