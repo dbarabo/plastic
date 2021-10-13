@@ -8,11 +8,11 @@ import ru.barabo.plastic.terminal.service.PosTerminalService
 object TablePosTerminal : EntityTable<PosTerminal>(columns, PosTerminalService)
 
 private val columns = listOf(
-    ColumnTableModel("Терминал", 20, PosTerminal::terminal),
+    ColumnTableModel("Терминал", 16, PosTerminal::terminal),
     ColumnTableModel("Клиент", 100, PosTerminal::clientName),
-    ColumnTableModel("Начал", 20, PosTerminal::pactStartFormat),
-    ColumnTableModel("Конец", 20, PosTerminal::pactEndFormat),
-    ColumnTableModel("Последняя", 20, PosTerminal::lastOperFormat),
+    ColumnTableModel("Начал", 16, PosTerminal::pactStartFormat),
+    ColumnTableModel("Конец", 16, PosTerminal::pactEndFormat),
+    ColumnTableModel("Последняя", 16, PosTerminal::lastOperFormat),
     ColumnTableModel("%% ставка", 15, PosTerminal::percentCommission),
     ColumnTableModel("Оборот т.р.", 20, PosTerminal::turnMonthInfo),
     ColumnTableModel("Возврат руб.", 20, PosTerminal::turnReverse),
@@ -23,6 +23,7 @@ private val columns = listOf(
     ColumnTableModel("Адрес терминала", 80, PosTerminal::addressTerminal),
     ColumnTableModel("Комиссия", 15, PosTerminal::srcCommission),
     ColumnTableModel("Выкуплен", 10, PosTerminal::isOwnerTerminal),
-    ColumnTableModel("Оборот терминала", 10, PosTerminal::turnTerminalInfo)
+    ColumnTableModel("Оборот терминала", 10, PosTerminal::turnTerminalInfo),
+    ColumnTableModel("Merchant ID", 15, PosTerminal::merchantId)
     //ColumnTableModel("Тип", 10, PosTerminal::typeTerminal)
     )

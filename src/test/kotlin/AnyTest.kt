@@ -1,3 +1,4 @@
+import oracle.net.aso.s
 import org.apache.log4j.Logger
 import org.junit.Test
 import ru.barabo.db.annotation.QuerySelect
@@ -6,6 +7,12 @@ import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import java.io.File
 import java.net.InetAddress
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.text.NumberFormat
+import java.time.LocalDateTime
+import java.util.*
+import java.util.regex.Pattern
 
 
 abstract class A() {
@@ -35,14 +42,49 @@ order by t.id
 """
 
     @Test
+    fun testPattern() {
+        val pattern = Pattern.compile("\\[([0-9]+)\\]")
+
+        val matcher = pattern.matcher("3] ATM Выдача наличных")
+
+        if(matcher.find()) {
+            logger.error("group=${matcher.group(1)}")
+        } else {
+            logger.error("no find")
+        }
+    }
+
+    //@Test
+    fun testDecimalFormat() {
+
+        val otherSymbols = DecimalFormatSymbols().apply {
+            decimalSeparator = ','
+            groupingSeparator = ' '
+        }
+        val format = DecimalFormat("#,###.##", otherSymbols)
+
+        //val formatter = NumberFormat.getInstance(Locale.US) as DecimalFormat
+
+        val value = "1 876 453,30"
+
+        val numb = format.parse(value)
+
+        logger.error("numb=$numb")
+
+        //val value: Long= 100048
+    }
+
+    //@Test
     fun testPrimitive() {
-        logger.error(Long::class.javaObjectType)
 
-        // val javaType = Long::class.javaObjectType
+        val dayByMoscow = "%02d".format( LocalDateTime.now().minusHours(7).minusDays(11).dayOfMonth )
 
-        val javaType = 0L.javaClass
+        logger.error("dayByMoscow=$dayByMoscow")
 
-        logger.error("valueToJava javaType=${javaType.isPrimitive} ${javaType.typeName}  ${javaType.name}}")
+
+//        logger.error(Long::class.javaObjectType)
+//        val javaType = 0L.javaClass
+//        logger.error("valueToJava javaType=${javaType.isPrimitive} ${javaType.typeName}  ${javaType.name}}")
     }
 
     //@Test
@@ -72,14 +114,11 @@ order by t.id
     //@Test
     fun reqexpTestReplace() {
 
-
-
         val x = select.toUpperCase().replaceFirst("\\sWHERE\\s".toRegex(), "\nWHERE id = ?\n and ")
 
         val y = select.toUpperCase().replaceFirst("\\sORDER\\sBY\\s".toRegex(), "\nWHERE id = ? \nORDER BY ")
 
         logger.error(x)
-
         logger.error(y)
     }
 
@@ -141,6 +180,13 @@ order by t.id
          //logger.error("12 34   55  5656 6767  .".replace(" +".toRegex(), "%")) //  replace("\\b(?:(%%)(?!\\1))+\\b".toRegex(), ""))
 
        // "\\b(?:(%)(?!\\1))+\\b"
+    }
+
+    @Test
+    fun substringTest() {
+        val x = "F1027700466640_060921_P_0038".substringAfter("_Z_")
+
+        logger.error("x=$x")
     }
 
 

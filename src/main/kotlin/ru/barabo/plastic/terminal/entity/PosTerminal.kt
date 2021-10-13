@@ -47,7 +47,8 @@ select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
        TURN.TURN_REVERSE,
        TURN.MONTH,
        ACQ.MERCHANT_CODE,
-       TURN_POS.LAST_SUM
+       TURN_POS.LAST_SUM,
+       p.MERCHANT_ID
   from od.ptkb_poses p
   left join ACQ on ACQ.terminal_id = p.terminalid 
   join od.client cl on cl.classified = p.client
@@ -161,7 +162,12 @@ data class PosTerminal(
     @ColumnName("LAST_SUM")
     @ColumnType(java.sql.Types.INTEGER)
     @ReadOnly
-    var turnTerminal: Int = 0
+    var turnTerminal: Int = 0,
+
+    @ColumnName("MERCHANT_ID")
+    @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
+    var merchantId: String = ""
    ) {
     var pactStartFormat: String = ""
         get() = pactStart.formatDate()
