@@ -1,5 +1,7 @@
 package ru.barabo.total.gui.any;
 
+import ru.barabo.gui.swing.ButtonKarkas;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +36,7 @@ public class ShowMenuListener {
 
 	public ButtonKarkas createButtonKarkas(int groupIndex) {
 
-		return new ButtonKarkas(ico, caption, getListener(), groupIndex);
+		return new ButtonKarkas(ico, caption, groupIndex, getListener());
 	}
 
 	private void initPopup(ButtonKarkas[] menuItems) {
@@ -53,7 +55,7 @@ public class ShowMenuListener {
 				popupMenu.addSeparator();
 				continue;
 			}
-			JMenuItem item = new JMenuItem(karkas.getName(), karkas.getImageIco());
+			JMenuItem item = new JMenuItem(karkas.getName(), karkas.getImageIcon());
 
 			String name = "item" + index;
 

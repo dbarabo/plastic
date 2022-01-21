@@ -2,7 +2,7 @@ package ru.barabo.plastic.release.ivr.xml;
 
 import org.apache.log4j.Logger;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
+import ru.barabo.afina.AfinaQuery;
 import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.total.utils.StrUtils;
 import ru.barabo.total.utils.Util;

@@ -1,5 +1,6 @@
 package ru.barabo.plastic.afina
 
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.plastic.unnamed.gui.tryCatchDefaultStore
 

@@ -1,6 +1,7 @@
 package ru.barabo.plastic.packet.gui
 
 import org.apache.log4j.Logger
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.afina.rtf.RtfCashIn
 import ru.barabo.plastic.gui.PlasticGui
 import ru.barabo.plastic.main.resources.owner.Cfg
@@ -16,7 +17,6 @@ import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.db.impl.AbstractRowFields
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import ru.barabo.total.gui.any.ShowMenuListener
 import ru.barabo.total.gui.table.TotalRowTable
 import ru.barabo.total.report.rtf.RtfReport
@@ -69,24 +69,25 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
     private var filterWork: FilterWork? = null
 
     private val menuFilterProblemType =
-        arrayOf(ButtonKarkas("allFilter", "Отбор:Все", { selectAll() }, 0),
-            ButtonKarkas("newFilter", "Отбор:'Новые'", { this.selectNew() }, 0),
-            ButtonKarkas("workFilter", "Отбор:'В Работе'", { this.selectWork() }, 0),
-            ButtonKarkas("endFilter", "Отбор:'Закрытые'", { this.selectEndWork() }, 0),
-            ButtonKarkas("bug", "Отбор:'С Ошибками'", { this.selectError() }, 0)
+        arrayOf<ButtonKarkas>(
+            ButtonKarkas("allFilter", "Отбор:Все", 0) { selectAll() },
+            ButtonKarkas("newFilter", "Отбор:'Новые'", 0) { this.selectNew() },
+            ButtonKarkas("workFilter", "Отбор:'В Работе'", 0) { this.selectWork() },
+            ButtonKarkas("endFilter", "Отбор:'Закрытые'", 0) { this.selectEndWork() },
+            ButtonKarkas("bug", "Отбор:'С Ошибками'", 0) { this.selectError() }
         )
 
     private val menuFilterByUser =
-        arrayOf(ButtonKarkas("allUsers", "Отбор:Любые", { this.selectAllUser() }, 1),
-            ButtonKarkas("user", "Отбор:Мои", { this.selectMy() }, 1)
+        arrayOf<ButtonKarkas>(ButtonKarkas("allUsers", "Отбор:Любые", 1){ this.selectAllUser() },
+            ButtonKarkas("user", "Отбор:Мои", 1) { this.selectMy() }
         )
 
-    private val buttonKarkases = arrayOf(ButtonKarkas("refresh", "Обновить", { this.refresh() }, null),
-        ButtonKarkas("deleteAll", "Удалить", ::showMenuDelete, null),
-        ButtonKarkas("rename", "Правка", { this.renamePacket() }, null),
-        ButtonKarkas("toApplication", "Заявление", { this.gotoApplication() }, null),
-        ButtonKarkas("changeProduct", "Сменить продукт", { this.changeProduct() }, null),
-        ButtonKarkas("death", "BTRT25 Send", { this.sendBtr25() }, null),
+    private val buttonKarkases = arrayOf<ButtonKarkas>(ButtonKarkas("refresh", "Обновить") { this.refresh() },
+        ButtonKarkas("deleteAll", "Удалить", null, ::showMenuDelete),
+        ButtonKarkas("rename", "Правка") { this.renamePacket() },
+        ButtonKarkas("toApplication", "Заявление") { this.gotoApplication() },
+        ButtonKarkas("changeProduct", "Сменить продукт") { this.changeProduct() },
+        ButtonKarkas("death", "BTRT25 Send") { this.sendBtr25() },
         ButtonKarkas(null, null, null, null),
 
         ShowMenuListener(menuFilterProblemType).createButtonKarkas(0),
@@ -115,7 +116,7 @@ open class ToolBarPacket <E : AbstractRowFields?> (private val store: DBStore<E>
         StatePlasticPacket.SMS_RESPONSE_OK_PART_OIA  to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.SMS_RESPONSE_ERROR_ALL_OIA to ButtonKarkas("wait", "Ждём") { this.waitPc() },
         StatePlasticPacket.SMS_RESPONSE_ERROR_PART_OIA  to ButtonKarkas("wait", "Ждём") { this.waitPc() },
-        StatePlasticPacket.CARD_GO to ButtonKarkas("toDopiki", "В доп. офис->", this::toDopiki),
+        StatePlasticPacket.CARD_GO to ButtonKarkas("toDopiki", "В доп. офис->", null, this::toDopiki),
         StatePlasticPacket.CARD_SENT_OFFICCES to ButtonKarkas("toGet", "Получить в офисе") { this.toGet() },
         StatePlasticPacket.CARD_HOME_OFFICCES to ButtonKarkas("prepare", "Подготовить к выдаче") { this.prepareCardOut() },
         StatePlasticPacket.PREPARE_CARD_TO_OUT to ButtonKarkas("outClient", "Выдать карту") { this.outClientOnly() },

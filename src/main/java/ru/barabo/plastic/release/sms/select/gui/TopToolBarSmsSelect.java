@@ -1,5 +1,6 @@
 package ru.barabo.plastic.release.sms.select.gui;
 
+import ru.barabo.gui.swing.ButtonKarkas;
 import ru.barabo.plastic.release.packet.data.PacketRowField;
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
@@ -9,7 +10,6 @@ import ru.barabo.plastic.release.sms.select.data.SmsSelectField;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.impl.AbstractRowFields;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
-import ru.barabo.total.gui.any.ButtonKarkas;
 import ru.barabo.total.gui.any.ShowMenuListener;
 import ru.barabo.total.gui.table.TotalRowTable;
 
@@ -29,12 +29,12 @@ public class TopToolBarSmsSelect <E extends AbstractRowFields> extends AbstractT
 	public final static String	ERROR_NO_PHONE = "Номер телефона должен быть 10-ти значным";
 	
 	private final ButtonKarkas[] buttonSmsTypes = {
-			new ButtonKarkas("smsAdd", "Отбор: SMS на подключение", this::selectSmsAdd, 0),
-			new ButtonKarkas("smsRemove", "Отбор: SMS на отключение", this::selectselectSmsRemove, 0)
+			new ButtonKarkas("smsAdd", "Отбор: SMS на подключение", 0, this::selectSmsAdd),
+			new ButtonKarkas("smsRemove", "Отбор: SMS на отключение", 0, this::selectselectSmsRemove)
 	};
 	
 	private final ButtonKarkas[] buttonKarkases = {
-			new ButtonKarkas("sendPaket", "В пакет на SMS", this::addToPacket,	null),
+			new ButtonKarkas("sendPaket", "В пакет на SMS", null, this::addToPacket),
 			new ButtonKarkas(null, null, null, null),
 			
 			new ShowMenuListener(buttonSmsTypes).createButtonKarkas(0)

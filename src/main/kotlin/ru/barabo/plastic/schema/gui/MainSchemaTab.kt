@@ -1,10 +1,9 @@
 package ru.barabo.plastic.schema.gui
 
-import ru.barabo.plastic.main.resources.ResourcesManager
-import ru.barabo.plastic.schema.gui.schema.TabSchema
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.plastic.schema.gui.account.TabAccount
+import ru.barabo.plastic.schema.gui.schema.TabSchema
 import ru.barabo.plastic.schema.gui.variable.TabVariable
-import ru.barabo.plastic.terminal.gui.TabPosTerminal
 import javax.swing.JTabbedPane
 import javax.swing.SwingConstants
 

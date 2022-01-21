@@ -1,6 +1,21 @@
+buildscript {
+    ext {
+        kotlin_ver = "1.6.10"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}
+
 plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlin_ver"
+}
+
+group 'ru.barabo'
+
+tasks.withType(JavaExec) {
+    jvmArgs = ['-Xmx2g']
 }
 
 apply plugin: 'idea'
@@ -12,55 +27,64 @@ compileJava.options.encoding = 'UTF-8'
 repositories {
     mavenCentral()
 
-    flatDir {
-        dirs '../../repo'
-    }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
-    compile "org.jetbrains.kotlin:kotlin-reflect"
 
-    compile group: 'org.aeonbits.owner', name: 'owner', version: '1.0.10'
-    compile group: 'org.aeonbits.owner', name: 'owner-java8', version: '1.0.10'
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "$kotlin_ver"
+    implementation group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version: "$kotlin_ver"
 
-    compile group: 'org.swinglabs.swingx', name: 'swingx-all', version: '1.6.5-1'
+    implementation group: 'org.aeonbits.owner', name: 'owner', version: '1.0.10'
+    implementation group: 'org.aeonbits.owner', name: 'owner-java8', version: '1.0.10'
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.+'
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    implementation group: 'org.swinglabs.swingx', name: 'swingx-all', version: '1.6.5-1'
 
-    compile group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
 
-    compile name: 'ojdbc6'
+    implementation group: 'net.sourceforge.jexcelapi', name: 'jxl', version: '2.6.12'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+
+    implementation group: 'com.oracle.database.jdbc', name: 'ojdbc6', version: '11.2.0.4'
+
+    implementation group: 'com.github.dbarabo', name: 'dbjdb', version: '0.9.5'
+
+    implementation group: 'com.github.dbarabo', name: 'xlsx', version: '0.9.12'
+
+    implementation group: 'com.github.dbarabo', name: 'report-struct', version: '0.9.3'
+
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
+
+    kotlinOptions {
+        languageVersion = "1.6"
+    }
 }
+
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
 jar {
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
         attributes 'Main-Class': 'ru.barabo.plastic.main.PlasticKt'
     }
 
-    from configurations.compile.collect {
-        it.isDirectory() ? it : zipTree(it).matching{ 
+    from configurations.runtimeClasspath.collect  {
+        it.isDirectory() ? it : zipTree(it).matching {
             exclude {
-                it.name.contains('.DSA') || 
-                it.name.contains('.SF') || 
-                it.name.contains('.RSA')
+                it.name.contains('.DSA') ||
+                        it.name.contains('.SF') ||
+                        it.name.contains('.RSA')
             }
         }
     }
-}
-
-task(runMain, dependsOn: 'classes', type: JavaExec) {
-    main = 'ru.barabo.plastic.main.PlasticKt'
-    classpath = sourceSets.main.runtimeClasspath
 }

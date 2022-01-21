@@ -1,19 +1,17 @@
 package ru.barabo.plastic.unnamed.gui
 
 import org.apache.log4j.Logger
-import ru.barabo.db.Query
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
 import ru.barabo.plastic.unnamed.general.FilteredStoreInPath
 import ru.barabo.plastic.unnamed.general.StoreInTotal
 import ru.barabo.plastic.unnamed.gui.dialog.OrderDialog
 import ru.barabo.plastic.unnamed.gui.dialog.ResultOrder
-import ru.barabo.plastic.unnamed.gui.dialog.runPleaseWait
 import ru.barabo.total.db.FieldItem
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import java.awt.Component
 import java.awt.Container
 import javax.swing.JOptionPane
@@ -26,23 +24,22 @@ class TopToolBarInPath(private val store: FilteredStoreInPath<RowFieldInPath>, f
     : AbstractTopToolBar(focusTable),
     ListenerStore<RowFieldInPath> {
 
-
-
-    private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
+    private val defaultStateButton = ButtonKarkas("wait", "Ждём") {}
 
     private val stateButtons = mapOf(
-        StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.dbValue to ButtonKarkas("home", "Карты в ГО", { goHomeCard() }, null),
-        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", { }, null),
-        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", {}, null),
-        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("outClient", "Выдать карту", {}, null)
+        StatePlasticPacket.SMS_RESPONSE_OK_ALL_OIA.dbValue to ButtonKarkas("home", "Карты в ГО"){ goHomeCard() },
+        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->" ) { },
+        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе") {},
+        StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("outClient", "Выдать карту") {}
     )
 
     private var stateButton: ButtonKarkas? =  null
 
     private val buttons = arrayOf(
-        ButtonKarkas("order", "Заказать карты", { orderCards() },	null),
-        ButtonKarkas("toApplication", "Заявление", { gotoApplication(store) }, null),
-        ButtonKarkas(null, null, null, null))
+        ButtonKarkas("order", "Заказать карты") { orderCards() },
+        ButtonKarkas("toApplication", "Заявление") { gotoApplication(store) },
+        ButtonKarkas(null, null, null, null)
+    )
 
     init {
 

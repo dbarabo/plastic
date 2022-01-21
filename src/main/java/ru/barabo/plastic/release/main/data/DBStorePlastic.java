@@ -1,7 +1,7 @@
 package ru.barabo.plastic.release.main.data;
 
+import ru.barabo.afina.AfinaQuery;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
 import ru.barabo.plastic.release.application.data.DBStoreClientFind;
 import ru.barabo.plastic.release.packet.data.*;
@@ -55,23 +55,9 @@ public class DBStorePlastic {
 
         checkWorkplace();
 
-		// reIssueCard = new DBStoreReIssueCard(this);
-		
-		// packet = new DBStorePacket(this);
-		
-		// content = new DBStorePacketContent(this, packet);
-		
-		// smsSelect = new DBStoreSmsSelect(this);
-		
-		// smsPacket = new DBStoreSmsPacket(this);
-		
-		// smsContent = new DBStoreSmsPacketContent(this, smsPacket);
-		
-		applicationCard = new DBStoreApplicationCard(this);
+		/* applicationCard = new DBStoreApplicationCard(this);
 
 		clientFind = new DBStoreClientFind(this, applicationCard);
-
-		// allContent = new DBStorePacketAllContent();
 
         unnamedInPath = new DBStoreInPath(this);
 
@@ -84,6 +70,7 @@ public class DBStorePlastic {
         totalCardInfo = new TotalCardInfoImpl();
 
         сlientSelect = new DBStoreClientSelect(this);
+		*/
     }
 
     public ClientCriteriaDBStore<RowFieldClient> getClientSelect() {

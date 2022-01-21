@@ -3,8 +3,8 @@ package ru.barabo.plastic.schema.gui.account
 import org.apache.log4j.Logger
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreListener
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.gui.swing.table.saveEntityShowError
-import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.schema.entity.account.AccountValue
 import ru.barabo.plastic.schema.entity.selector.DOCTYPE_BANK
 import ru.barabo.plastic.schema.entity.selector.DOCTYPE_JURIC

@@ -1,7 +1,7 @@
 package ru.barabo.plastic.release.sms.select.data;
 
+import ru.barabo.afina.AfinaQuery;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket;
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacketContent;

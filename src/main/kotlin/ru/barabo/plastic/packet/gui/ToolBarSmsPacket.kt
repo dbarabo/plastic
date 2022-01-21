@@ -1,11 +1,11 @@
 package ru.barabo.plastic.packet.gui
 
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.release.packet.data.PacketRowField
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.release.reissue.gui.TopToolBarReIssueCard
 import ru.barabo.plastic.release.sms.packet.data.DBStoreSmsPacket
 import ru.barabo.total.db.DBStore
-import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JComponent
 
 class ToolBarSmsPacket(private val store: DBStore<PacketRowField>, focusComp: JComponent) : ToolBarPacket<PacketRowField>(store, focusComp) {

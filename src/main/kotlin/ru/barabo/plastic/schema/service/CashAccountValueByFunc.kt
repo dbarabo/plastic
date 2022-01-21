@@ -1,7 +1,7 @@
 package ru.barabo.plastic.schema.service
 
 import org.apache.log4j.Logger
-import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.afina.AfinaQuery
 
 interface CashAccountValueByFunc {
 

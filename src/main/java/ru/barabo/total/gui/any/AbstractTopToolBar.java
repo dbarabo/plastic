@@ -1,6 +1,8 @@
 package ru.barabo.total.gui.any;
 
-import ru.barabo.plastic.main.resources.ResourcesManager;
+
+import ru.barabo.gui.swing.ButtonKarkas;
+import ru.barabo.gui.swing.ResourcesManager;
 
 import javax.swing.*;
 import java.awt.*;

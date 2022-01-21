@@ -1,5 +1,6 @@
 package ru.barabo.plastic.unnamed.gui
 
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.packet.gui.dialogGetLimit
 import ru.barabo.plastic.release.packet.data.StatePlasticPacket
 import ru.barabo.plastic.unnamed.data.RowFieldInPath
@@ -11,28 +12,27 @@ import ru.barabo.total.db.DBStore
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.JTable
 
 class TopToolBarInHome(private val store: FilteredStoreInHome<RowFieldInPath>, focusTable: JTable)
     : AbstractTopToolBar(focusTable),
     ListenerStore<RowFieldInPath> {
 
-    private val defaultStateButton = ButtonKarkas("wait", "Ждём", {}, null)
+    private val defaultStateButton = ButtonKarkas("wait", "Ждём", null) {}
 
     private val stateButtons = mapOf(
-        StatePlasticPacket.OCI_ALL.dbValue to ButtonKarkas("home", "Карты в ГО", {}, null),
-        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", { cardSendToDopOffice() }, null),
-        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", { cardGetToDopMainOffice() }, null),
+        StatePlasticPacket.OCI_ALL.dbValue to ButtonKarkas("home", "Карты в ГО", null) {},
+        StatePlasticPacket.CARD_GO.dbValue to ButtonKarkas("toDopiki", "В доп. офис->", null) { cardSendToDopOffice() },
+        StatePlasticPacket.CARD_SENT_OFFICCES.dbValue to ButtonKarkas("toGet", "Получить в офисе", null) { cardGetToDopMainOffice() },
         StatePlasticPacket.CARD_HOME_OFFICCES.dbValue to ButtonKarkas("prepare", "Подготовить к выдаче") { prepareCardOut() },
-        StatePlasticPacket.PREPARE_CARD_TO_OUT.dbValue to ButtonKarkas("outClient", "Выдать карту", { outCardToClient() }, null)
+        StatePlasticPacket.PREPARE_CARD_TO_OUT.dbValue to ButtonKarkas("outClient", "Выдать карту",  null) { outCardToClient() }
     )
 
     private var stateButton: ButtonKarkas? =  null
 
     private val buttons = arrayOf(
-            ButtonKarkas("toApplication", "Заявление", { gotoApplication(store) }, null),
-            ButtonKarkas("inversia", "Передать м/у офисами", { moveToDepartment() }, null),
+            ButtonKarkas("toApplication", "Заявление",null)  { gotoApplication(store) },
+            ButtonKarkas("inversia", "Передать м/у офисами", null) { moveToDepartment() },
 
             ButtonKarkas(null, null, null, null))
 

@@ -2,10 +2,10 @@ package ru.barabo.plastic.unnamed.data
 
 import oracle.jdbc.OracleTypes
 import org.apache.log4j.Logger
+import ru.barabo.afina.AfinaQuery
+import ru.barabo.afina.clobToString
 import ru.barabo.db.SessionException
 import ru.barabo.db.SessionSetting
-import ru.barabo.plastic.afina.AfinaQuery
-import ru.barabo.plastic.afina.clobToString
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.plastic.unnamed.entity.Department
 import ru.barabo.plastic.unnamed.general.FilteredStoreInHome
@@ -178,5 +178,5 @@ fun sendIvr(idContent: Number) {
     val newCard = AfinaQuery.selectValueType<Number>(SELECT_NEW_CARD_CONTENT, arrayOf(idContent))
         ?: throw SessionException("Не найдена карта для контента id=[$idContent]")
 
-    AfinaQuery.sendIvrRequest(newCard)
+    // AfinaQuery.sendIvrRequest(newCard)
 }

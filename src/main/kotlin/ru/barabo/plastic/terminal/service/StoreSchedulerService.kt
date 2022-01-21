@@ -1,9 +1,9 @@
 package ru.barabo.plastic.terminal.service
 
+import ru.barabo.afina.AfinaOrm
 import ru.barabo.db.SessionSetting
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
-import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.terminal.entity.Scheduler
 import java.time.LocalTime
 

@@ -1,7 +1,7 @@
 package ru.barabo.plastic.release.packet.data;
 
+import ru.barabo.afina.AfinaQuery;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.total.db.FieldItem;
 import ru.barabo.total.db.impl.AbstractFilterStore;
 

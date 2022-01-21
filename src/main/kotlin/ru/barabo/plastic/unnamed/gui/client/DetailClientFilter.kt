@@ -1,6 +1,6 @@
 package ru.barabo.plastic.unnamed.gui.client
 
-import ru.barabo.plastic.main.resources.ResourcesManager
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.plastic.unnamed.data.RowFieldClient
 import ru.barabo.plastic.unnamed.general.ClientCriteria
 import ru.barabo.plastic.unnamed.general.ClientCriteriaDBStore

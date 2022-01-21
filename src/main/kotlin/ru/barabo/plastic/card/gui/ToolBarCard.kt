@@ -1,9 +1,10 @@
 package ru.barabo.plastic.card.gui
 
+import ru.barabo.gui.swing.ButtonKarkas
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.plastic.card.service.FilterMode
 import ru.barabo.plastic.card.service.StoreCardService
 import ru.barabo.plastic.gui.PlasticGui
-import ru.barabo.plastic.main.resources.ResourcesManager
 import ru.barabo.plastic.packet.gui.getDialogProductTo
 import ru.barabo.plastic.release.application.data.StaticData
 import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect
@@ -11,7 +12,6 @@ import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect.ERROR_NO_PHO
 import ru.barabo.plastic.release.sms.select.gui.TopToolBarSmsSelect.isDigits10
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
-import ru.barabo.total.gui.any.ButtonKarkas
 import ru.barabo.total.gui.any.ShowMenuListener
 import java.awt.Container
 import java.awt.Dimension
@@ -22,11 +22,11 @@ abstract class ToolBarCard(protected val store: StoreCardService, private val ta
 
     protected val filterMenu = arrayOf(
         ButtonKarkas(
-            "nofilter", "Фильтр: Все",
-            { store.filterMode = FilterMode.None }, 0),
+            "nofilter", "Фильтр: Все", 0)
+            { store.filterMode = FilterMode.None },
         ButtonKarkas(
-            "filter3", "С остатками/оборотами",
-            { store.filterMode = FilterMode.WithTurnOrRest }, 0)
+            "filter3", "С остатками/оборотами",0)
+            { store.filterMode = FilterMode.WithTurnOrRest }
     )
 
     protected fun defaultEnd() {
@@ -249,7 +249,7 @@ fun button(icon: String, name: String?, action: ()->Unit): AbstractButton =
         addActionListener { action() }
     }
 
-fun Container.toolButton(icon: String, name: String?, action: ActionListener,
+fun Container.toolButton(icon: String, name: String?, action: ActionListener?,
                          groupIndex: Int? = null, buttonGroupList: MutableList<ButtonGroup>? = null): AbstractButton? {
 
     name ?: return null
@@ -261,13 +261,13 @@ fun Container.toolButton(icon: String, name: String?, action: ActionListener,
 
     button.text = name
     button.toolTipText = name
-    button.addActionListener(action)
+    action?.let {  button.addActionListener(it) }
 
     return button.apply { this@toolButton.add(this) }
 }
 
 fun Container.toolButton(buttonKarkas: ButtonKarkas): AbstractButton? =
-    this.toolButton(buttonKarkas.ico, buttonKarkas.name, buttonKarkas.listener, buttonKarkas.groupIndex)
+    this.toolButton(buttonKarkas.ico?:"", buttonKarkas.name, buttonKarkas.listener, buttonKarkas.groupIndex)
 
 private fun MutableList<ButtonGroup>.addGroup(button: AbstractButton?, index: Int) {
     while (size <= index) {

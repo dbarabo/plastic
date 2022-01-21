@@ -1,7 +1,7 @@
 package ru.barabo.plastic.terminal.service
 
+import ru.barabo.afina.AfinaOrm
 import ru.barabo.db.service.StoreFilterService
-import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SelectClient
 import ru.barabo.plastic.terminal.entity.PercentRateTerminal

@@ -1,9 +1,9 @@
 package ru.barabo.plastic.schema.service.account
 
+import ru.barabo.afina.AfinaOrm
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
-import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.schema.entity.account.*
 
 object TerminalService : StoreFilterService<Terminal>(AfinaOrm,  Terminal::class.java), StoreListener<List<Account>> {

@@ -1,11 +1,11 @@
 package ru.barabo.plastic.unnamed.gui
 
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.total.db.DBStore
 import ru.barabo.total.db.FilteredStore
 import ru.barabo.total.db.ListenerStore
 import ru.barabo.total.db.StateRefresh
-import ru.barabo.total.gui.any.ButtonKarkas
 import javax.swing.*
 
 class LeftTabToolBar(private val book: JTabbedPane, dbStorePlastic: DBStorePlastic) : JToolBar(VERTICAL) {
@@ -38,9 +38,7 @@ class LeftTabToolBar(private val book: JTabbedPane, dbStorePlastic: DBStorePlast
 
         buttons.forEach { body ->
 
-            val button = ButtonKarkas.createButton(
-                ButtonKarkas(body.icon, body.name, { body.clickTab() }, 0),
-                buttonGroupList).apply {
+            val button = ButtonKarkas(body.icon, body.name, 0) { body.clickTab() }.createButton(buttonGroupList)?.apply {
 
                 DelegateButtonUpdateStore(this, body, body.dbStore)
             }

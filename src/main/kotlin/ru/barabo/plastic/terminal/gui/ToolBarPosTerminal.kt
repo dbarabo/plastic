@@ -1,13 +1,13 @@
 package ru.barabo.plastic.terminal.gui
 
-import ru.barabo.plastic.main.resources.ResourcesManager
+import ru.barabo.gui.swing.ButtonKarkas
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.plastic.schema.gui.selector.FilterKeyLister
 import ru.barabo.plastic.terminal.gui.scheduler.DialogScheduler
 import ru.barabo.plastic.terminal.service.PosTerminalService
 import ru.barabo.plastic.terminal.service.StoreSchedulerService
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import java.awt.Dimension
 import javax.swing.JLabel
 import javax.swing.JTextField

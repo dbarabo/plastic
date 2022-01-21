@@ -1,10 +1,11 @@
 package ru.barabo.plastic.main.gui;
 
+import ru.barabo.afina.AfinaQuery;
+import ru.barabo.afina.UserDepartment;
+import ru.barabo.afina.VersionChecker;
+import ru.barabo.afina.gui.ModalConnect;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
-import ru.barabo.plastic.afina.UserDepartment;
-import ru.barabo.plastic.afina.VersionChecker;
-import ru.barabo.plastic.main.resources.ResourcesManager;
+import ru.barabo.gui.swing.ResourcesManager;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.main.gui.ConfigPlastic;
 
@@ -15,12 +16,11 @@ import java.awt.event.WindowEvent;
 import java.util.Objects;
 
 public class Start extends JFrame{
-	
-	//final static transient private Logger logger = Logger.getLogger(Start.class.getName());
 
 	public Start() {
 
-		if(!ModalConnect.initConnect(this)) {
+		if( !ModalConnect.initConnect(this) ) {
+
 			System.exit(0);
 		}
 
@@ -54,6 +54,8 @@ public class Start extends JFrame{
 
         setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
 
+		VersionChecker.runCheckVersion("PLASTIC.JAR", 53);
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -68,7 +70,6 @@ public class Start extends JFrame{
 	    setVisible( true );
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-		VersionChecker.runCheckVersion();
 	}
 
 	private String title() {

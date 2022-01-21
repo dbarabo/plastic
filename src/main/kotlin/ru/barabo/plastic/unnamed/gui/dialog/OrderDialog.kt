@@ -1,6 +1,6 @@
 package ru.barabo.plastic.unnamed.gui.dialog
 
-import ru.barabo.plastic.main.resources.ResourcesManager
+import ru.barabo.gui.swing.ResourcesManager
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.plastic.unnamed.general.KeyValue
 import ru.barabo.plastic.unnamed.general.TotalCardInfo

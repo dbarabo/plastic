@@ -3,8 +3,8 @@ package ru.barabo.total.report.rtf;
 import kotlin.io.ConstantsKt;
 import kotlin.io.FilesKt;
 import org.apache.log4j.Logger;
+import ru.barabo.afina.AfinaQuery;
 import ru.barabo.db.SessionException;
-import ru.barabo.plastic.afina.AfinaQuery;
 import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.total.resources.owner.CfgTotal;
 import ru.barabo.total.utils.FileUtil;
@@ -118,14 +118,13 @@ public final class RtfReport {
 
 		File textFile = new File(directoryTo.getAbsolutePath() + "/" + rtfAfinaData.procedureName() + ".txt");
 
-        try {
-            textFile = AfinaQuery.execBbrRtf(rtfAfinaData.procedureName(), rtfAfinaData.procedureCallSql(),
-                    rtfAfinaData.paramCall(), textFile, "cp1251");
-        } catch (SessionException e) {
-            return new ResultFile(e.getMessage(), textFile);
-        }
+        /*textFile = AfinaQuery.execBbrRtf(rtfAfinaData.procedureName(), rtfAfinaData.procedureCallSql(),
+				rtfAfinaData.paramCall(), textFile, "cp1251");
 
-        return new ResultFile(textFile);
+		 */
+		AfinaQuery.INSTANCE.select("", null);
+
+		return new ResultFile(textFile);
 	}
 
 	static public File getDefaultToDirectory() {

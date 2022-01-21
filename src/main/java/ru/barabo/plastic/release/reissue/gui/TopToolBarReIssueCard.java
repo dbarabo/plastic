@@ -1,10 +1,10 @@
 package ru.barabo.plastic.release.reissue.gui;
 
 import org.apache.log4j.Logger;
+import ru.barabo.gui.swing.ButtonKarkas;
 import ru.barabo.gui.swing.StaticMenu;
 import ru.barabo.plastic.card.gui.PanelCards;
 import ru.barabo.plastic.fio.gui.FioChangeTab;
-import ru.barabo.plastic.main.resources.ResourcesManager;
 import ru.barabo.plastic.main.resources.owner.Cfg;
 import ru.barabo.plastic.release.ivr.xml.IvrInfo;
 import ru.barabo.plastic.release.ivr.xml.IvrXml;
@@ -23,14 +23,11 @@ import ru.barabo.plastic.unnamed.gui.TopToolBarInPath;
 import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.impl.AbstractRowFields;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
-import ru.barabo.total.gui.any.ButtonKarkas;
 import ru.barabo.total.gui.any.ShowMenuListener;
 import ru.barabo.total.gui.table.TotalRowTable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 
@@ -48,38 +45,35 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 	private final ButtonKarkas[] selectTypeReissue = {
 
-			new ButtonKarkas("time", "Отбор: Карты истекшие", this::selectTime, 0),
-			new ButtonKarkas("lost", "Отбор: Карты действующие", this::selectLost, 0),
-			new ButtonKarkas("application", "Отбор: Заявления 'На отправку'",
-					this::selectApplication, 0)
+			new ButtonKarkas("time", "Отбор: Карты истекшие", 0, this::selectTime),
+			new ButtonKarkas("lost", "Отбор: Карты действующие", 0, this::selectLost),
+			new ButtonKarkas("application", "Отбор: Заявления 'На отправку'",0, this::selectApplication)
 	};
 
 	private final ButtonKarkas[] moreDelbIssue = {
-			new ButtonKarkas("unnamed", "Неименные карты", this::showUnnamedCard, 0),
-			new ButtonKarkas("user", "Смена персональных данных", this::showChangeFio, 0),
+			new ButtonKarkas("unnamed", "Неименные карты", 0, this::showUnnamedCard),
+			new ButtonKarkas("user", "Смена персональных данных", 0, this::showChangeFio),
 
-			new ButtonKarkas("pos", TabPosTerminal.TITLE, this::showTerminal, 0),
-			new ButtonKarkas("schema", "Схемы транзакций", this::showShema, 0),
+			new ButtonKarkas("pos", TabPosTerminal.TITLE, 0, this::showTerminal),
+			new ButtonKarkas("schema", "Схемы транзакций", 0, this::showShema),
 
-			new ButtonKarkas(null, "???", this::showNewCard, 0)
+			new ButtonKarkas(null, "???", 0, this::showNewCard)
 	};
 	
 	private final ButtonKarkas[] buttonKarkases = {
-			new ButtonKarkas("sendPaket", "В пакет на отправку", this::addToPacket,	null),
-			new ButtonKarkas("death", "В пакет BTRT25", this::addToPacketBtrt25, null),
+			new ButtonKarkas("sendPaket", "В пакет на отправку", null, this::addToPacket),
+			new ButtonKarkas("death", "В пакет BTRT25", null,  this::addToPacketBtrt25),
 			new ButtonKarkas(null, null, null, null),
 			
 			new ShowMenuListener(selectTypeReissue).createButtonKarkas(0),
 
 			new ButtonKarkas(null, null, null, null),
 
-			new ButtonKarkas("password", "сменить ПИН-код!", this::changePin, null),
+			new ButtonKarkas("password", "сменить ПИН-код!", null, this::changePin),
 
 			new ButtonKarkas(null, null, null, null),
 
 			new StaticMenu("more", "Ещё...", moreDelbIssue)
-
-			//new ButtonKarkas("return", "Вернуться", this::returnBack, null),
 	};
 
 	private DBStore<E> store;
@@ -91,13 +85,8 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 
 		initButton();
 
-		AbstractButton btrt25 = getButtonKarkases()[1].getButton();
-
-		btrt25.setVisible( ((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace() );
-
-		// AbstractButton more = getButtonKarkases()[7].getButton();
-
-		// more.setVisible( !((DBStoreReIssueCard) store).getDBStorePacket().isWorkPlaceDopik() );
+		// AbstractButton btrt25 = getButtonKarkases()[1].getButton();
+		// btrt25.setVisible( ((DBStoreReIssueCard) store).getDBStorePacket().isSuperWorkspace() );
 	}
 
 	private void showTerminal(ActionEvent event) {
@@ -186,8 +175,6 @@ public class TopToolBarReIssueCard<E extends AbstractRowFields> extends Abstract
 			messageError(INCORRECT_DATA);
 			return;
 		}
-
-		// IvrXml.startIvrProccess(ivrInfo);
 
 		IvrXml.startIvrProccessByDb(ivrInfo);
 	}

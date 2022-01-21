@@ -1,5 +1,6 @@
 package ru.barabo.plastic.schema.gui.schema
 
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.schema.entity.schema.HeaderTransactType
 import ru.barabo.plastic.schema.gui.account.TableAccount
 import ru.barabo.plastic.schema.gui.account.onOffButton
@@ -9,7 +10,6 @@ import ru.barabo.plastic.schema.service.schema.HeaderTransactTypeService
 import ru.barabo.plastic.schema.service.schema.SchemaService
 import ru.barabo.plastic.unnamed.general.bySqlLikePlus
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import java.awt.Dimension
 import javax.swing.JTable
 import javax.swing.JTextField
@@ -17,9 +17,9 @@ import javax.swing.JTextField
 class ToolBarSchema(table: JTable) : AbstractTopToolBar(table) {
 
     private val buttons = arrayOf(
-        ButtonKarkas("insertDB", "Создать Схему проводки", { createSchema() },	null),
-        ButtonKarkas("application", "Правка Схемы", { editSchema() },	null),
-        ButtonKarkas("condition", "Задать условие", { createCondition() },	null),
+        ButtonKarkas("insertDB", "Создать Схему проводки") { createSchema() },
+        ButtonKarkas("application", "Правка Схемы") { editSchema() },
+        ButtonKarkas("condition", "Задать условие") { createCondition() },
         ButtonKarkas(null, null, null, null)
     )
 

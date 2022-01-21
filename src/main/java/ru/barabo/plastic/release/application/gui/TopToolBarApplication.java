@@ -2,6 +2,7 @@ package ru.barabo.plastic.release.application.gui;
 
 
 import org.apache.log4j.Logger;
+import ru.barabo.gui.swing.ButtonKarkas;
 import ru.barabo.plastic.gui.PlasticGui;
 import ru.barabo.plastic.release.application.data.AppCardRowField;
 import ru.barabo.plastic.release.application.data.DBStoreApplicationCard;
@@ -10,7 +11,6 @@ import ru.barabo.total.db.DBStore;
 import ru.barabo.total.db.ListenerStore;
 import ru.barabo.total.db.StateRefresh;
 import ru.barabo.total.gui.any.AbstractTopToolBar;
-import ru.barabo.total.gui.any.ButtonKarkas;
 import ru.barabo.total.gui.any.ShowMenuListener;
 
 import javax.swing.*;
@@ -25,14 +25,14 @@ public class TopToolBarApplication<E extends AppCardRowField> extends AbstractTo
 
 	private final ButtonKarkas[] printApplication = {
 
-			new ButtonKarkas("print", "Печать: Заявление на кредит", this::printApplication, 0)
+			new ButtonKarkas("print", "Печать: Заявление на кредит", 0, this::printApplication)
 	};
 
 	private final ButtonKarkas[] buttonKarkases = {
-			new ButtonKarkas("newFile", "Новый", this::newApplication, null),
-			new ButtonKarkas("saveDB", "Сохранить", this::saveApplication, null),
-			new ButtonKarkas("toSent", "На отправку", this::toSentApplication, null),
-			new ButtonKarkas("sendPaket", "Отправить в ПЦ", this::sendToPC, null),
+			new ButtonKarkas("newFile", "Новый", null, this::newApplication),
+			new ButtonKarkas("saveDB", "Сохранить", null, this::saveApplication),
+			new ButtonKarkas("toSent", "На отправку", null, this::toSentApplication),
+			new ButtonKarkas("sendPaket", "Отправить в ПЦ", null, this::sendToPC),
 			new ShowMenuListener(printApplication).createButtonKarkas(0)
 	};
 	

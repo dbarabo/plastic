@@ -1,10 +1,10 @@
 package ru.barabo.plastic.schema.service.schema
 
+import ru.barabo.afina.AfinaOrm
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
-import ru.barabo.plastic.afina.AfinaOrm
-import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.schema.entity.schema.ConditionVariant
 import ru.barabo.plastic.schema.entity.schema.Schema
 import ru.barabo.plastic.schema.entity.variable.Variable

@@ -1,6 +1,6 @@
 package ru.barabo.plastic.schema.service
 
-import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.afina.AfinaQuery
 
 interface CashFunc {
 

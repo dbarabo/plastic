@@ -1,9 +1,9 @@
 package ru.barabo.plastic.card.service
 
+import ru.barabo.afina.AfinaOrm
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.db.annotation.ParamsSelect
 import ru.barabo.db.service.StoreFilterService
-import ru.barabo.plastic.afina.AfinaOrm
-import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.card.entity.PacketCardInfo
 
 object PacketCardInfoService :  StoreFilterService<PacketCardInfo>(AfinaOrm, PacketCardInfo::class.java),ParamsSelect {

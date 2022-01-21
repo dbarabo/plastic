@@ -1,7 +1,7 @@
 package ru.barabo.plastic.schema.service.account
 
+import ru.barabo.afina.AfinaOrm
 import ru.barabo.db.service.StoreFilterService
-import ru.barabo.plastic.afina.AfinaOrm
 import ru.barabo.plastic.schema.entity.account.Account
 import ru.barabo.plastic.schema.service.CashFunc
 import ru.barabo.plastic.schema.service.TypeParams

@@ -1,6 +1,6 @@
 package ru.barabo.plastic.unnamed.data
 
-import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.plastic.unnamed.general.ClientCriteria
 import ru.barabo.plastic.unnamed.general.ClientCriteriaDBStore

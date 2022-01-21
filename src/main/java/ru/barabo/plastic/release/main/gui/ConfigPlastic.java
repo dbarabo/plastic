@@ -22,8 +22,7 @@ public class ConfigPlastic extends JPanel {
 
 		book.addTab(PanelCards.TITLE, new PanelCards() );
 
-		book.addTab("Заявление на Выпуск",
-					new PanelApplication(store.getApplicationCard(), store.getClientFind()));
+		// book.addTab("Заявление на Выпуск", new PanelApplication(store.getApplicationCard(), store.getClientFind()));
 
 		add(book, BorderLayout.CENTER);
 	}

@@ -1,10 +1,10 @@
 package ru.barabo.plastic.fio.service
 
 import oracle.jdbc.OracleTypes
+import ru.barabo.afina.AfinaOrm
+import ru.barabo.afina.AfinaQuery
+import ru.barabo.afina.clobToString
 import ru.barabo.db.service.StoreFilterService
-import ru.barabo.plastic.afina.AfinaOrm
-import ru.barabo.plastic.afina.AfinaQuery
-import ru.barabo.plastic.afina.clobToString
 import ru.barabo.plastic.fio.entity.FioChangeInfo
 import ru.barabo.plastic.unnamed.data.unicFileName
 import java.io.File

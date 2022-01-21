@@ -1,18 +1,18 @@
 package ru.barabo.plastic.schema.gui.variable
 
+import ru.barabo.gui.swing.ButtonKarkas
 import ru.barabo.plastic.schema.entity.variable.Variable
 import ru.barabo.plastic.schema.gui.account.processShowError
 import ru.barabo.plastic.schema.service.variable.VariableService
 import ru.barabo.total.gui.any.AbstractTopToolBar
-import ru.barabo.total.gui.any.ButtonKarkas
 import java.lang.Exception
 import javax.swing.JTable
 
 class ToolBarVariable(table: JTable) : AbstractTopToolBar(table) {
 
     private val buttons = arrayOf(
-        ButtonKarkas("insertDB", "Создать функцию", { createVariable() },	null),
-        ButtonKarkas("application", "Правка функции", { editVariable() },	null),
+        ButtonKarkas("insertDB", "Создать функцию") { createVariable() },
+        ButtonKarkas("application", "Правка функции") { editVariable() },
         ButtonKarkas(null, null, null, null)
     )
 

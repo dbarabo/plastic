@@ -1,10 +1,10 @@
 package ru.barabo.plastic.schema.service.account
 
+import ru.barabo.afina.AfinaOrm
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.db.EditType
 import ru.barabo.db.service.StoreFilterService
 import ru.barabo.db.service.StoreListener
-import ru.barabo.plastic.afina.AfinaOrm
-import ru.barabo.plastic.afina.AfinaQuery
 import ru.barabo.plastic.schema.entity.account.AccountValue
 import ru.barabo.plastic.schema.service.CashAccountValueByFunc
 

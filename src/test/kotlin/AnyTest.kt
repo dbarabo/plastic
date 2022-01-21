@@ -1,17 +1,12 @@
-import oracle.net.aso.s
 import org.apache.log4j.Logger
 import org.junit.Test
 import ru.barabo.db.annotation.QuerySelect
-import ru.barabo.plastic.afina.VersionChecker
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
-import java.io.File
 import java.net.InetAddress
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
-import java.text.NumberFormat
 import java.time.LocalDateTime
-import java.util.*
 import java.util.regex.Pattern
 
 
@@ -152,8 +147,6 @@ order by t.id
        // logger.error("address.address=${address.address}")
         logger.error("address.hostName=${address.hostName}")
     //    logger.error("address.canonicalHostName=${address.canonicalHostName}")
-
-        logger.error("path=${File(VersionChecker::class.java.protectionDomain.codeSource.location.path).absoluteFile}")
     }
 
     //@Test

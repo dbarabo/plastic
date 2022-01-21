@@ -1,6 +1,6 @@
 package ru.barabo.plastic.gui
 
-import ru.barabo.plastic.afina.AfinaQuery
+import ru.barabo.afina.AfinaQuery
 import ru.barabo.plastic.release.application.data.AppCardRowField
 import ru.barabo.plastic.release.main.data.DBStorePlastic
 import ru.barabo.total.db.DetailFieldItem
