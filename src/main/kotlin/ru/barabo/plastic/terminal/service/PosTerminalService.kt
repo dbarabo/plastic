@@ -124,7 +124,7 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
 
         if(filterUpper.length >= 4 && entity.accountCode.toUpperCase().indexOf(filterUpper) >= 0) return true
 
-        if(entity.percentCommission?.toString()?.indexOf(filterUpper)?:-1 >= 0) return true
+        if((entity.percentCommission?.toString()?.indexOf(filterUpper) ?: -1) >= 0) return true
 
         return false
     }

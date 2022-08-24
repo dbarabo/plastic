@@ -69,7 +69,6 @@ public class Start extends JFrame{
 	    setExtendedState(JFrame.MAXIMIZED_BOTH);
 	    setVisible( true );
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-
 	}
 
 	private String title() {
