@@ -32,7 +32,7 @@ where t.month = (
     where tt.terminal_id = t.terminal_id )
 group by t.terminal_id
 )
-select p.CLASSIFIED, p.terminalid, p.CLIENT, cl.LABEL,
+select p.CLASSIFIED, p.terminalid, p.INVENTORY_NUMBER, p.CLIENT, cl.LABEL,
        coalesce(v.account_ext_code, od.accountCode(v.ACCOUNT_VALUE)) ACCOUNT_CODE,
        case when v.ext_bank_id is null then 'НАШ БАНК'
        else od.getclienttrmsgattr(v.ext_bank_id, 2, 1)
@@ -71,6 +71,11 @@ data class PosTerminal(
     @ColumnType(java.sql.Types.VARCHAR)
     @ReadOnly
     var terminal: String = "",
+
+    @ColumnName("INVENTORY_NUMBER")
+    @ColumnType(java.sql.Types.VARCHAR)
+    @ReadOnly
+    var serialNumber: String = "",
 
     @ColumnName("CLIENT")
     @ColumnType(java.sql.Types.BIGINT)

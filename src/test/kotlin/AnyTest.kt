@@ -7,6 +7,7 @@ import java.net.InetAddress
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.LocalDateTime
+import java.util.*
 import java.util.regex.Pattern
 
 
@@ -36,7 +37,28 @@ and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 w
 order by t.id
 """
 
-    @Test
+    @Test fun testPdfReader() {
+
+        //val file = File("C:/report/12304241210320002.pdf")
+        //val document: PDDocument = PDDocument.load(file)
+        //val stripper = PDFTextStripper()
+        //val text: String = stripper.getText(document)
+        //logger.error(text)
+        //document.close()
+
+        /*val inputFile = File("C:/report/12304241210320002.pdf")
+        val reader = PdfReader(inputFile.canonicalPath)
+
+        for(page in 1..reader.numberOfPages) {
+            val strategy = SimpleTextExtractionStrategy()
+
+            val text = PdfTextExtractor.getTextFromPage(reader, page, strategy)
+
+            logger.error(text)
+        }*/
+    }
+
+    //@Test
     fun testPattern() {
         val pattern = Pattern.compile("\\[([0-9]+)\\]")
 
@@ -109,9 +131,9 @@ order by t.id
     //@Test
     fun reqexpTestReplace() {
 
-        val x = select.toUpperCase().replaceFirst("\\sWHERE\\s".toRegex(), "\nWHERE id = ?\n and ")
+        val x = select.uppercase(Locale.getDefault()).replaceFirst("\\sWHERE\\s".toRegex(), "\nWHERE id = ?\n and ")
 
-        val y = select.toUpperCase().replaceFirst("\\sORDER\\sBY\\s".toRegex(), "\nWHERE id = ? \nORDER BY ")
+        val y = select.uppercase(Locale.getDefault()).replaceFirst("\\sORDER\\sBY\\s".toRegex(), "\nWHERE id = ? \nORDER BY ")
 
         logger.error(x)
         logger.error(y)
@@ -175,12 +197,10 @@ order by t.id
        // "\\b(?:(%)(?!\\1))+\\b"
     }
 
-    @Test
+    //@Test
     fun substringTest() {
         val x = "F1027700466640_060921_P_0038".substringAfter("_Z_")
 
         logger.error("x=$x")
     }
-
-
 }

@@ -9,6 +9,7 @@ import ru.barabo.plastic.terminal.service.StoreSchedulerService
 import ru.barabo.plastic.unnamed.gui.errorMessage
 import ru.barabo.total.gui.any.AbstractTopToolBar
 import java.awt.Dimension
+import java.util.*
 import javax.swing.JLabel
 import javax.swing.JTextField
 
@@ -31,7 +32,7 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
         },
 
         ButtonKarkas("account", "Сменить р/с клиента") {
-            DialogCreateTerminal(this, PosTerminalService.selectedEntity() ).showDialogResultOk()
+            /*DialogCreateTerminal(this, PosTerminalService.selectedEntity() ).showDialogResultOk()*/
         },
 
         ButtonKarkas("tudasuda", "Источник комиссии") {  },
@@ -54,6 +55,8 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
         add(findAny)
         add(JLabel(ResourcesManager.getIcon("find")) )
 
+        buttons[5].button?.isEnabled = false
+
         buttons[6].button?.isEnabled = false
     }
 
@@ -66,7 +69,7 @@ class ToolBarPosTerminal : AbstractTopToolBar() {
     }
 
     private fun schedulerView() {
-        if(PosTerminalService.selectedEntity()?.bankName?.toUpperCase() != OUR_BANK) {
+        if(PosTerminalService.selectedEntity()?.bankName?.uppercase(Locale.getDefault()) != OUR_BANK) {
             errorMessage(ERROR_ONLY_OUR_BANK)
             return
         }

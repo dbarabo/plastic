@@ -21,6 +21,7 @@ import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
 import ru.barabo.plastic.unnamed.data.DBStoreInPath
 import ru.barabo.plastic.unnamed.data.sendIvr
 import ru.barabo.plastic.unnamed.general.bySqlLike
+import java.util.*
 
 abstract class StoreCardService(private val modeService: ModeService) :  StoreFilterService<Card>(AfinaOrm, Card::class.java), ParamsSelect, CardService {
 
@@ -174,7 +175,7 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
             throw Exception(DBStorePacket.STATE_NONE_GO_HOME)
 
         AfinaQuery.execute(DBStorePacket.UPD_TO_DOPIK_PACKET,
-            arrayOf(selectedEntity()?.plasticPack, selectedEntity()?.departmentName?.toUpperCase() ) )
+            arrayOf(selectedEntity()?.plasticPack, selectedEntity()?.departmentName?.uppercase(Locale.getDefault())) )
 
 
         val reselect = AfinaQuery.select(SELECT_STATE_CONTENT, arrayOf(selectedEntity()?.id))
@@ -317,7 +318,7 @@ abstract class StoreCardService(private val modeService: ModeService) :  StoreFi
         if(checkDigitOnly.isEmpty()) {
             filter.filterEntity.newCardNumber = sqlLike
         } else {
-            filter.filterEntity.personName = sqlLike.toUpperCase()
+            filter.filterEntity.personName = sqlLike.uppercase(Locale.getDefault())
         }
     }
 

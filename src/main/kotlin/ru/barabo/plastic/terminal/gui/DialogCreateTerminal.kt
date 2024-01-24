@@ -14,15 +14,19 @@ import ru.barabo.plastic.terminal.service.PercentRateTerminalService
 import ru.barabo.plastic.terminal.service.PosTerminalService
 import java.awt.Component
 import java.awt.Container
+import java.awt.Dimension
 import javax.swing.JButton
 import javax.swing.JComboBox
 import javax.swing.JLabel
 import javax.swing.JTextField
+import kotlin.math.max
 
 class DialogCreateTerminal(private val component: Component, private val editEntity: PosTerminal? = null)
     : AbstractDialog(component, "Создать POS-Терминал") {
 
     private val terminal: JTextField
+
+    private val serialNumber: JTextField
 
     private val accountCode: JButton
 
@@ -55,7 +59,13 @@ class DialogCreateTerminal(private val component: Component, private val editEnt
                 this.text = editEntity?.terminal
             }
 
-            groupPanel("Счет в НАШЕМ банке", 1, 2, 0, 2).apply {
+            textFieldHorizontal("Инвентарный номер", 1).apply {
+                serialNumber = this
+
+                this.text = editEntity?.serialNumber
+            }
+
+            groupPanel("Счет в НАШЕМ банке", 2, 2, 0, 2).apply {
                 buttonHorisontal("Расчетный счет клиента", defaultSelectAccountLabel(),0, ::selectAccount).apply {
                     accountCode = this
 
@@ -70,7 +80,7 @@ class DialogCreateTerminal(private val component: Component, private val editEnt
                 }
             }
 
-            groupPanel("Счет в ДРУГОМ банке", 3, 3, 0, 2).apply {
+            groupPanel("Счет в ДРУГОМ банке", 4, 3, 0, 2).apply {
                 textFieldHorizontal("Код счета",  0).apply { extCodeAccount = this }
 
                 button("", DetailAccountValue.SELECT_BANK, 1, 2, ::selectBank).apply { extBank = this }
@@ -78,22 +88,23 @@ class DialogCreateTerminal(private val component: Component, private val editEnt
                 button("", DetailAccountValue.SELECT_CLIENT, 2, 2, ::selectClient).apply { extClient = this }
             }
 
-            comboBox("%% Ставка", 6, PercentRateTerminalService.elemRoot()).apply {
+            comboBox("%% Ставка", 7, PercentRateTerminalService.elemRoot()).apply {
 
                 rateList = this
             }
 
-            datePickerHorisontal("Дата начала", 7).apply {datePicker = this }
+            datePickerHorisontal("Дата начала", 8).apply {datePicker = this }
 
-            textFieldHorizontal("Адрес терминала", 8).apply { address = this }
+            textFieldHorizontal("Адрес терминала", 9).apply { address = this }
         }
 
-        createOkCancelButton(9)
+        createOkCancelButton(10)
 
         packWithLocation()
     }
 
-    private fun defaultSelectAccountLabel(): String = selectAccount?.code ?: "Нажмите для выбора счета..."
+    private fun defaultSelectAccountLabel(): String =
+        if(selectAccount?.code?.isNotBlank() == true) selectAccount?.code!! else "Нажмите для выбора счета..."
 
     override fun okProcess() {
 
@@ -102,19 +113,19 @@ class DialogCreateTerminal(private val component: Component, private val editEnt
 
     private fun createInternalTerminal(selectAccount: SelectAccount) {
 
-        if(editEntity != null) {
+        /*if(editEntity != null) {
 
             PosTerminalService.editAccountTerminal(editEntity.terminal, selectAccount)
 
-        } else {
+        } else {*/
             PosTerminalService.createTerminal(terminal.text, selectAccount, rateList.selectedItem as? PercentRateTerminal,
-                datePicker.date, address.text)
-        }
+                datePicker.date, address.text, serialNumber.text)
+        //}
     }
 
     private fun createExternalTerminal() {
         PosTerminalService.createExternalTerminal(terminal.text, rateList.selectedItem as? PercentRateTerminal,
-            datePicker.date, address.text, selectBank, selectClient, extCodeAccount.text)
+            address.text, selectBank, selectClient, extCodeAccount.text, serialNumber.text)
     }
 
     private fun selectAccount() {
@@ -190,10 +201,13 @@ class DialogCreateTerminal(private val component: Component, private val editEnt
 
 fun Container.buttonHorisontal(label: String, title: String, gridY: Int, clickListener: ()->Unit): JButton {
 
-    add( JLabel(label), labelConstraint(gridY) )
+    val label = JLabel(label)
+    add( label, labelConstraint(gridY) )
 
     return JButton(title).apply {
         addActionListener { clickListener() }
+
+        this.preferredSize = Dimension(this.preferredSize.width, max(this.preferredSize.height, label.height))
 
         this@buttonHorisontal.add(this, textConstraint(gridY, gridX = 1) )
     }

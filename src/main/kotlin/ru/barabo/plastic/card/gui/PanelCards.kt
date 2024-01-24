@@ -59,5 +59,5 @@ class ReportChecker() : ReportOnly {
 
     override var isOnlyReport: Boolean
         get() = true
-        set(value) {}
+        set(_) {}
 }

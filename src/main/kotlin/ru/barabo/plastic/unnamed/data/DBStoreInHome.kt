@@ -175,8 +175,7 @@ private const val SELECT_NEW_CARD_CONTENT = "select pc.new_card from od.ptkb_pla
 
 fun sendIvr(idContent: Number) {
 
-    val newCard = AfinaQuery.selectValueType<Number>(SELECT_NEW_CARD_CONTENT, arrayOf(idContent))
+    AfinaQuery.selectValueType<Number>(SELECT_NEW_CARD_CONTENT, arrayOf(idContent))
         ?: throw SessionException("Не найдена карта для контента id=[$idContent]")
 
-    // AfinaQuery.sendIvrRequest(newCard)
 }

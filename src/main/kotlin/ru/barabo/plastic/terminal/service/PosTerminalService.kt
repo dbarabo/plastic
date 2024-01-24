@@ -7,6 +7,7 @@ import ru.barabo.plastic.schema.entity.selector.SelectClient
 import ru.barabo.plastic.terminal.entity.PercentRateTerminal
 import ru.barabo.plastic.terminal.entity.PosTerminal
 import java.time.ZoneId
+import java.util.*
 
 object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTerminal::class.java) {
 
@@ -16,7 +17,7 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
             return
         }
 
-        setFilter { createAllFieldCriteria(it, filterValue.trim().toUpperCase()) }
+        setFilter { createAllFieldCriteria(it, filterValue.trim().uppercase(Locale.getDefault())) }
     }
 
     fun changePercentRate(rate: PercentRateTerminal?) {
@@ -40,31 +41,34 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
 
         val accountId = selectAccount?.id ?: throw Exception("Не выбран расчетный счет")
 
-        orm.executeQuery(UPDATE_ACCOUNT_TERMINAL, arrayOf(terminalId.toUpperCase(), accountId) )
+        orm.executeQuery(UPDATE_ACCOUNT_TERMINAL, arrayOf(terminalId.uppercase(Locale.getDefault()), accountId) )
 
         initData()
     }
 
     fun createTerminal(terminalId: String?, selectAccount: SelectAccount?, rate: PercentRateTerminal?,
-                       pactStart: java.util.Date?, address: String?) {
+                       pactStart: java.util.Date?, address: String?, serialNumber: String?) {
 
         val accountId = selectAccount?.id ?: throw Exception("Не выбран расчетный счет")
 
         val rateId = rate?.id ?: throw Exception("Не выбрана %% ставка")
 
-        val terminal =  terminalId?.trim()?.toUpperCase() ?: throw Exception("Не указан ID терминала")
+        val terminal =  terminalId?.trim()?.uppercase(Locale.getDefault()) ?: throw Exception("Не указан ID терминала")
 
         val startPact = pactStart?.let { java.sql.Date(it.time) } ?: java.sql.Date::class.javaObjectType
 
         val addressTerminal = address ?: ""
 
-        orm.executeQuery(CREATE_TERMINAL, arrayOf(terminal, rateId, accountId, startPact, addressTerminal) )
+        val serial = serialNumber ?: ""
+
+        orm.executeQuery(CREATE_TERMINAL, arrayOf(terminal, rateId, accountId, startPact, addressTerminal, serial) )
 
         initData()
     }
 
-    fun createExternalTerminal(terminalId: String?, rate: PercentRateTerminal?, pactStart: java.util.Date?,
-                               address: String?, selectBank: SelectClient?, selectClient: SelectClient?, extCodeAccount: String?) {
+    fun createExternalTerminal(terminalId: String?, rate: PercentRateTerminal?, address: String?,
+                               selectBank: SelectClient?, selectClient: SelectClient?,
+                               extCodeAccount: String?, serialNumber: String?) {
 
         val extBankId = selectBank?.id ?: throw Exception("Не выбран банк")
 
@@ -74,11 +78,14 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
 
         val rateId = rate?.id ?: throw Exception("Не выбрана %% ставка")
 
-        val terminal =  terminalId?.trim()?.toUpperCase() ?: throw Exception("Не указан ID терминала")
+        val terminal =  terminalId?.trim()?.uppercase(Locale.getDefault()) ?: throw Exception("Не указан ID терминала")
 
         val addressTerminal = address ?: ""
 
-        orm.executeQuery(CREATE_EXTERNAL_TERMINAL, arrayOf(terminal, extClientId, extBankId, extCode, rateId, addressTerminal) )
+        val serial = serialNumber ?: ""
+
+        orm.executeQuery(CREATE_EXTERNAL_TERMINAL,
+            arrayOf(terminal, extClientId, extBankId, extCode, rateId, addressTerminal, serial) )
 
         initData()
     }
@@ -101,28 +108,28 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
         save(entity)
     }
 
-    private const val CREATE_EXTERNAL_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createExternalTerminal(?, ?, ?, ?, ?, ?) }"
+    private const val CREATE_EXTERNAL_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createExternalTerminal(?, ?, ?, ?, ?, ?, ?) }"
 
-    private const val CREATE_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createPosTerminal(?, ?, ?, ?, ?) }"
+    private const val CREATE_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.createPosTerminal(?, ?, ?, ?, ?, ?) }"
 
     private const val UPDATE_ACCOUNT_TERMINAL = "{ call od.PTKB_TRANSACT_FUNC.updateAccountTerminal(?, ?) }"
 
     private fun createAllFieldCriteria(entity: PosTerminal, filterUpper: String): Boolean {
-        if(entity.terminal.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(entity.terminal.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(entity.clientName.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(entity.clientName.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(filterUpper.length >= 4 && entity.pactStartFormat.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(filterUpper.length >= 4 && entity.pactStartFormat.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(filterUpper.length >= 4 && entity.pactEndFormat.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(filterUpper.length >= 4 && entity.pactEndFormat.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(filterUpper.length >= 4 && entity.lastOperFormat.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(filterUpper.length >= 4 && entity.lastOperFormat.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(entity.rateName.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(entity.rateName.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(filterUpper.length >= 4 && entity.addressTerminal.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(filterUpper.length >= 4 && entity.addressTerminal.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
-        if(filterUpper.length >= 4 && entity.accountCode.toUpperCase().indexOf(filterUpper) >= 0) return true
+        if(filterUpper.length >= 4 && entity.accountCode.uppercase(Locale.getDefault()).indexOf(filterUpper) >= 0) return true
 
         if((entity.percentCommission?.toString()?.indexOf(filterUpper) ?: -1) >= 0) return true
 

@@ -6,6 +6,7 @@ import ru.barabo.afina.VersionChecker;
 import ru.barabo.afina.gui.ModalConnect;
 import ru.barabo.db.SessionException;
 import ru.barabo.gui.swing.ResourcesManager;
+import ru.barabo.plastic.main.VerCheck;
 import ru.barabo.plastic.release.main.data.DBStorePlastic;
 import ru.barabo.plastic.release.main.gui.ConfigPlastic;
 
@@ -36,40 +37,39 @@ public class Start extends JFrame{
 	}
 
 	private JComponent buildPlasticAuto(DBStorePlastic store) {
-		
+
 		return new ConfigPlastic(store);
 	}
 
-   /**
-	 * рисуем интерфейс
-	 */
-	private void buildUI(DBStorePlastic plastic) {
-		
-		JComponent mainPanel = buildPlasticAuto(plastic);
+   private void buildUI(DBStorePlastic plastic) {
 
-		getContentPane().setLayout( new BorderLayout() );
-		getContentPane().add(mainPanel, BorderLayout.CENTER);
-		
-		setTitle( title() );
+	   JComponent mainPanel = buildPlasticAuto(plastic);
 
-        setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
+	   getContentPane().setLayout( new BorderLayout() );
+	   getContentPane().add(mainPanel, BorderLayout.CENTER);
 
-		VersionChecker.runCheckVersion("PLASTIC.JAR", 53);
+	   setTitle( title() );
+
+       setIconImage(Objects.requireNonNull(ResourcesManager.getIcon("plastic")).getImage());
+
+	   VerCheck.startCheck();
+	   VersionChecker.runCheckVersion("PLASTIC.JAR", 54);
 
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
 
+				VerCheck.exitCheckVersion();
                 VersionChecker.exitCheckVersion();
             }
         });
 
-		pack();
-	    setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-	    setExtendedState(JFrame.MAXIMIZED_BOTH);
-	    setVisible( true );
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
-	}
+	   pack();
+	   setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+	   setExtendedState(JFrame.MAXIMIZED_BOTH);
+	   setVisible( true );
+	   setExtendedState(JFrame.MAXIMIZED_BOTH);
+   }
 
 	private String title() {
        String db = AfinaQuery.isTestBaseConnect() ? "TEST" : "AFINA";
