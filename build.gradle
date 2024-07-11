@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_ver = "1.9.22"
+        kotlin_ver = "1.9.24"
     }
 
     repositories {
@@ -60,6 +60,8 @@ dependencies {
 
     //implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.28'
 
+
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'

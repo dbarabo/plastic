@@ -74,7 +74,6 @@ data class PosTerminal(
 
     @ColumnName("INVENTORY_NUMBER")
     @ColumnType(java.sql.Types.VARCHAR)
-    @ReadOnly
     var serialNumber: String = "",
 
     @ColumnName("CLIENT")
@@ -99,7 +98,6 @@ data class PosTerminal(
 
     @ColumnName("LOCATION")
     @ColumnType(java.sql.Types.VARCHAR)
-    @ReadOnly
     var addressTerminal: String = "",
 
     @ColumnName("VALIDFROM")

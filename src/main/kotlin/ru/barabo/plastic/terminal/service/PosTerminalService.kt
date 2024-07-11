@@ -20,7 +20,7 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
         setFilter { createAllFieldCriteria(it, filterValue.trim().uppercase(Locale.getDefault())) }
     }
 
-    fun changePercentRate(rate: PercentRateTerminal?) {
+    fun changePercentRate(rate: PercentRateTerminal?, serialNumber: String?, address: String?) {
 
         val entity = selectedEntity() ?: throw Exception("Не выбран текущий терминал")
 
@@ -33,6 +33,10 @@ object PosTerminalService : StoreFilterService<PosTerminal>(AfinaOrm, PosTermina
         entity.percentId = rate.id
 
         entity.percentCommission = null
+
+        entity.serialNumber = serialNumber ?: ""
+
+        entity.addressTerminal = address ?: ""
 
         save(entity)
     }

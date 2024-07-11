@@ -1,14 +1,23 @@
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpPost
 import org.apache.log4j.Logger
 import org.junit.Test
 import ru.barabo.db.annotation.QuerySelect
 import ru.barabo.plastic.schema.entity.selector.SelectAccount
 import ru.barabo.plastic.schema.entity.selector.SqlFilterEntity
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.net.InetAddress
+import java.net.URL
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.time.LocalDateTime
 import java.util.*
 import java.util.regex.Pattern
+import javax.net.ssl.HttpsURLConnection
+
+import org.apache.http.conn.ssl.*
+import org.apache.http.impl.client.HttpClientBuilder
 
 
 abstract class A() {
@@ -37,7 +46,8 @@ and (s.id is null or s.id = (select min(s2.id) from od.ptkb_transact_schema s2 w
 order by t.id
 """
 
-    @Test fun testPdfReader() {
+    //@Test
+    fun testPdfReader() {
 
         //val file = File("C:/report/12304241210320002.pdf")
         //val document: PDDocument = PDDocument.load(file)
@@ -202,5 +212,49 @@ order by t.id
         val x = "F1027700466640_060921_P_0038".substringAfter("_Z_")
 
         logger.error("x=$x")
+    }
+
+    @Test
+    fun tlsTest() {
+        System.setProperty("javax.net.ssl.keyStore", "E:/kotlin/sert/bki.jks")
+        System.setProperty("javax.net.ssl.keyStorePassword", "123456")
+
+
+        val httpsURL = "https://reports.nbki.ru/qbch/"
+
+
+        val sslConnectionSocketFactory = SSLConnectionSocketFactory(SSLContexts.createDefault(), arrayOf("TLSv1.2"),
+        null, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
+
+        val httpClient = HttpClientBuilder
+            .create()
+            .setSSLSocketFactory(sslConnectionSocketFactory)
+            .build()
+
+        val request = HttpGet(httpsURL)
+        request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:63.0) Gecko/20100101 Firefox/63.0")
+        //request.setEntity(se)
+        try {
+                val response = httpClient.execute(request)
+        } catch (e: Exception) {
+
+            logger.error("inputLine", e)
+
+            e.printStackTrace()
+        }
+
+
+/*        val myUrl: URL = URL(httpsURL)
+        val conn: HttpsURLConnection = myUrl.openConnection() as HttpsURLConnection
+
+        conn.inputStream.use { tt ->
+            val isr = InputStreamReader(tt)
+            val br = BufferedReader(isr)
+
+            var inputLine: String?
+            while ((br.readLine().also { inputLine = it }) != null) {
+                logger.error(inputLine)
+            }
+        }*/
     }
 }
