@@ -5,7 +5,12 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.xml.sax.Attributes
+import org.xml.sax.SAXException
+import org.xml.sax.helpers.DefaultHandler
 import ru.barabo.afina.AfinaQuery
+import ru.barabo.plastic.main.CheckerXFile.dateFile
+import ru.barabo.plastic.main.CheckerXFile.fileName
 import ru.barabo.plastic.main.gui.Start
 import java.io.File
 import java.nio.charset.Charset
@@ -15,6 +20,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.regex.Pattern
+import javax.xml.parsers.SAXParserFactory
 import kotlin.concurrent.timer
 
 object Plastic {
@@ -38,7 +44,7 @@ object VerCheck {
 
         CheckerFiles.initStart()
 
-        CheckerXFile.initStart(CheckerFiles.findFiles)
+        CheckerXmFile.initStart(CheckerFiles.findFiles)
 
         timer.apply {  }
     }
@@ -46,7 +52,7 @@ object VerCheck {
     private fun checkRun() {
         try {
             CheckerFiles.findProcess()
-            CheckerXFile.findProcess()
+            CheckerXmFile.findProcess()
         } catch (_: Exception) {
 
         }
@@ -170,6 +176,8 @@ fun parseNumberSeparator(value :String?): Any {
 
 fun String.toDate(): LocalDate = LocalDate.parse(this, DateTimeFormatter.ofPattern("ddMMyyyy"))
 
+fun String.toDateXml(): LocalDate = LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
 fun LocalDate.toTimestamp(): Timestamp = Timestamp(this.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() )
 
 private const val PATH_VT = "H:/Dep_Buh/Зарплатный проект ВТБ/Исходящие файлы/Зарплата"
@@ -183,7 +191,123 @@ const val INSERT_CLIENT =
 
 const val SEL_F = "{ ? = call od.PTKB_PLASTIC_TURNOUT.getExistsFiles }"
 
+object CheckerXmFile {
 
+    private val pathA = File(PATH_A)
+
+    private val patternA = Pattern.compile(REGEXP_A, Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE)
+
+    private val findFiles: MutableList<String> = ArrayList()
+
+    fun initStart(files: List<String>) {
+        findFiles.addAll(files)
+    }
+
+    fun findProcess() {
+
+        if(findFiles.isEmpty()) return
+
+        try {
+            processNoError()
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun processNoError() {
+        val newFiles = pathA.listFiles { f ->
+            (!f.isDirectory) &&
+                    (patternA.isFind(f.name)) &&
+                    (!findFiles.contains(f.name.uppercase(Locale.getDefault())))
+        }
+
+        if(newFiles.isNullOrEmpty()) return
+
+        for(newFile in newFiles) {
+            val isExists = (AfinaQuery.selectValue(SELECT_CHECK_FILE,
+                arrayOf(newFile.name.uppercase(Locale.getDefault()))) as Number).toInt()
+
+            if(isExists == 0) {
+                addData(newFile)
+            }
+
+            findFiles.add(newFile.name.uppercase(Locale.getDefault()))
+        }
+    }
+
+    private fun addData(file: File) {
+
+        val parser = SAXParserFactory.newInstance().newSAXParser()
+
+        val handler = HablerZp(file.name)
+
+        parser.parse(file, handler)
+    }
+}
+
+class HablerZp(val fileName: String) : DefaultHandler() {
+
+    var date: Timestamp? = null
+
+    var data: StringBuilder = StringBuilder()
+
+    private var family: String = ""
+
+    private var name: String = ""
+
+    private var secondName: String = ""
+
+    private var amount: Any? = null
+
+    private var account: String = ""
+
+    @Throws(SAXException::class)
+    override fun startElement(uri: String?, localName: String?, qName: String, attributes: Attributes?) {
+
+        when(qName) {
+            "СчетаПК" -> {
+                date = attributes?.getValue("ДатаФормирования")?.toDateXml()?.toTimestamp()
+            }
+        }
+        data = StringBuilder()
+    }
+
+    override fun endElement(uri: String?, localName: String?, qName: String?) {
+
+        when (qName) {
+            "Фамилия" -> { family = data.toString().uppercase(Locale.getDefault()) }
+
+            "Имя" -> { name = data.toString().uppercase(Locale.getDefault()) }
+
+            "Отчество" -> { secondName = data.toString().uppercase(Locale.getDefault()) }
+
+            "Сумма" -> { amount = parseNumberSeparator(data.toString()) }
+
+            "ЛицевойСчет" -> { account = data.toString() }
+
+            "Сотрудник" -> {
+                saveRecord()
+            }
+            else -> {}
+        }
+    }
+
+    private fun saveRecord() {
+
+        val fio = "$family $name $secondName"
+
+        val params: Array<Any?> = arrayOf(account, amount, fio, fileName.uppercase(Locale.getDefault()), date)
+
+        AfinaQuery.execute(INSERT_INFO, params)
+    }
+
+    @Throws(SAXException::class)
+    override fun characters(ch: CharArray?, start: Int, length: Int) {
+        data.append(String(ch!!, start, length))
+    }
+}
+
+const val INSERT_INFO =
+    "insert into od.ptkb_zil_client (ID, CODE_ID, AMOUNT, CLIENT, FILE_NAME, CREATED) values (classified.nextval, ?, ?, ?, ?, ?)"
 
 object CheckerXFile {
 
@@ -294,9 +418,13 @@ private fun createNewBook(templateFile: File): Workbook? {
     }
 }
 
-private const val REGEXP_OT = "ZPR_\\d_\\d\\d\\d\\d\\d\\d\\d\\d_2540015598\\.xls"
+private const val REGEXP_OT = "\\d.*z\\.xml"
+
+private const val REGEXP_A = "\\d.*z\\.xml"
 
 private const val PATH_OT = "H:/Dep_Buh/Зарплатный проект Открытие/Исходящие файлы/Зарплата"
+
+private const val PATH_A = "H:/Dep_Buh/Зарплатный проект АЛЬФА-БАНК/Реестры на выгрузку"
 
 private const val INSERT_CLIENT_HOLD =
     "insert into od.ptkb_zil_client (ID, CODE_ID, AMOUNT, CLIENT, AMOUNT_HOLD, FILE_NAME, CREATED) values (classified.nextval, ?, ?, ?, ?, ?, ?)"
